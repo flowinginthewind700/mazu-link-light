@@ -1,1 +1,1 @@
-# mazu-link-light
+# An AI directory service

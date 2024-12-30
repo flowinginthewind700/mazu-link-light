@@ -1,0 +1,60 @@
+version: '3.9'
+
+services:
+  # configure db later
+  # mongodb:
+  #   image: mongo
+  #   container_name: mongodb-container
+  #   ports:
+  #     - '27017:27017'
+  #   command: [--auth, "--config", "/etc/mongod.conf"]
+  #   environment:
+  #     MONGO_INITDB_ROOT_USERNAME: root
+  #     MONGO_INITDB_ROOT_PASSWORD: root
+  #   volumes:
+  #     - ./db:/data/db
+  #     - ./mongo.conf:/etc/mongod.conf
+  #   networks:
+  #     - app-network
+
+  mazu_link_light_frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    # volumes:
+      # - ./frontend:/app
+      # - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    # command: sh -c "npm install && npm run start"
+    ports:
+      - "3000:3000"
+    networks:
+      - app-network
+
+  # suppose I already have a strapi app
+  # strapi_mazu_link_light:
+  #   image: strapi/strapi
+  #   container_name: strapi_mazu_link_light
+  #   restart: unless-stopped
+  #   env_file: strapi-app/.env
+  #   # dockerfile: strapi-app/Dockerfile
+  #   environment:
+  #     DATABASE_CLIENT: ${DATABASE_CLIENT}
+  #     DATABASE_NAME: ${DATABASE_NAME}
+  #     DATABASE_HOST: ${DATABASE_HOST}k
+  #     DATABASE_PORT: ${DATABASE_PORT}
+  #     DATABASE_USERNAME: ${DATABASE_USERNAME}
+  #     DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+  #   #    links:
+  #   #      - mongo:mongo
+  #   networks:
+  #     - app-network
+  #   volumes:
+  #     - ./strapi:/srv/app
+  #   ports:
+  #     - "1337:1337"
+
+networks:
+  app-network:
+    driver: bridge

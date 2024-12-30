@@ -1,0 +1,18 @@
+# specify the files/directories that must 
+# not go in any stage of the docker build
+./docker
+node_modules
+Dockerfile*
+docker-compose*
+.dockerignore
+.git
+.gitignore
+README.md
+LICENSE
+.vscode
+Makefile
+helm-charts
+.env
+.editorconfig
+.idea
+coverage*
