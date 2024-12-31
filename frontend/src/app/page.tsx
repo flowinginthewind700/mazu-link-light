@@ -103,7 +103,7 @@ export default function HomePage() {
             {/* Hero Search */}
             <div className="text-center space-y-6">
               <Image
-                src="/placeholder.svg"
+                src="/images/agientrylogo_large.jpg"
                 alt="AI Tools Logo Large"
                 width={120}
                 height={40}
