@@ -24,13 +24,13 @@ export function Footer() {
             <h4 className="text-base font-semibold mb-4">Resources</h4>
             <ul className="space-y-2">
               <li>
-                <a href="https://github.com/yourusername/your-repo" target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-primary flex items-center">
+                <a href="https://github.com/flowinginthewind700/mazu-link-light" target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-primary flex items-center">
                   <Github className="w-4 h-4 mr-2" />
                   GitHub Repository
                 </a>
               </li>
               <li>
-                <a href="https://twitter.com/yourtwitter" target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-primary flex items-center">
+                <a href="https://x.com/intent/follow?screen_name=McQueenFu" target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-primary flex items-center">
                   <Twitter className="w-4 h-4 mr-2" />
                   Author's Twitter
                 </a>
