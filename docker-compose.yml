@@ -28,7 +28,7 @@ services:
       - NODE_ENV=development
     # command: sh -c "npm install && npm run start"
     ports:
-      - "3000:3000"
+      - "3456:3000"
     networks:
       - app-network
 
