@@ -2,6 +2,7 @@
 
 import { useRef, useState, useEffect } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
 import { Search } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -24,6 +25,22 @@ const searchOptions = {
   community: ['huggingface', 'github'],
   images: ['civitai', 'openart', 'lexica'],
 }
+
+const toolsData = [
+  {
+    id: '1',
+    name: 'AI Image Generator',
+    description: 'Generate stunning images with AI',
+    image: '/placeholder.svg',
+  },
+  {
+    id: '2',
+    name: 'AI Text Summarizer',
+    description: 'Summarize long texts quickly and accurately',
+    image: '/placeholder.svg',
+  },
+  // Add more tool data as needed
+]
 
 export default function HomePage() {
   const [selectedTopTab, setSelectedTopTab] = useState('default')
@@ -189,23 +206,25 @@ export default function HomePage() {
                   isActive={animatingSection === category.id}
                 />
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {[1, 2, 3, 4, 5, 6].map((item) => (
+                  {toolsData.map((tool) => (
                     <motion.div
-                      key={item}
+                      key={tool.id}
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       className="flex items-center gap-3 p-4 rounded-lg border hover:shadow-md transition-shadow"
                     >
                       <Image
-                        src="/placeholder.svg"
-                        alt={`Tool ${item}`}
+                        src={tool.image}
+                        alt={tool.name}
                         width={40}
                         height={40}
                         className="rounded-lg"
                       />
                       <div>
-                        <h3 className="font-medium">Tool Name</h3>
-                        <p className="text-sm text-muted-foreground">Tool description goes here...</p>
+                        <Link href={`/tool/${tool.id}`}>
+                          <h3 className="font-medium hover:underline">{tool.name}</h3>
+                        </Link>
+                        <p className="text-sm text-muted-foreground">{tool.description}</p>
                       </div>
                     </motion.div>
                   ))}
