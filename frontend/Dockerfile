@@ -23,7 +23,7 @@ RUN npm i --save-dev @types/react-slick
 RUN npm install --save-dev framer-motion
 RUN npm install -D tailwindcss postcss autoprefixer
 # 复制项目文件
-COPY next* postcss.config.js tailwind.config.js tsconfig.json tsconfig.app.json tsconfig.node.json ./src/index.css ./src/tailwind.config.js ./src/vite-env.d.ts vite.config.ts ./
+COPY next* postcss.config.js tailwind.config.js tsconfig.json tsconfig.app.json tsconfig.node.json ./src/index.css ./src/vite-env.d.ts vite.config.ts ./
 RUN npx shadcn@latest init -d
 RUN npx shadcn@latest add button
 RUN npx shadcn@latest add input
