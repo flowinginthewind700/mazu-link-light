@@ -57,4 +57,5 @@ services:
 
 networks:
   app-network:
-    driver: bridge
+  shared-network:
+    external: true
