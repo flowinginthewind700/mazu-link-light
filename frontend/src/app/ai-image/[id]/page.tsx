@@ -3,18 +3,57 @@
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { useParams } from 'next/navigation'
+import axios from 'axios'
 import { Facebook, Twitter, Linkedin, Share2 } from 'lucide-react'
-import { aiImages, AIImage } from '@/data/ai-images'
+
+const apiUrl = process.env.REACT_APP_CMS_API_BASE_URL
+
+interface ImageDetails {
+  id: string
+  prompt: string
+  url: string
+  negativeprompt?: string
+  seed?: string
+}
 
 export default function AIImageDetailPage() {
   const { id } = useParams()
-  const [image, setImage] = useState<AIImage | null>(null)
+  const [image, setImage] = useState<ImageDetails | null>(null)
   const [copied, setCopied] = useState(false)
 
   useEffect(() => {
-    const foundImage = aiImages.find(img => img.id === id)
-    setImage(foundImage || null)
+    fetchImageDetails()
   }, [id])
+
+  const fetchImageDetails = async () => {
+    try {
+      const query = `
+        query($id: ID!) {
+          t2Iexample(id: $id) {
+            id
+            prompt
+            negativeprompt
+            seed
+            img {
+              url
+            }
+          }
+        }
+      `
+      const variables = { id }
+      const response = await axios.post(`${apiUrl}/graphql`, { query, variables })
+      const fetchedImage = response.data.data.t2Iexample
+      setImage({
+        id: fetchedImage.id,
+        prompt: fetchedImage.prompt,
+        url: `${apiUrl}${fetchedImage.img[0].url}`,
+        negativeprompt: fetchedImage.negativeprompt,
+        seed: fetchedImage.seed,
+      })
+    } catch (error) {
+      console.error('Error fetching image details:', error)
+    }
+  }
 
   const handleCopyPrompt = () => {
     if (image?.prompt) {
@@ -27,7 +66,7 @@ export default function AIImageDetailPage() {
   if (!image) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <div className="text-center">Image not found</div>
+        <div className="text-center">Loading...</div>
       </div>
     )
   }
@@ -38,7 +77,7 @@ export default function AIImageDetailPage() {
       <div className="rounded-3xl overflow-hidden mb-8 shadow-xl">
         <Image
           src={image.url}
-          alt={image.title}
+          alt={image.prompt}
           width={1200}
           height={600}
           className="w-full h-[60vh] object-cover"
@@ -62,11 +101,20 @@ export default function AIImageDetailPage() {
           </div>
         </div>
 
-        {image.negativePrompt && (
+        {image.negativeprompt && (
           <div>
             <h2 className="text-xl font-semibold mb-2">Negative Prompt</h2>
             <p className="text-muted-foreground">
-              {image.negativePrompt}
+              {image.negativeprompt}
+            </p>
+          </div>
+        )}
+
+        {image.seed && (
+          <div>
+            <h2 className="text-xl font-semibold mb-2">Seed</h2>
+            <p className="text-muted-foreground">
+              {image.seed}
             </p>
           </div>
         )}

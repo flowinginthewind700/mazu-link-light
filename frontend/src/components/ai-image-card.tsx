@@ -9,10 +9,8 @@ import * as Dialog from '@radix-ui/react-dialog'
 
 interface AIImageProps {
   id: string
-  title: string
+  prompt: string
   url: string
-  category: string
-  prompt?: string
   negativePrompt?: string
 }
 
@@ -36,7 +34,7 @@ export function AIImageCard({ image }: AIImageCardProps) {
     <div className="relative group rounded-2xl overflow-hidden">
       <Image 
         src={image.url} 
-        alt={image.title} 
+        alt={image.prompt}
         width={300}
         height={200}
         className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105"
@@ -68,7 +66,7 @@ export function AIImageCard({ image }: AIImageCardProps) {
                   <TransformComponent>
                     <img
                       src={image.url}
-                      alt={image.title}
+                      alt={image.prompt}
                       className="w-full h-full object-contain rounded-lg shadow-xl"
                     />
                   </TransformComponent>
@@ -115,24 +113,21 @@ export function AIImageCard({ image }: AIImageCardProps) {
                 <h3 className="text-lg font-semibold mb-2">Prompt</h3>
                 <div className="relative border rounded-lg p-4 bg-muted/50">
                   <p className="pr-12 whitespace-pre-wrap text-muted-foreground">
-                    {image.prompt || 'No prompt available'}
+                    {image.prompt}
                   </p>
-                  {image.prompt && (
-                    <button
-                      onClick={() => handleCopy(image.prompt!)}
-                      className="absolute right-2 top-2 p-2 hover:bg-muted rounded-md"
-                      title="Copy prompt"
-                    >
-                      {copied ? (
-                        <Check className="w-4 h-4" />
-                      ) : (
-                        <Copy className="w-4 h-4" />
-                      )}
-                    </button>
-                  )}
+                  <button
+                    onClick={() => handleCopy(image.prompt)}
+                    className="absolute right-2 top-2 p-2 hover:bg-muted rounded-md"
+                    title="Copy prompt"
+                  >
+                    {copied ? (
+                      <Check className="w-4 h-4" />
+                    ) : (
+                      <Copy className="w-4 h-4" />
+                    )}
+                  </button>
                 </div>
               </div>
-
               {image.negativePrompt && (
                 <div>
                   <h3 className="text-lg font-semibold mb-2">Negative Prompt</h3>
@@ -154,7 +149,7 @@ export function AIImageCard({ image }: AIImageCardProps) {
                   </div>
                 </div>
               )}
-            </div>
+              </div>
           </Dialog.Content>
         </Dialog.Portal>
       </Dialog.Root>
