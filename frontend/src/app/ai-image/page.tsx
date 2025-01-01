@@ -8,11 +8,9 @@ import { Button } from '@/components/ui/button'
 import { BottomNavbar } from '@/components/bottom-navbar'
 import { AIImageCard } from '@/components/ai-image-card'
 
-// 环境变量
 const apiUrl = process.env.NEXT_PUBLIC_CMS_API_BASE_URL || '';
 const IMAGES_PER_PAGE = 12
 
-// 动画配置
 const container = {
   hidden: { opacity: 1, scale: 0 },
   visible: {
@@ -33,7 +31,6 @@ const item = {
   }
 }
 
-// 类型接口
 interface Category {
   id: string;
   name: string;
@@ -159,11 +156,37 @@ export default function AIImagePage() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
+  // Calculate pages to show
+  const calculatePageNumbersToShow = (currentPage: number, totalPages: number) => {
+    const pagesToShow = [1];
+    let low = Math.max(2, currentPage - 3);
+    let high = Math.min(totalPages - 1, currentPage + 3);
+
+    if (currentPage - 1 <= 4) {
+      high = 8;
+    }
+  
+    if (totalPages - currentPage <= 4) {
+      low = Math.max(2, totalPages - 7);
+    }
+  
+    const range = [];
+    for (let i = low; i <= high; i++) {
+      range.push(i);
+    }
+    if (totalPages > 1 && !range.includes(totalPages)) {
+      range.push(totalPages);
+    }
+  
+    return range;  // Ensures no duplicate of the last page number
+  }
+
+  const showedPages = calculatePageNumbersToShow(currentPage, totalPages);
+
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
         <div className="lg:flex lg:gap-8">
-          {/* 类别 - 桌面和移动端 */}
           <aside className="mb-6 lg:w-48 lg:flex-shrink-0">
             <div className="flex flex-wrap gap-2 lg:flex-col">
               {categories.map((category) => (
@@ -185,7 +208,6 @@ export default function AIImagePage() {
             </div>
           </aside>
 
-          {/* 主要内容 */}
           <motion.main 
             className="flex-1"
             variants={container}
@@ -200,9 +222,9 @@ export default function AIImagePage() {
               ))}
             </div>
 
-            {/* 分页 */}
+            {/* Pagination */}
             <div className="mt-8 flex justify-center items-center gap-2">
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              {showedPages.map(page => (
                 <motion.button
                   key={page}
                   onClick={() => handlePageChange(page)}
