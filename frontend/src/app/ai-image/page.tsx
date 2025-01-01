@@ -9,7 +9,7 @@ import { BottomNavbar } from '@/components/bottom-navbar'
 import { AIImageCard } from '@/components/ai-image-card'
 
 // 环境变量
-const apiUrl = process.env.REACT_APP_CMS_API_BASE_URL || '';
+const apiUrl = process.env.NEXT_PUBLIC_CMS_API_BASE_URL || '';
 const IMAGES_PER_PAGE = 12
 
 // 动画配置

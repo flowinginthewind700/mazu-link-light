@@ -6,7 +6,7 @@ import { useParams } from 'next/navigation'
 import axios from 'axios'
 import { Facebook, Twitter, Linkedin, Share2 } from 'lucide-react'
 
-const apiUrl = process.env.REACT_APP_CMS_API_BASE_URL
+const apiUrl = process.env.NEXT_PUBLIC_CMS_API_BASE_URL
 
 interface ImageDetails {
   id: string
