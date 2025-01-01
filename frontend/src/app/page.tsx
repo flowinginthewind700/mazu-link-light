@@ -43,7 +43,7 @@ const toolsData = [
 ]
 
 export default function HomePage() {
-  const [selectedTopTab, setSelectedTopTab] = useState('default')
+  const [selectedTopTab, setSelectedTopTab] = useState(topTabs[0].id)
   const [selectedEngine, setSelectedEngine] = useState(searchOptions.default[0])
   const [activeSection, setActiveSection] = useState('')
   const [animatingSection, setAnimatingSection] = useState('')
@@ -107,7 +107,7 @@ export default function HomePage() {
                 <button
                   key={category.id}
                   onClick={() => scrollToSection(category.id)}
-                  className="flex w-full items-center gap-2 p-2 rounded-lg hover:bg-accent hover:text-accent-foreground text-left"
+                  className="flex w-full items-center gap-2 p-2 rounded-lg hover:bg-accent hover:text-accent-foreground text-left transition-colors duration-200 ease-in-out glow-effect"
                 >
                   <span className="text-sm">{category.label}</span>
                 </button>
@@ -127,9 +127,13 @@ export default function HomePage() {
                 className="mx-auto"
               />
               <Tabs value={selectedTopTab} onValueChange={handleTopTabChange} className="w-full max-w-2xl mx-auto">
-                <TabsList className="grid w-full grid-cols-4">
+                <TabsList className="grid w-full grid-cols-4 p-1 rounded-full bg-muted/50 backdrop-blur-sm">
                   {topTabs.map((tab) => (
-                    <TabsTrigger key={tab.id} value={tab.id}>
+                    <TabsTrigger
+                      key={tab.id}
+                      value={tab.id}
+                      className="rounded-full transition-all duration-200 ease-in-out data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-lg"
+                    >
                       {tab.label}
                     </TabsTrigger>
                   ))}
@@ -139,7 +143,7 @@ export default function HomePage() {
                 <Input
                   type="search"
                   placeholder="Search AI tools..."
-                  className="w-full pl-4 pr-10 py-3 rounded-full"
+                  className="w-full pl-4 pr-10 py-3 rounded-full bg-background/50 backdrop-blur-sm focus:ring-2 focus:ring-primary transition-all duration-200 ease-in-out"
                 />
                 <Search className="absolute right-4 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
               </div>
@@ -149,7 +153,7 @@ export default function HomePage() {
                     <TabsTrigger
                       key={engine}
                       value={engine}
-                      className="data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:underline"
+                      className="data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:underline transition-all duration-200 ease-in-out"
                     >
                       {engine}
                     </TabsTrigger>
@@ -182,7 +186,7 @@ export default function HomePage() {
                   }}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="relative aspect-[2/1] rounded-lg overflow-hidden bg-gradient-to-r from-accent to-accent/50 hover:shadow-lg transition-shadow"
+                  className="relative aspect-[2/1] rounded-lg overflow-hidden bg-gradient-to-r from-accent to-accent/50 hover:shadow-lg transition-shadow card-hover-effect glow-effect"
                 >
                   <Image
                     src="/placeholder.svg"
@@ -211,7 +215,7 @@ export default function HomePage() {
                       key={tool.id}
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
-                      className="flex items-center gap-3 p-4 rounded-lg border hover:shadow-md transition-shadow"
+                      className="flex items-center gap-3 p-4 rounded-lg border hover:shadow-md transition-shadow bg-background/50 backdrop-blur-sm card-hover-effect glow-effect"
                     >
                       <Image
                         src={tool.image}
