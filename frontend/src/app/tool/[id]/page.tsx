@@ -97,7 +97,7 @@ export default function ToolPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <ExternalToolInfo tool={tool} similarTools={similarToolsData} />
-      <Footer />
+      {/* <Footer /> */}
     </div>
   )
 }
