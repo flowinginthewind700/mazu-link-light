@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState, useEffect } from 'react'
+import React, { useRef, useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Search } from 'lucide-react'
@@ -48,29 +48,25 @@ export default function HomePage() {
   const [activeSection, setActiveSection] = useState('')
   const [animatingSection, setAnimatingSection] = useState('')
 
-  // Refs for each section
-  const sectionRefs = categories.reduce((acc, category) => {
-    acc[category.id] = useRef<HTMLDivElement>(null)
-    return acc
-  }, {} as Record<string, React.RefObject<HTMLDivElement>>)
+  const sectionRefs = useRef(categories.reduce((acc, category) => {
+    acc[category.id] = React.createRef<HTMLDivElement>();
+    return acc;
+  }, {} as Record<string, React.RefObject<HTMLDivElement>>));
 
-  // Function to scroll to section
   const scrollToSection = (sectionId: string) => {
-    sectionRefs[sectionId]?.current?.scrollIntoView({
+    sectionRefs.current[sectionId]?.current?.scrollIntoView({
       behavior: 'smooth',
       block: 'start',
     })
     setAnimatingSection(sectionId)
-    setTimeout(() => setAnimatingSection(''), 1000) // Reset after animation
+    setTimeout(() => setAnimatingSection(''), 1000)
   }
 
-  // Handle top tab change
   const handleTopTabChange = (value: string) => {
     setSelectedTopTab(value)
     setSelectedEngine(searchOptions[value as keyof typeof searchOptions][0])
   }
 
-  // Use Intersection Observer to detect which section is in view
   useEffect(() => {
     const observers = categories.map(category => {
       const observer = new IntersectionObserver(
@@ -81,11 +77,11 @@ export default function HomePage() {
             }
           })
         },
-        { threshold: 0.5 } // Trigger when 50% of the section is visible
+        { threshold: 0.5 }
       )
 
-      if (sectionRefs[category.id].current) {
-        observer.observe(sectionRefs[category.id].current!)
+      if (sectionRefs.current[category.id].current) {
+        observer.observe(sectionRefs.current[category.id].current!)
       }
 
       return observer
@@ -202,7 +198,7 @@ export default function HomePage() {
             {categories.map((category) => (
               <div
                 key={category.id}
-                ref={sectionRefs[category.id]}
+                ref={sectionRefs.current[category.id]}
                 className="space-y-4 scroll-mt-24"
               >
                 <AnimatedSectionTitle 
@@ -211,26 +207,29 @@ export default function HomePage() {
                 />
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {toolsData.map((tool) => (
-                    <motion.div
+                    <Link
                       key={tool.id}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="flex items-center gap-3 p-4 rounded-lg border hover:shadow-md transition-shadow bg-background/50 backdrop-blur-sm card-hover-effect glow-effect"
+                      href={`/tool/${tool.id}`}
+                      className="block"
                     >
-                      <Image
-                        src={tool.image}
-                        alt={tool.name}
-                        width={40}
-                        height={40}
-                        className="rounded-lg"
-                      />
-                      <div>
-                        <Link href={`/tool/${tool.id}`}>
+                      <motion.div
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        className="flex items-center gap-3 p-4 rounded-lg border hover:shadow-md transition-shadow bg-background/50 backdrop-blur-sm card-hover-effect glow-effect"
+                      >
+                        <Image
+                          src={tool.image}
+                          alt={tool.name}
+                          width={40}
+                          height={40}
+                          className="rounded-lg"
+                        />
+                        <div>
                           <h3 className="font-medium hover:underline">{tool.name}</h3>
-                        </Link>
-                        <p className="text-sm text-muted-foreground">{tool.description}</p>
-                      </div>
-                    </motion.div>
+                          <p className="text-sm text-muted-foreground">{tool.description}</p>
+                        </div>
+                      </motion.div>
+                    </Link>
                   ))}
                 </div>
               </div>
