@@ -17,8 +17,8 @@ const nextConfig = {
        },
      {
          protocol: 'https',
-          hostname: 'scnet-vfs-waswac.org.cn',
-         port: '2337',
+          hostname: 'cms.llmstock.com',
+         port: '',
          pathname: '/**',
        },
      ],
