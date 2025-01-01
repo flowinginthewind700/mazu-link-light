@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import axios from 'axios'
 import { cn } from '@/lib/utils'
+import { BottomNavbar } from '@/components/bottom-navbar'
 import { AIImageCard } from '@/components/ai-image-card'
 
 // 环境变量
@@ -231,8 +232,8 @@ const handleCategorySelect = (categoryId: string) => {
             </div>
 
             <div className="mt-8 flex justify-center items-center gap-2">
-              {pageNumbersToShow.map(page => (
-                page === '...' ? 
+            {pageNumbersToShow.map(page => (
+                typeof page === 'string' ? 
                 <span key={page} className="w-8 h-8 flex items-center justify-center">...</span> :
                 <motion.button
                   key={page}
