@@ -19,7 +19,7 @@ export const toolsData: Tool[] = [
     id: 'image-compression',
     name: 'Image Compression',
     description: 'Smart image compression tool for optimizing website performance',
-    image: '/placeholder.svg',
+    image: '/images/imagecompression.jpg',
     pricing: 'Free',
     tags: ['Image', 'Compression', 'Optimization'],
     accessLink: '/tools/image-compression',
