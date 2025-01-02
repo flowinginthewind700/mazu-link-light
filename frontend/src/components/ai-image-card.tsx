@@ -27,7 +27,7 @@ export function AIImageCard({ image }: AIImageCardProps) {
 
   useEffect(() => {
     if (showZoom) {
-      const img: HTMLImageElement = new Image();
+      const img: HTMLImageElement = new Image(0, 0);
       img.src = image.url;
       img.onload = () => {
         const screenWidth = window.innerWidth;
