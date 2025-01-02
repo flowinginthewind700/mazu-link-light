@@ -23,7 +23,16 @@ export function AIImageCard({ image }: AIImageCardProps) {
   const [showZoom, setShowZoom] = useState(false)
   const [copied, setCopied] = useState(false)
   const [dialogSize, setDialogSize] = useState<{ width: string; height: string }>({ width: 'auto', height: 'auto' });
+  const [aspectRatio, setAspectRatio] = useState('1 / 1') // 默认为正方形
   const router = useRouter()
+
+  useEffect(() => {
+    const img = document.createElement('img');
+    img.onload = () => {
+      setAspectRatio(`${img.width} / ${img.height}`);
+    };
+    img.src = image.url;
+  }, [image.url]);
 
   useEffect(() => {
     if (showZoom) {
@@ -66,13 +75,12 @@ export function AIImageCard({ image }: AIImageCardProps) {
   }
 
   return (
-    <div className="relative group rounded-2xl overflow-hidden">
+    <div className="relative group rounded-2xl overflow-hidden" style={{ aspectRatio: aspectRatio }}>
       <Image 
         src={image.url} 
         alt={image.prompt}
-        width={300}
-        height={200}
-        className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105"
+        fill
+        className="object-contain transition-transform duration-300 group-hover:scale-105"
       />
       
       {/* Overlay buttons */}
@@ -148,7 +156,7 @@ export function AIImageCard({ image }: AIImageCardProps) {
               <div>
                 <h3 className="text-lg font-semibold mb-2">Prompt</h3>
                 <div className="relative border rounded-lg p-4 bg-muted/50">
-                  <p className="pr-12 whitespace-pre-wrap text-muted-foreground">
+                <p className="pr-12 whitespace-pre-wrap text-muted-foreground">
                     {image.prompt}
                   </p>
                   <button
@@ -192,3 +200,4 @@ export function AIImageCard({ image }: AIImageCardProps) {
     </div>
   )
 }
+

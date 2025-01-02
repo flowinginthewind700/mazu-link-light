@@ -7,11 +7,9 @@ import { cn } from '@/lib/utils'
 import { BottomNavbar } from '@/components/bottom-navbar'
 import { AIImageCard } from '@/components/ai-image-card'
 
-// 环境变量
 const apiUrl = process.env.NEXT_PUBLIC_CMS_API_BASE_URL || '';
 const IMAGES_PER_PAGE = 12
 
-// 动画配置
 const container = {
   hidden: { opacity: 1, scale: 0 },
   visible: {
@@ -32,7 +30,6 @@ const item = {
   }
 }
 
-// 类型接口
 interface Category {
   id: string;
   name: string;
@@ -148,7 +145,7 @@ export default function AIImagePage() {
     }
   }
 
-const handleCategorySelect = (categoryId: string) => {
+  const handleCategorySelect = (categoryId: string) => {
     setSelectedCategory(categoryId);
     setCurrentPage(1);
   }
@@ -223,16 +220,16 @@ const handleCategorySelect = (categoryId: string) => {
             initial="hidden"
             animate="visible"
           >
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {exampleData.map((image) => (
-                <motion.div key={image.id} variants={item}>
+                <motion.div key={image.id} variants={item} className="w-full">
                   <AIImageCard image={image} />
                 </motion.div>
               ))}
             </div>
 
             <div className="mt-8 flex justify-center items-center gap-2">
-            {pageNumbersToShow.map(page => (
+              {pageNumbersToShow.map(page => (
                 typeof page === 'string' ? 
                 <span key={page} className="w-8 h-8 flex items-center justify-center">...</span> :
                 <motion.button
