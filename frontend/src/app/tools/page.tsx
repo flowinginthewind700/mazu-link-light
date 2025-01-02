@@ -5,7 +5,7 @@ import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { ToolCard } from '@/components/tool-card'
 import { categories } from '@/data/tools-categories'
-import { tools } from '@/data/tools-data'
+import { toolsData } from '@/data/tools-data'
 import { BottomNavbar } from '@/components/bottom-navbar'
 
 const container = {
@@ -32,8 +32,8 @@ export default function ToolsPage() {
   const [selectedCategory, setSelectedCategory] = useState('all')
 
   const filteredTools = selectedCategory === 'all' 
-    ? tools
-    : tools.filter(tool => tool.category === selectedCategory)
+    ? toolsData
+    : toolsData.filter(tool => tool.category === selectedCategory)
 
   const handleCategorySelect = (categoryId: string) => {
     setSelectedCategory(categoryId)
@@ -82,7 +82,7 @@ export default function ToolsPage() {
           </motion.main>
         </div>
       </div>
-       <BottomNavbar />
+      <BottomNavbar />
     </div>
   )
 }

@@ -2,52 +2,55 @@ export interface Tool {
   id: string;
   name: string;
   description: string;
-  category: string;
   image: string;
+  pricing: string;
+  tags: string[];
+  accessLink: string;
+  codeLink?: string;
+  author: string;
+  submissionDate: string;
+  content: string;
+  category: string;
+  internalPath?: string;
 }
 
-export const tools: Tool[] = [
+export const toolsData: Tool[] = [
   {
-    id: '1',
-    name: 'Outpaint image with flux model',
-    description: 'Outpaint the image with the flux model, guided by prompts.',
-    category: 'image',
+    id: 'image-compression',
+    name: 'Image Compression',
+    description: 'Smart image compression tool for optimizing website performance',
     image: '/placeholder.svg',
-  },
-  {
-    id: '2',
-    name: 'Face retoucher',
-    description: 'Retouches faces to smooth skin and remove blemishes.',
+    pricing: 'Free',
+    tags: ['Image', 'Compression', 'Optimization'],
+    accessLink: '/tools/image-compression',
+    author: 'AI Tools Directory',
+    submissionDate: '2024-01-02',
     category: 'image',
-    image: '/placeholder.svg',
+    internalPath: '/tools/image-compression',
+    content: `
+# Image Compression Tool
+
+Our smart image compression tool helps you optimize images for better website performance. 
+Features include:
+
+- Drag and drop interface
+- Batch processing up to 20 images
+- Quality adjustment
+- WebP conversion
+- Individual and bulk downloads
+- Client-side processing
+- No file size limits
+
+## How to Use
+
+1. Drop your images in the upload area
+2. Adjust compression settings
+3. Download compressed images individually or in bulk
+4. Enjoy faster website loading times!
+    `,
   },
-  {
-    id: '3',
-    name: 'Background Remover',
-    description: 'Remove the background from your image with our AI-powered tool.',
-    category: 'image',
-    image: '/placeholder.svg',
-  },
-  {
-    id: '4',
-    name: 'Face to sticker',
-    description: 'Create sticker from face.',
-    category: 'image',
-    image: '/placeholder.svg',
-  },
-  {
-    id: '5',
-    name: 'AuraSr V2 Upscaler',
-    description: 'Upscale your image with our AuraSr AI tool.',
-    category: 'image',
-    image: '/placeholder.svg',
-  },
-  {
-    id: '6',
-    name: 'Creative Upscaler',
-    description: 'Creative way to upscale your image to add details with prompt.',
-    category: 'image',
-    image: '/placeholder.svg',
-  },
-]
+  // ... other tools
+];
+
+export const tools = toolsData;
 
