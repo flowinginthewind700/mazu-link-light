@@ -27,13 +27,13 @@ export function AIImageCard({ image }: AIImageCardProps) {
 
   useEffect(() => {
     if (showZoom) {
-      const img: HTMLImageElement = new Image(0, 0);
+      const img = document.createElement('img') as HTMLImageElement;
       img.src = image.url;
       img.onload = () => {
         const screenWidth = window.innerWidth;
         const screenHeight = window.innerHeight;
-        const imgWidth = img.width;
-        const imgHeight = img.height;
+        const imgWidth = img.naturalWidth;
+        const imgHeight = img.naturalHeight;
   
         let width, height;
   
@@ -55,6 +55,7 @@ export function AIImageCard({ image }: AIImageCardProps) {
       };
     }
   }, [showZoom, image]);
+  
 
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text)
