@@ -31,7 +31,6 @@ export function AIImageCard({ image }: AIImageCardProps) {
   }
 
   return (
-    <div>
     <div className="relative group rounded-2xl overflow-hidden">
       <Image 
         src={image.url} 
@@ -50,7 +49,40 @@ export function AIImageCard({ image }: AIImageCardProps) {
         >
           <Info className="w-5 h-5 text-white" />
         </button>
-
+        <Dialog.Root open={showZoom} onOpenChange={setShowZoom}>
+          <Dialog.Trigger asChild>
+            <button
+              className="w-10 h-10 rounded-full backdrop-blur-md bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors"
+              title="Zoom Image"
+            >
+              <Search className="w-5 h-5 text-white" />
+            </button>
+          </Dialog.Trigger>
+          <Dialog.Portal>
+            <Dialog.Overlay className="DialogOverlayImg fixed inset-0 bg-black/75 z-[100]" />
+            <Dialog.Content className="DialogImageContent fixed inset-0 z-[101] flex items-center justify-center p-4">
+              <div className="relative w-full h-full max-w-[90vw] max-h-[90vh]">
+                <TransformWrapper>
+                  <TransformComponent>
+                    <img
+                      src={image.url}
+                      alt={image.prompt}
+                      className="w-full h-full object-contain rounded-lg shadow-xl"
+                    />
+                  </TransformComponent>
+                </TransformWrapper>
+                <Dialog.Close asChild>
+                  <button
+                    className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 transition-colors flex items-center justify-center"
+                    aria-label="Close"
+                  >
+                    <X className="w-6 h-6 text-white" />
+                  </button>
+                </Dialog.Close>
+              </div>
+            </Dialog.Content>
+          </Dialog.Portal>
+        </Dialog.Root>
         <button
           onClick={() => router.push(`/ai-image/${image.id}`)}
           className="w-10 h-10 rounded-full backdrop-blur-md bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors"
@@ -121,41 +153,6 @@ export function AIImageCard({ image }: AIImageCardProps) {
           </Dialog.Content>
         </Dialog.Portal>
       </Dialog.Root>
-    </div>
-    <Dialog.Root open={showZoom} onOpenChange={setShowZoom}>
-          <Dialog.Trigger asChild>
-            <button
-              className="w-10 h-10 rounded-full backdrop-blur-md bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors"
-              title="Zoom Image"
-            >
-              <Search className="w-5 h-5 text-white" />
-            </button>
-          </Dialog.Trigger>
-          <Dialog.Portal>
-            <Dialog.Overlay className="DialogOverlayImg fixed inset-0 bg-black/75 z-[100]" />
-            <Dialog.Content className="DialogImageContent fixed inset-0 z-[101] flex items-center justify-center p-4">
-              <div className="relative w-full h-full max-w-[90vw] max-h-[90vh]">
-                <TransformWrapper>
-                  <TransformComponent>
-                    <img
-                      src={image.url}
-                      alt={image.prompt}
-                      className="w-full h-full object-contain rounded-lg shadow-xl"
-                    />
-                  </TransformComponent>
-                </TransformWrapper>
-                <Dialog.Close asChild>
-                  <button
-                    className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 transition-colors flex items-center justify-center"
-                    aria-label="Close"
-                  >
-                    <X className="w-6 h-6 text-white" />
-                  </button>
-                </Dialog.Close>
-              </div>
-            </Dialog.Content>
-          </Dialog.Portal>
-        </Dialog.Root>
     </div>
   )
 }
