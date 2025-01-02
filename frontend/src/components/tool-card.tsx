@@ -14,28 +14,29 @@ export function ToolCard({ tool }: ToolCardProps) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
+      whileHover={{ scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
     >
       <Card className="overflow-hidden h-full">
         <CardHeader className="p-4">
           <CardTitle className="text-lg">{tool.name}</CardTitle>
         </CardHeader>
-        <CardContent className="p-0">
+        <CardContent className="p-4">
           <motion.div 
-            className="relative aspect-[16/9] w-full"
-            whileHover={{ scale: 1.05 }}
+            className="relative aspect-[16/9] w-full overflow-hidden rounded-lg"
+            whileHover={{ scale: 1.03 }}
             transition={{ duration: 0.3 }}
           >
             <Image
               src={tool.image}
               alt={tool.name}
               fill
-              className="object-cover"
+              className="object-cover object-center"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             />
           </motion.div>
           <motion.div 
-            className="p-4"
+            className="mt-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.5 }}
@@ -63,4 +64,3 @@ export function ToolCard({ tool }: ToolCardProps) {
     CardContentComponent
   )
 }
-
