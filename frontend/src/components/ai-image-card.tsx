@@ -27,16 +27,16 @@ export function AIImageCard({ image }: AIImageCardProps) {
 
   useEffect(() => {
     if (showZoom) {
-      const img = new Image();
+      const img: HTMLImageElement = new Image();
       img.src = image.url;
       img.onload = () => {
         const screenWidth = window.innerWidth;
         const screenHeight = window.innerHeight;
         const imgWidth = img.width;
         const imgHeight = img.height;
-
+  
         let width, height;
-
+  
         if (imgWidth > screenWidth || imgHeight > screenHeight) {
           const widthRatio = screenWidth / imgWidth;
           const heightRatio = screenHeight / imgHeight;
@@ -47,7 +47,7 @@ export function AIImageCard({ image }: AIImageCardProps) {
           width = imgWidth;
           height = imgHeight;
         }
-
+  
         setDialogSize({ width, height });
       };
       img.onerror = () => {
