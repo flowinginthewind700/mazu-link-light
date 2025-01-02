@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { Info, Search, Sparkles, Copy, Check, X } from 'lucide-react'
@@ -22,7 +22,39 @@ export function AIImageCard({ image }: AIImageCardProps) {
   const [showInfo, setShowInfo] = useState(false)
   const [showZoom, setShowZoom] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [dialogSize, setDialogSize] = useState({ width: 'auto', height: 'auto' });
   const router = useRouter()
+
+  useEffect(() => {
+    if (showZoom) {
+      const img = new Image();
+      img.src = image.url;
+      img.onload = () => {
+        const screenWidth = window.innerWidth;
+        const screenHeight = window.innerHeight;
+        const imgWidth = img.width;
+        const imgHeight = img.height;
+
+        let width, height;
+
+        if (imgWidth > screenWidth || imgHeight > screenHeight) {
+          const widthRatio = screenWidth / imgWidth;
+          const heightRatio = screenHeight / imgHeight;
+          const ratio = Math.min(widthRatio, heightRatio) * 0.9; // 90% of the screen
+          width = imgWidth * ratio;
+          height = imgHeight * ratio;
+        } else {
+          width = imgWidth;
+          height = imgHeight;
+        }
+
+        setDialogSize({ width, height });
+      };
+      img.onerror = () => {
+        console.error('Image failed to load:', image.url);
+      };
+    }
+  }, [showZoom, image]);
 
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text)
@@ -59,27 +91,28 @@ export function AIImageCard({ image }: AIImageCardProps) {
             </button>
           </Dialog.Trigger>
           <Dialog.Portal>
-            <Dialog.Overlay className="DialogOverlayImg fixed inset-0 bg-black/75 z-[100]" />
-            <Dialog.Content className="DialogImageContent fixed inset-0 z-[101] flex items-center justify-center p-4">
-              <div className="relative w-full h-full max-w-[90vw] max-h-[90vh]">
-                <TransformWrapper>
-                  <TransformComponent>
-                    <img
-                      src={image.url}
-                      alt={image.prompt}
-                      className="w-full h-full object-contain rounded-lg shadow-xl"
-                    />
-                  </TransformComponent>
-                </TransformWrapper>
-                <Dialog.Close asChild>
-                  <button
-                    className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 transition-colors flex items-center justify-center"
-                    aria-label="Close"
-                  >
-                    <X className="w-6 h-6 text-white" />
-                  </button>
-                </Dialog.Close>
-              </div>
+            <Dialog.Overlay className="fixed inset-0 bg-black/75 z-[100]" />
+            <Dialog.Content
+              className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] z-[101] flex items-center justify-center p-4"
+              style={{ width: dialogSize.width, height: dialogSize.height }}
+            >
+              <TransformWrapper>
+                <TransformComponent>
+                  <img
+                    src={image.url}
+                    alt={image.prompt}
+                    className="w-full h-full object-contain rounded-lg shadow-xl"
+                  />
+                </TransformComponent>
+              </TransformWrapper>
+              <Dialog.Close asChild>
+                <button
+                  className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 transition-colors flex items-center justify-center"
+                  aria-label="Close"
+                >
+                  <X className="w-6 h-6 text-white" />
+                </button>
+              </Dialog.Close>
             </Dialog.Content>
           </Dialog.Portal>
         </Dialog.Root>
@@ -149,11 +182,10 @@ export function AIImageCard({ image }: AIImageCardProps) {
                   </div>
                 </div>
               )}
-              </div>
+            </div>
           </Dialog.Content>
         </Dialog.Portal>
       </Dialog.Root>
     </div>
   )
 }
-
