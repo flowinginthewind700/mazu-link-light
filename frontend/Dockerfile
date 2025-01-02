@@ -36,7 +36,8 @@ RUN npx shadcn@latest add tooltip
 RUN npx shadcn@latest add alert
 RUN npx shadcn@latest add badge
 RUN npx shadcn@latest add form
-RUN npx shadcn@latest add label
+RUN npx shadcn@latest add label switch slider
+
 COPY . .
 RUN cp -r components/* src/components
 
