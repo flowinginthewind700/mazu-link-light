@@ -22,6 +22,7 @@ RUN npm install react-slick slick-carousel
 RUN npm i --save-dev @types/react-slick
 RUN npm install --save-dev framer-motion
 RUN npm install -D tailwindcss postcss autoprefixer
+RUN npm install browser-image-compression jszip react-dropzone
 # 复制项目文件
 COPY next* postcss.config.js tailwind.config.js tsconfig.json tsconfig.app.json tsconfig.node.json ./src/index.css ./src/vite-env.d.ts vite.config.ts ./
 RUN npx shadcn@latest init -d
