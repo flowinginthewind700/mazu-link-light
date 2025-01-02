@@ -2,9 +2,12 @@
 
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
+import Head from 'next/head'
 import { useParams } from 'next/navigation'
 import axios from 'axios'
-import { Facebook, Twitter, Linkedin, Share2 } from 'lucide-react'
+import { Facebook, Twitter, Linkedin, Share2, Search, X } from 'lucide-react'
+import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch"
+import * as Dialog from '@radix-ui/react-dialog'
 
 const apiUrl = process.env.NEXT_PUBLIC_CMS_API_BASE_URL
 
@@ -16,14 +19,56 @@ interface ImageDetails {
   seed?: string
 }
 
+const truncateText = (text: string, maxLength: number) => {
+  if (!text) return '';
+  if (text.length <= maxLength) return text;
+  return text.substring(0, maxLength) + '...';
+};
+
 export default function AIImageDetailPage() {
   const { id } = useParams()
   const [image, setImage] = useState<ImageDetails | null>(null)
   const [copied, setCopied] = useState(false)
+  const [showZoom, setShowZoom] = useState(false)
+  const [dialogSize, setDialogSize] = useState<{ width: string; height: string }>({ width: 'auto', height: 'auto' });
 
   useEffect(() => {
     fetchImageDetails()
   }, [id])
+
+  useEffect(() => {
+    if (showZoom && image) {
+      const img = document.createElement('img') as HTMLImageElement;
+      img.src = image.url;
+      img.onload = () => {
+        const screenWidth = window.innerWidth;
+        const screenHeight = window.innerHeight;
+        const imgWidth = img.naturalWidth;
+        const imgHeight = img.naturalHeight;
+
+        let width, height;
+
+        if (imgWidth > screenWidth || imgHeight > screenHeight) {
+          const widthRatio = screenWidth / imgWidth;
+          const heightRatio = screenHeight / imgHeight;
+          const ratio = Math.min(widthRatio, heightRatio) * 0.9; // 90% of the screen
+          width = Math.round(imgWidth * ratio);
+          height = Math.round(imgHeight * ratio);
+        } else {
+          width = imgWidth;
+          height = imgHeight;
+        }
+
+        setDialogSize({ 
+          width: `${width}px`, 
+          height: `${height}px` 
+        });
+      };
+      img.onerror = () => {
+        console.error('Image failed to load:', image.url);
+      };
+    }
+  }, [showZoom, image]);
 
   const fetchImageDetails = async () => {
     try {
@@ -63,6 +108,28 @@ export default function AIImageDetailPage() {
     }
   }
 
+  const handleShare = (platform: string) => {
+    const url = window.location.href
+    const truncatedPrompt = truncateText(image?.prompt || '', 200)
+    const text = `Explore Text2Image Example - ${truncatedPrompt} on LLMStock`
+
+    switch (platform) {
+      case 'facebook':
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank')
+        break
+      case 'x':
+        window.open(`https://x.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, '_blank')
+        break
+      case 'linkedin':
+        window.open(`https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(url)}&title=${encodeURIComponent(text)}`, '_blank')
+        break
+      case 'copy':
+        navigator.clipboard.writeText(url)
+        alert('Link copied to clipboard!')
+        break
+    }
+  }
+
   if (!image) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -71,71 +138,131 @@ export default function AIImageDetailPage() {
     )
   }
 
-  return (
-    <div className="container mx-auto px-4 py-8 max-w-5xl">
-      {/* Image Preview */}
-      <div className="rounded-3xl overflow-hidden mb-8 shadow-xl">
-        <Image
-          src={image.url}
-          alt={image.prompt}
-          width={1200}
-          height={600}
-          className="w-full h-[60vh] object-cover"
-        />
-      </div>
+  const truncatedPrompt = truncateText(image.prompt, 200)
+  const pageTitle = `Text2Image Example - ${truncatedPrompt} | LLMStock`
+  const pageDescription = `Explore this Text2Image example on LLMStock: ${truncatedPrompt}`
 
-      {/* Prompt Section */}
-      <div className="space-y-6 bg-card p-6 rounded-xl">
-        <div>
-          <h2 className="text-xl font-semibold mb-2">Prompt</h2>
-          <div className="relative">
-            <p className="text-muted-foreground pr-20 min-h-[4rem]">
-              {image.prompt}
-            </p>
-            <button
-              onClick={handleCopyPrompt}
-              className="absolute right-0 top-0 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+  return (
+    <>
+      <Head>
+        <title>{pageTitle}</title>
+        <meta name="description" content={pageDescription} />
+        
+        {/* Open Graph tags */}
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={pageDescription} />
+        <meta property="og:image" content={image.url} />
+        <meta property="og:url" content={typeof window !== 'undefined' ? window.location.href : ''} />
+        <meta property="og:type" content="website" />
+
+        {/* Twitter Card tags */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={pageTitle} />
+        <meta name="twitter:description" content={pageDescription} />
+        <meta name="twitter:image" content={image.url} />
+      </Head>
+
+      <div className="container mx-auto px-4 py-8 max-w-5xl">
+        {/* Image Preview */}
+        <div className="rounded-3xl overflow-hidden mb-8 shadow-xl relative">
+          <Image
+            src={image.url}
+            alt={image.prompt}
+            width={1200}
+            height={600}
+            className="w-full h-[60vh] object-cover cursor-pointer"
+            onClick={() => setShowZoom(true)}
+          />
+          <button
+            onClick={() => setShowZoom(true)}
+            className="absolute bottom-4 right-4 w-10 h-10 rounded-full backdrop-blur-md bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors"
+            title="Zoom Image"
+          >
+            <Search className="w-5 h-5 text-white" />
+          </button>
+        </div>
+
+        {/* Zoom Dialog */}
+        <Dialog.Root open={showZoom} onOpenChange={setShowZoom}>
+          <Dialog.Portal>
+            <Dialog.Overlay className="fixed inset-0 bg-black/75 z-[100]" />
+            <Dialog.Content
+              className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] z-[101] flex items-center justify-center p-4"
+              style={{ width: dialogSize.width, height: dialogSize.height }}
             >
-              {copied ? 'Copied!' : 'Copy'}
+              <TransformWrapper>
+                <TransformComponent>
+                  <img
+                    src={image.url}
+                    alt={image.prompt}
+                    className="w-full h-full object-contain rounded-lg shadow-xl"
+                  />
+                </TransformComponent>
+              </TransformWrapper>
+              <Dialog.Close asChild>
+                <button
+                  className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 transition-colors flex items-center justify-center"
+                  aria-label="Close"
+                >
+                  <X className="w-6 h-6 text-white" />
+                </button>
+              </Dialog.Close>
+            </Dialog.Content>
+          </Dialog.Portal>
+        </Dialog.Root>
+
+        {/* Prompt Section */}
+        <div className="space-y-6 bg-card p-6 rounded-xl">
+          <div>
+            <h2 className="text-xl font-semibold mb-2">Prompt</h2>
+            <div className="relative">
+              <p className="text-muted-foreground pr-20 min-h-[4rem]">
+                {image.prompt}
+              </p>
+              <button
+                onClick={handleCopyPrompt}
+                className="absolute right-0 top-0 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+              >
+                {copied ? 'Copied!' : 'Copy'}
+              </button>
+            </div>
+          </div>
+
+          {image.negativeprompt && (
+            <div>
+              <h2 className="text-xl font-semibold mb-2">Negative Prompt</h2>
+              <p className="text-muted-foreground">
+                {image.negativeprompt}
+              </p>
+            </div>
+          )}
+
+          {image.seed && (
+            <div>
+              <h2 className="text-xl font-semibold mb-2">Seed</h2>
+              <p className="text-muted-foreground">
+                {image.seed}
+              </p>
+            </div>
+          )}
+
+          {/* Social Share */}
+          <div className="flex gap-4 pt-4 border-t">
+            <button onClick={() => handleShare('facebook')} className="p-2 rounded-full bg-[#1877f2] text-white hover:bg-[#1877f2]/90">
+              <Facebook className="w-5 h-5" />
+            </button>
+            <button onClick={() => handleShare('x')} className="p-2 rounded-full bg-black text-white hover:bg-black/90">
+              <X className="w-5 h-5" />
+            </button>
+            <button onClick={() => handleShare('linkedin')} className="p-2 rounded-full bg-[#0a66c2] text-white hover:bg-[#0a66c2]/90">
+              <Linkedin className="w-5 h-5" />
+            </button>
+            <button onClick={() => handleShare('copy')} className="p-2 rounded-full bg-[#ff4500] text-white hover:bg-[#ff4500]/90">
+              <Share2 className="w-5 h-5" />
             </button>
           </div>
         </div>
-
-        {image.negativeprompt && (
-          <div>
-            <h2 className="text-xl font-semibold mb-2">Negative Prompt</h2>
-            <p className="text-muted-foreground">
-              {image.negativeprompt}
-            </p>
-          </div>
-        )}
-
-        {image.seed && (
-          <div>
-            <h2 className="text-xl font-semibold mb-2">Seed</h2>
-            <p className="text-muted-foreground">
-              {image.seed}
-            </p>
-          </div>
-        )}
-
-        {/* Social Share */}
-        <div className="flex gap-4 pt-4 border-t">
-          <button className="p-2 rounded-full bg-[#1877f2] text-white hover:bg-[#1877f2]/90">
-            <Facebook className="w-5 h-5" />
-          </button>
-          <button className="p-2 rounded-full bg-[#1da1f2] text-white hover:bg-[#1da1f2]/90">
-            <Twitter className="w-5 h-5" />
-          </button>
-          <button className="p-2 rounded-full bg-[#0a66c2] text-white hover:bg-[#0a66c2]/90">
-            <Linkedin className="w-5 h-5" />
-          </button>
-          <button className="p-2 rounded-full bg-[#ff4500] text-white hover:bg-[#ff4500]/90">
-            <Share2 className="w-5 h-5" />
-          </button>
-        </div>
       </div>
-    </div>
+    </>
   )
 }
-
