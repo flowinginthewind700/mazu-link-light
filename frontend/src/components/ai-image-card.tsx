@@ -22,7 +22,7 @@ export function AIImageCard({ image }: AIImageCardProps) {
   const [showInfo, setShowInfo] = useState(false)
   const [showZoom, setShowZoom] = useState(false)
   const [copied, setCopied] = useState(false)
-  const [dialogSize, setDialogSize] = useState({ width: 'auto', height: 'auto' });
+  const [dialogSize, setDialogSize] = useState<{ width: string; height: string }>({ width: 'auto', height: 'auto' });
   const router = useRouter()
 
   useEffect(() => {
@@ -41,21 +41,23 @@ export function AIImageCard({ image }: AIImageCardProps) {
           const widthRatio = screenWidth / imgWidth;
           const heightRatio = screenHeight / imgHeight;
           const ratio = Math.min(widthRatio, heightRatio) * 0.9; // 90% of the screen
-          width = imgWidth * ratio;
-          height = imgHeight * ratio;
+          width = Math.round(imgWidth * ratio);
+          height = Math.round(imgHeight * ratio);
         } else {
           width = imgWidth;
           height = imgHeight;
         }
   
-        setDialogSize({ width, height });
+        setDialogSize({ 
+          width: `${width}px`, 
+          height: `${height}px` 
+        });
       };
       img.onerror = () => {
         console.error('Image failed to load:', image.url);
       };
     }
   }, [showZoom, image]);
-  
 
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text)
