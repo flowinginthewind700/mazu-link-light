@@ -28,10 +28,21 @@ export default function AIImageDetailPage({ id }: { id: string }) {
   const [copied, setCopied] = useState(false)
   const [showZoom, setShowZoom] = useState(false)
   const [dialogSize, setDialogSize] = useState<{ width: string; height: string }>({ width: 'auto', height: 'auto' });
+  const [aspectRatio, setAspectRatio] = useState('1 / 1') // 默认为正方形
 
   useEffect(() => {
     fetchImageDetails()
   }, [id])
+
+  useEffect(() => {
+    if (image) {
+      const img = document.createElement('img');
+      img.onload = () => {
+        setAspectRatio(`${img.naturalWidth} / ${img.naturalHeight}`);
+      };
+      img.src = image.url;
+    }
+  }, [image]);
 
   useEffect(() => {
     if (showZoom && image) {
@@ -138,13 +149,15 @@ export default function AIImageDetailPage({ id }: { id: string }) {
   return (
     <div className="container mx-auto px-4 py-8 max-w-5xl">
       {/* Image Preview */}
-      <div className="rounded-3xl overflow-hidden mb-8 shadow-xl relative">
+      <div 
+        className="rounded-3xl overflow-hidden mb-8 shadow-xl relative"
+        style={{ aspectRatio: aspectRatio }}
+      >
         <Image
           src={image.url}
           alt={image.prompt}
-          width={1200}
-          height={600}
-          className="w-full h-[60vh] object-cover cursor-pointer"
+          fill
+          className="object-contain cursor-pointer"
           onClick={() => setShowZoom(true)}
         />
         <button
