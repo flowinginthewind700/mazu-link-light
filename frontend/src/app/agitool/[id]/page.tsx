@@ -8,13 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { ExternalLink, Calendar, User, Twitter } from 'lucide-react'
-import ReactMarkdown from 'react-markdown'
-import remarkGfm from 'remark-gfm'
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
-import { vscDarkPlus } from 'react-syntax-highlighter/dist/cjs/styles/prism'
-import rehypeRaw from 'rehype-raw'
-import { Components } from 'react-markdown'
-import { CodeProps } from 'react-markdown/lib/ast-to-react'
+import EnhancedMarkdown from '@/components/EnhancedMarkdown'
 
 const apiUrl = process.env.NEXT_PUBLIC_CMS_API_BASE_URL || '';
 
@@ -110,26 +104,6 @@ export default function AgiToolPage() {
     )
   }
 
-  const components: Components = {
-    code({ node, inline, className, children, ...props }: CodeProps) {
-      const match = /language-(\w+)/.exec(className || '')
-      return !inline && match ? (
-        <SyntaxHighlighter
-          style={vscDarkPlus}
-          language={match[1]}
-          PreTag="div"
-          {...props}
-        >
-          {String(children).replace(/\n$/, '')}
-        </SyntaxHighlighter>
-      ) : (
-        <code className={className} {...props}>
-          {children}
-        </code>
-      )
-    }
-  }
-
   return (
     <div className="container mx-auto px-4 py-8 max-w-5xl">
       <Card className="mb-8">
@@ -194,16 +168,9 @@ export default function AgiToolPage() {
 
       <Card>
         <CardContent className="prose dark:prose-invert max-w-none p-6">
-          <ReactMarkdown
-            remarkPlugins={[remarkGfm]}
-            rehypePlugins={[rehypeRaw]}
-            components={components}
-          >
-            {tool.content}
-          </ReactMarkdown>
+          <EnhancedMarkdown content={tool.content} />
         </CardContent>
       </Card>
     </div>
   )
 }
-
