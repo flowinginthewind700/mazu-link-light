@@ -14,6 +14,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/cjs/styles/prism'
 import rehypeRaw from 'rehype-raw'
 import { Components } from 'react-markdown'
+import { CodeProps } from 'react-markdown/lib/ast-to-react'
 
 const apiUrl = process.env.NEXT_PUBLIC_CMS_API_BASE_URL || '';
 
@@ -110,7 +111,7 @@ export default function AgiToolPage() {
   }
 
   const components: Components = {
-    code({ node, inline, className, children, ...props }) {
+    code({ node, inline, className, children, ...props }: CodeProps) {
       const match = /language-(\w+)/.exec(className || '')
       return !inline && match ? (
         <SyntaxHighlighter
