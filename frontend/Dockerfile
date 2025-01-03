@@ -38,6 +38,7 @@ RUN npx shadcn@latest add badge
 RUN npx shadcn@latest add form
 RUN npx shadcn@latest add label switch slider
 RUN npm install @next/third-parties
+RUN npm install react-markdown remark-gfm react-syntax-highlighter rehype-raw
 
 COPY . .
 RUN cp -r components/* src/components
