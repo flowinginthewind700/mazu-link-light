@@ -1,8 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import Image from 'next/image'
+import Link from 'next/link'
 import axios from 'axios'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -18,6 +19,7 @@ interface AgiTool {
   Description: string;
   price: string;
   accessLink: string;
+  internalPath: string | null;
   author: {
     name: string;
     avatar: string;
@@ -39,6 +41,7 @@ interface AgiTool {
 
 export default function AgiToolPage() {
   const params = useParams()
+  const router = useRouter()
   const [tool, setTool] = useState<AgiTool | null>(null)
 
   useEffect(() => {
@@ -55,6 +58,7 @@ export default function AgiToolPage() {
             Description
             price
             accessLink
+            internalPath
             author {
               name
               avatar
@@ -82,6 +86,14 @@ export default function AgiToolPage() {
       setTool(response.data.data.agitool)
     } catch (error) {
       console.error('Error fetching tool details:', error)
+    }
+  }
+
+  const handleAccessTool = () => {
+    if (tool?.internalPath) {
+      router.push(tool.internalPath)
+    } else if (tool?.accessLink) {
+      window.open(tool.accessLink, '_blank', 'noopener,noreferrer')
     }
   }
 
@@ -145,16 +157,11 @@ export default function AgiToolPage() {
                 <strong>Pricing:</strong> {tool.price}
               </div>
             </div>
-            <Button asChild className="w-full">
-              <a
-                href={tool.accessLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2"
-              >
-                <ExternalLink className="w-4 h-4" />
-                Access Tool
-              </a>
+            <Button onClick={handleAccessTool} className="w-full">
+              <span className="flex items-center justify-center gap-2">
+                {tool.internalPath ? 'Use Tool' : 'Access Tool'}
+                {!tool.internalPath && <ExternalLink className="w-4 h-4" />}
+              </span>
             </Button>
           </div>
         </CardContent>
