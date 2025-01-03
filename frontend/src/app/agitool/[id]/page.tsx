@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button'
 import { ExternalLink, Calendar, User, Twitter } from 'lucide-react'
 import Markdown from 'react-markdown'
 
-const apiUrl = 'https://cms.llmstock.com'
+const apiUrl = process.env.NEXT_PUBLIC_CMS_API_BASE_URL || '';
 
 interface AgiTool {
   id: string;
