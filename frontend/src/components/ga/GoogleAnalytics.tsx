@@ -1,19 +1,21 @@
 'use client';
 
-import { usePathname, useSearchParams } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { GoogleAnalytics } from '@next/third-parties/google';
 import { useEffect } from 'react';
 
 export default function Analytics() {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
 
   useEffect(() => {
-    const url = pathname + searchParams.toString();
-    window.gtag('config', process.env.NEXT_PUBLIC_GA_ID!, {
-      page_path: url,
-    });
-  }, [pathname, searchParams]);
+    const handleRouteChange = (url: string) => {
+      window.gtag('config', process.env.NEXT_PUBLIC_GA_ID!, {
+        page_path: url,
+      });
+    };
+
+    handleRouteChange(pathname);
+  }, [pathname]);
 
   return <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID!} />;
 }

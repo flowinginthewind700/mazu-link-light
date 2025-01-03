@@ -4,9 +4,11 @@ import './globals.css'
 import { ThemeProvider } from '@/components/theme-provider'
 import { Navigation } from '@/components/navigation'
 import { Footer } from '@/components/footer'
-import Analytics from '@/components/ga/GoogleAnalytics';
+import dynamic from 'next/dynamic'
 
 const inter = Inter({ subsets: ['latin'] })
+
+const Analytics = dynamic(() => import('@/components/ga/GoogleAnalytics'), { ssr: false })
 
 export const metadata: Metadata = {
   title: 'AI Tools Directory',
