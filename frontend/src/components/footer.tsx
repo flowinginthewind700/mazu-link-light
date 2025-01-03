@@ -18,6 +18,11 @@ export function Footer() {
               <li><Link href="/about" className="text-sm text-muted-foreground hover:text-primary">About</Link></li>
               <li><Link href="/privacy" className="text-sm text-muted-foreground hover:text-primary">Privacy Policy</Link></li>
               <li><Link href="/terms" className="text-sm text-muted-foreground hover:text-primary">Terms of Service</Link></li>
+              <li>
+                <a href="mailto:yongtaofu@gmail.com" className="text-sm text-muted-foreground hover:text-primary">
+                  Contact
+                </a>
+              </li>
             </ul>
           </div>
           <div>
@@ -38,21 +43,14 @@ export function Footer() {
             </ul>
           </div>
           <div>
-            <h4 className="text-base font-semibold mb-4">Newsletter</h4>
-            <p className="text-sm text-muted-foreground mb-2">Stay updated with our latest AI tools and news.</p>
-            <form className="flex">
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className="flex-grow px-3 py-2 text-sm rounded-l-md border border-border focus:outline-none focus:ring-2 focus:ring-primary"
-              />
-              <button
-                type="submit"
-                className="bg-primary text-primary-foreground px-4 py-2 text-sm font-medium rounded-r-md hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary"
-              >
-                Subscribe
-              </button>
-            </form>
+            <h4 className="text-base font-semibold mb-4">Partners</h4>
+            <ul className="space-y-2">
+              <li>
+                <a href="https://llmstock.com" target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-primary">
+                  LLMStock
+                </a>
+              </li>
+            </ul>
           </div>
         </div>
         <div className="mt-8 pt-8 border-t border-border text-center text-sm text-muted-foreground">
