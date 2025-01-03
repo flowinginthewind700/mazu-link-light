@@ -36,7 +36,7 @@ export default function AboutPage() {
         </p>
         <div className="flex justify-center mt-8">
           <Button asChild>
-            <a href="https://github.com/yourusername/ai-tools-directory" target="_blank" rel="noopener noreferrer" className="flex items-center">
+            <a href="https://github.com/flowinginthewind700/mazu-link-light" target="_blank" rel="noopener noreferrer" className="flex items-center">
               <Github className="mr-2 h-4 w-4" /> View on GitHub
             </a>
           </Button>
