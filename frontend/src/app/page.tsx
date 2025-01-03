@@ -3,14 +3,17 @@
 import React, { useRef, useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import axios from 'axios'
 import { Search } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { AnimatedSectionTitle } from '@/components/animated-section-title'
-import { categories } from '@/data/categories'
 import { motion } from 'framer-motion'
 import { BottomNavbar } from '@/components/bottom-navbar'
+
+const apiUrl = process.env.NEXT_PUBLIC_CMS_API_BASE_URL || '';
+const TOOLS_PER_CATEGORY = 24
 
 const topTabs = [
   { id: 'default', label: 'Default' },
@@ -26,32 +29,96 @@ const searchOptions = {
   images: ['civitai', 'openart', 'lexica'],
 }
 
-const toolsData = [
-  {
-    id: '1',
-    name: 'AI Image Generator',
-    description: 'Generate stunning images with AI',
-    image: '/placeholder.svg',
-  },
-  {
-    id: '2',
-    name: 'AI Text Summarizer',
-    description: 'Summarize long texts quickly and accurately',
-    image: '/placeholder.svg',
-  },
-  // Add more tool data as needed
-]
+interface Category {
+  id: string;
+  name: string;
+}
+
+interface Tool {
+  id: string;
+  name: string;
+  Description: string;
+  iconimage: {
+    formats: any;
+    url: string;
+  };
+}
 
 export default function HomePage() {
   const [selectedTopTab, setSelectedTopTab] = useState(topTabs[0].id)
   const [selectedEngine, setSelectedEngine] = useState(searchOptions.default[0])
   const [activeSection, setActiveSection] = useState('')
   const [animatingSection, setAnimatingSection] = useState('')
+  const [categories, setCategories] = useState<Category[]>([])
+  const [toolsByCategory, setToolsByCategory] = useState<Record<string, Tool[]>>({})
 
-  const sectionRefs = useRef(categories.reduce((acc, category) => {
-    acc[category.id] = React.createRef<HTMLDivElement>();
-    return acc;
-  }, {} as Record<string, React.RefObject<HTMLDivElement>>));
+  const sectionRefs = useRef<Record<string, React.RefObject<HTMLDivElement>>>({});
+
+  useEffect(() => {
+    fetchCategories()
+  }, [])
+
+  useEffect(() => {
+    if (categories.length > 0) {
+      sectionRefs.current = categories.reduce((acc, category) => {
+        acc[category.id] = React.createRef<HTMLDivElement>();
+        return acc;
+      }, {} as Record<string, React.RefObject<HTMLDivElement>>);
+      
+      categories.forEach(category => {
+        fetchToolsForCategory(category.id);
+      });
+    }
+  }, [categories])
+
+  const fetchCategories = async () => {
+    try {
+      const query = `
+        query {
+          agitoolcategories {
+            id
+            name
+          }
+        }
+      `
+      const response = await axios.post(`${apiUrl}/graphql`, { query })
+      setCategories(response.data.data.agitoolcategories)
+    } catch (error) {
+      console.error('Error fetching categories:', error)
+    }
+  }
+
+  const fetchToolsForCategory = async (categoryId: string) => {
+    try {
+      const query = `
+        query($categoryId: ID!) {
+          agitools(
+            where: { agitoolcategory: { id: $categoryId } }
+            limit: ${TOOLS_PER_CATEGORY}
+          ) {
+            id
+            name
+            Description
+            iconimage {
+              formats
+              url
+            }
+          }
+        }
+      `
+      const response = await axios.post(`${apiUrl}/graphql`, { 
+        query,
+        variables: { categoryId }
+      })
+      
+      setToolsByCategory(prev => ({
+        ...prev,
+        [categoryId]: response.data.data.agitools
+      }))
+    } catch (error) {
+      console.error('Error fetching tools:', error)
+    }
+  }
 
   const scrollToSection = (sectionId: string) => {
     sectionRefs.current[sectionId]?.current?.scrollIntoView({
@@ -80,7 +147,7 @@ export default function HomePage() {
         { threshold: 0.5 }
       )
 
-      if (sectionRefs.current[category.id].current) {
+      if (sectionRefs.current[category.id]?.current) {
         observer.observe(sectionRefs.current[category.id].current!)
       }
 
@@ -90,7 +157,7 @@ export default function HomePage() {
     return () => {
       observers.forEach(observer => observer.disconnect())
     }
-  }, [])
+  }, [categories])
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -105,7 +172,7 @@ export default function HomePage() {
                   onClick={() => scrollToSection(category.id)}
                   className="flex w-full items-center gap-2 p-2 rounded-lg hover:bg-accent hover:text-accent-foreground text-left transition-colors duration-200 ease-in-out glow-effect"
                 >
-                  <span className="text-sm">{category.label}</span>
+                  <span className="text-sm">{category.name}</span>
                 </button>
               ))}
             </nav>
@@ -116,7 +183,7 @@ export default function HomePage() {
             {/* Hero Search */}
             <div className="text-center space-y-6">
               <Image
-                src="/images/agientrylogo_large.jpg"
+                src="/placeholder.svg"
                 alt="AI Tools Logo Large"
                 width={120}
                 height={40}
@@ -202,14 +269,14 @@ export default function HomePage() {
                 className="space-y-4 scroll-mt-24"
               >
                 <AnimatedSectionTitle 
-                  title={category.label} 
+                  title={category.name} 
                   isActive={animatingSection === category.id}
                 />
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {toolsData.map((tool) => (
+                  {toolsByCategory[category.id]?.map((tool) => (
                     <Link
                       key={tool.id}
-                      href={`/tool/${tool.id}`}
+                      href={`/agitool/${tool.id}`}
                       className="block"
                     >
                       <motion.div
@@ -218,7 +285,7 @@ export default function HomePage() {
                         className="flex items-center gap-3 p-4 rounded-lg border hover:shadow-md transition-shadow bg-background/50 backdrop-blur-sm card-hover-effect glow-effect"
                       >
                         <Image
-                          src={tool.image}
+                          src={`${apiUrl}${tool.iconimage.formats?.thumbnail?.url || tool.iconimage.url}`}
                           alt={tool.name}
                           width={40}
                           height={40}
@@ -226,7 +293,7 @@ export default function HomePage() {
                         />
                         <div>
                           <h3 className="font-medium hover:underline">{tool.name}</h3>
-                          <p className="text-sm text-muted-foreground">{tool.description}</p>
+                          <p className="text-sm text-muted-foreground">{tool.Description}</p>
                         </div>
                       </motion.div>
                     </Link>
