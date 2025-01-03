@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { Info, Search, Sparkles, Copy, Check, X } from 'lucide-react'
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch"
 import * as Dialog from '@radix-ui/react-dialog'
+import { useAnalyticsEvent } from '@/components/ga/useAnalyticsEvent'
 
 interface AIImageProps {
   id: string
@@ -25,6 +26,7 @@ export function AIImageCard({ image }: AIImageCardProps) {
   const [dialogSize, setDialogSize] = useState<{ width: string; height: string }>({ width: 'auto', height: 'auto' });
   const [aspectRatio, setAspectRatio] = useState('1 / 1') // 默认为正方形
   const router = useRouter()
+  const trackEvent = useAnalyticsEvent()
 
   useEffect(() => {
     const img = document.createElement('img');
@@ -72,6 +74,38 @@ export function AIImageCard({ image }: AIImageCardProps) {
     navigator.clipboard.writeText(text)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
+    trackEvent({
+      action: 'copy_text',
+      category: 'engagement',
+      label: image.id
+    })
+  }
+
+  const handleInfoClick = () => {
+    setShowInfo(true)
+    trackEvent({
+      action: 'view_image_info',
+      category: 'engagement',
+      label: image.id
+    })
+  }
+
+  const handleZoomClick = () => {
+    setShowZoom(true)
+    trackEvent({
+      action: 'zoom_image',
+      category: 'engagement',
+      label: image.id
+    })
+  }
+
+  const handleViewDetails = () => {
+    trackEvent({
+      action: 'view_image_details',
+      category: 'navigation',
+      label: image.id
+    })
+    router.push(`/ai-image/${image.id}`)
   }
 
   return (
@@ -86,7 +120,7 @@ export function AIImageCard({ image }: AIImageCardProps) {
       {/* Overlay buttons */}
       <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
         <button
-          onClick={() => setShowInfo(true)}
+          onClick={handleInfoClick}
           className="w-10 h-10 rounded-full backdrop-blur-md bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors"
           title="Image Info"
         >
@@ -95,6 +129,7 @@ export function AIImageCard({ image }: AIImageCardProps) {
         <Dialog.Root open={showZoom} onOpenChange={setShowZoom}>
           <Dialog.Trigger asChild>
             <button
+              onClick={handleZoomClick}
               className="w-10 h-10 rounded-full backdrop-blur-md bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors"
               title="Zoom Image"
             >
@@ -128,7 +163,7 @@ export function AIImageCard({ image }: AIImageCardProps) {
           </Dialog.Portal>
         </Dialog.Root>
         <button
-          onClick={() => router.push(`/ai-image/${image.id}`)}
+          onClick={handleViewDetails}
           className="w-10 h-10 rounded-full backdrop-blur-md bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors"
           title="View Details"
         >
@@ -200,4 +235,3 @@ export function AIImageCard({ image }: AIImageCardProps) {
     </div>
   )
 }
-

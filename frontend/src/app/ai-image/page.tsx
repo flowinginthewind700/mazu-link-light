@@ -6,6 +6,7 @@ import axios from 'axios'
 import { cn } from '@/lib/utils'
 import { BottomNavbar } from '@/components/bottom-navbar'
 import { AIImageCard } from '@/components/ai-image-card'
+import PageViewTracker from '@/components/ga/PageViewTracker'
 
 const apiUrl = process.env.NEXT_PUBLIC_CMS_API_BASE_URL || '';
 const IMAGES_PER_PAGE = 12
@@ -191,6 +192,7 @@ export default function AIImagePage() {
 
   return (
     <div className="min-h-screen bg-background">
+       <PageViewTracker />
       <div className="container mx-auto px-4 py-8">
         <div className="lg:flex lg:gap-8">
           <aside className="mb-6 lg:w-48 lg:flex-shrink-0">
