@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
@@ -14,6 +14,15 @@ export const FeaturedToolCard: React.FC<FeaturedToolCardProps> = ({ tool }) => {
     ? { href: tool.link } 
     : { href: tool.link, target: "_blank", rel: "noopener noreferrer" };
 
+  const descriptionRef = useRef<HTMLParagraphElement>(null);
+
+  useEffect(() => {
+    const element = descriptionRef.current;
+    if (element && element.scrollWidth > element.clientWidth) {
+      element.classList.add('animate-marquee');
+    }
+  }, [tool.description]);
+
   return (
     <CardWrapper {...cardProps}>
       <motion.div
@@ -28,9 +37,11 @@ export const FeaturedToolCard: React.FC<FeaturedToolCardProps> = ({ tool }) => {
           fill
           className="object-cover transition-transform group-hover:scale-105"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent p-4 flex flex-col justify-end">
-          <h3 className="text-white font-semibold">{tool.title}</h3>
-          <p className="text-white/80 text-sm">{tool.description}</p>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent p-2 sm:p-4 flex flex-col justify-end">
+          <h3 className="text-white font-semibold text-xs sm:text-sm md:text-base truncate">{tool.title}</h3>
+          <p ref={descriptionRef} className="text-white/80 text-xs sm:text-sm truncate whitespace-nowrap overflow-hidden">
+            {tool.description}
+          </p>
         </div>
       </motion.div>
     </CardWrapper>
