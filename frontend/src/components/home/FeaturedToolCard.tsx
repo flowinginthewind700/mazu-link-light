@@ -42,7 +42,7 @@ export const FeaturedToolCard: React.FC<FeaturedToolCardProps> = ({ tool }) => {
           {/* <p ref={descriptionRef} className="text-white/80 text-xs sm:text-sm truncate whitespace-nowrap overflow-hidden">
             {tool.description}
           </p> */}
-          <p ref={descriptionRef} className="text-white/80 text-xs sm:text-sm whitespace-nowrap overflow-hidden">
+          <p ref={descriptionRef} className="text-white text-xs sm:text-sm whitespace-nowrap overflow-hidden">
             {tool.description}
           </p>
         </div>
