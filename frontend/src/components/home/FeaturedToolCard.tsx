@@ -18,8 +18,12 @@ export const FeaturedToolCard: React.FC<FeaturedToolCardProps> = ({ tool }) => {
 
   useEffect(() => {
     const element = descriptionRef.current;
-    if (element && element.scrollWidth > element.clientWidth) {
-      element.classList.add('animate-marquee');
+    if (element) {
+      if (element.scrollWidth > element.clientWidth) {
+        element.classList.add('animate-marquee');
+      } else {
+        element.classList.remove('animate-marquee');
+      }
     }
   }, [tool.description]);
 
@@ -39,12 +43,14 @@ export const FeaturedToolCard: React.FC<FeaturedToolCardProps> = ({ tool }) => {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent p-2 sm:p-4 flex flex-col justify-end">
           <h3 className="text-white font-semibold text-xs sm:text-sm md:text-base truncate">{tool.title}</h3>
-          {/* <p ref={descriptionRef} className="text-white/80 text-xs sm:text-sm truncate whitespace-nowrap overflow-hidden">
-            {tool.description}
-          </p> */}
-          <p ref={descriptionRef} className="text-white text-xs sm:text-sm whitespace-nowrap overflow-hidden">
-            {tool.description}
-          </p>
+          <div className="relative overflow-hidden">
+            <p 
+              ref={descriptionRef} 
+              className="text-white/80 text-xs sm:text-sm whitespace-nowrap inline-block"
+            >
+              {tool.description}
+            </p>
+          </div>
         </div>
       </motion.div>
     </CardWrapper>
