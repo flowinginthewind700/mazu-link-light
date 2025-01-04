@@ -6,7 +6,7 @@ export const featuredData: Record<string, FeatureTool[]> = {
       id: '1',
       title: 'ChatGPT',
       description: 'Advanced AI language model for conversation',
-      image: '/images/chatgpt.png',
+      image: 'placeholder.svg',
       linkType: 'external',
       link: 'https://chat.openai.com'
     },
@@ -14,7 +14,7 @@ export const featuredData: Record<string, FeatureTool[]> = {
       id: '2',
       title: 'Claude',
       description: 'Anthropic\'s AI assistant for analysis',
-      image: '/images/claude.png',
+      image: '/placeholder.svg',
       linkType: 'external',
       link: 'https://www.anthropic.com'
     },
@@ -22,7 +22,7 @@ export const featuredData: Record<string, FeatureTool[]> = {
       id: '3',
       title: 'Gemini',
       description: 'Google\'s multimodal AI model',
-      image: '/images/gemini.png',
+      image: '/placeholder.svg',
       linkType: 'external',
       link: 'https://deepmind.google/technologies/gemini/'
     },
@@ -30,7 +30,7 @@ export const featuredData: Record<string, FeatureTool[]> = {
       id: '4',
       title: 'LLaMA',
       description: 'Open source language model',
-      image: '/images/llama.png',
+      image: '/placeholder.svg',
       linkType: 'external',
       link: 'https://ai.meta.com/llama/'
     }
@@ -40,7 +40,7 @@ export const featuredData: Record<string, FeatureTool[]> = {
       id: '1',
       title: 'Image Compression',
       description: 'Optimize your images efficiently',
-      image: '/images/image-compression.png',
+      image: '/placeholder.svg',
       linkType: 'internal',
       link: '/tool/image-compression'
     },
@@ -48,7 +48,7 @@ export const featuredData: Record<string, FeatureTool[]> = {
       id: '2',
       title: 'Code Formatter',
       description: 'Format your code beautifully',
-      image: '/images/code-formatter.png',
+      image: '/placeholder.svg',
       linkType: 'internal',
       link: '/tool/code-formatter'
     },
@@ -56,7 +56,7 @@ export const featuredData: Record<string, FeatureTool[]> = {
       id: '3',
       title: 'PDF Tools',
       description: 'Comprehensive PDF manipulation',
-      image: '/images/pdf-tools.png',
+      image: '/placeholder.svg',
       linkType: 'internal',
       link: '/tool/pdf-tools'
     },
@@ -64,7 +64,7 @@ export const featuredData: Record<string, FeatureTool[]> = {
       id: '4',
       title: 'File Converter',
       description: 'Convert between file formats',
-      image: '/images/file-converter.png',
+      image: '/placeholder.svg',
       linkType: 'internal',
       link: '/tool/file-converter'
     }
@@ -74,7 +74,7 @@ export const featuredData: Record<string, FeatureTool[]> = {
       id: '1',
       title: 'AI Market Trends',
       description: 'Latest developments in AI industry',
-      image: '/images/ai-trends.png',
+      image: '/placeholder.svg',
       linkType: 'internal',
       link: '/blog/ai-market-trends'
     },
@@ -82,7 +82,7 @@ export const featuredData: Record<string, FeatureTool[]> = {
       id: '2',
       title: 'Tech News',
       description: 'Breaking technology updates',
-      image: '/images/tech-news.png',
+      image: '/placeholder.svg',
       linkType: 'internal',
       link: '/blog/tech-news'
     },
@@ -90,7 +90,7 @@ export const featuredData: Record<string, FeatureTool[]> = {
       id: '3',
       title: 'AI Tutorials',
       description: 'Learn AI development',
-      image: '/images/ai-tutorials.png',
+      image: '/placeholder.svg',
       linkType: 'internal',
       link: '/blog/ai-tutorials'
     },
@@ -98,7 +98,7 @@ export const featuredData: Record<string, FeatureTool[]> = {
       id: '4',
       title: 'Research Papers',
       description: 'Latest AI research findings',
-      image: '/images/research-papers.png',
+      image: '/placeholder.svg',
       linkType: 'internal',
       link: '/blog/research-papers'
     }
@@ -108,7 +108,7 @@ export const featuredData: Record<string, FeatureTool[]> = {
       id: '1',
       title: 'Stable Diffusion',
       description: 'Generate amazing artwork',
-      image: '/images/stable-diffusion.png',
+      image: '/placeholder.svg',
       linkType: 'external',
       link: 'https://stability.ai/'
     },
@@ -116,7 +116,7 @@ export const featuredData: Record<string, FeatureTool[]> = {
       id: '2',
       title: 'DALL-E 3',
       description: 'Create realistic images',
-      image: '/images/dall-e.png',
+      image: '/placeholder.svg',
       linkType: 'external',
       link: 'https://openai.com/dall-e-3'
     },
@@ -124,7 +124,7 @@ export const featuredData: Record<string, FeatureTool[]> = {
       id: '3',
       title: 'Midjourney',
       description: 'Professional AI art generation',
-      image: '/images/midjourney.png',
+      image: '/placeholder.svg',
       linkType: 'external',
       link: 'https://www.midjourney.com/'
     },
@@ -132,7 +132,7 @@ export const featuredData: Record<string, FeatureTool[]> = {
       id: '4',
       title: 'Imagen',
       description: 'Google\'s image generation AI',
-      image: '/images/imagen.png',
+      image: '/placeholder.svg',
       linkType: 'external',
       link: 'https://imagen.research.google/'
     }
