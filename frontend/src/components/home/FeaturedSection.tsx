@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -15,6 +15,29 @@ export const FeaturedSection: React.FC<FeaturedSectionProps> = ({
   selectedFeatureTab,
   setSelectedFeatureTab,
 }) => {
+  const [sectionHeight, setSectionHeight] = useState('auto');
+  const gridRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const updateHeight = () => {
+      if (gridRef.current) {
+        const gridItems = gridRef.current.children;
+        if (gridItems.length > 0) {
+          const itemHeight = gridItems[0].getBoundingClientRect().height;
+          const gap = 16; // Assuming a gap of 16px, adjust if different
+          const rows = Math.ceil(gridItems.length / (window.innerWidth >= 768 ? 4 : 2));
+          const newHeight = Math.min(2, rows) * (itemHeight + gap) - gap;
+          setSectionHeight(`${newHeight}px`);
+        }
+      }
+    };
+
+    updateHeight();
+    window.addEventListener('resize', updateHeight);
+
+    return () => window.removeEventListener('resize', updateHeight);
+  }, [selectedFeatureTab]);
+
   return (
     <Card className="p-4">
       <div className="flex flex-col sm:flex-row gap-4">
@@ -55,8 +78,8 @@ export const FeaturedSection: React.FC<FeaturedSectionProps> = ({
         </div>
 
         {/* ScrollArea with dynamic height */}
-        <ScrollArea className="flex-1 h-[200px] sm:h-[300px]">
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-4 p-2">
+        <ScrollArea className="flex-1" style={{ height: sectionHeight }}>
+          <div ref={gridRef} className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-4 p-2">
             {featuredData[selectedFeatureTab as keyof typeof featuredData].map((item) => (
               <FeaturedToolCard key={item.id} tool={item} />
             ))}
