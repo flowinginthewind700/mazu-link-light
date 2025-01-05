@@ -127,7 +127,7 @@ export const FeaturedSection: React.FC<FeaturedSectionProps> = ({
   };
 
   return (
-    <Card className="p-4 bg-white/50 backdrop-blur-sm">
+    <Card className="p-4 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm">
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="flex sm:flex-col gap-2 sm:border-r sm:pr-4 overflow-x-auto sm:overflow-x-visible pb-2 sm:pb-0">
           {categories.map((category) => (
@@ -143,8 +143,8 @@ export const FeaturedSection: React.FC<FeaturedSectionProps> = ({
               }}
               className={`h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0 transition-all duration-200 ${
                 selectedFeatureTab === category.name
-                  ? 'bg-blue-100/50 backdrop-blur-sm text-blue-600'
-                  : 'hover:bg-gray-100/50'
+                  ? 'bg-blue-100/50 dark:bg-blue-900/50 backdrop-blur-sm text-blue-600 dark:text-blue-300'
+                  : 'hover:bg-gray-100/50 dark:hover:bg-gray-700/50'
               }`}
             >
               {category.icon && category.icon.url && (

@@ -45,7 +45,7 @@ export const FeaturedToolCard: React.FC<FeaturedToolCardProps> = ({ tool }) => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -20 }}
-        className="group relative aspect-[2/1] rounded-lg overflow-hidden bg-white shadow-sm hover:shadow-md transition-all duration-200"
+        className="group relative aspect-[2/1] rounded-lg overflow-hidden bg-white/80 dark:bg-gray-800/80 shadow-sm hover:shadow-md transition-all duration-200"
       >
         <Image
           src={`${apiUrl}${tool.image.url}`}
