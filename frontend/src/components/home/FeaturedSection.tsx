@@ -76,7 +76,7 @@ export const FeaturedSection: React.FC<FeaturedSectionProps> = ({
     try {
       const query = `
         query {
-          featuredData {
+          agifeaturetoolcategories {
             id
             name
             priority
