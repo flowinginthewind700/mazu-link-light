@@ -96,7 +96,6 @@ export const FeaturedSection: React.FC<FeaturedSectionProps> = ({
       console.error('Error fetching featured categories:', error);
     }
   };
-  
 
   const fetchFeaturedTools = async (category: string) => {
     try {
@@ -128,7 +127,7 @@ export const FeaturedSection: React.FC<FeaturedSectionProps> = ({
   };
 
   return (
-    <Card className="p-4">
+    <Card className="p-4 bg-white/50 backdrop-blur-sm">
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="flex sm:flex-col gap-2 sm:border-r sm:pr-4 overflow-x-auto sm:overflow-x-visible pb-2 sm:pb-0">
           {categories.map((category) => (
@@ -142,7 +141,11 @@ export const FeaturedSection: React.FC<FeaturedSectionProps> = ({
                   fetchFeaturedTools(category.name);
                 }
               }}
-              className="h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0"
+              className={`h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0 transition-all duration-200 ${
+                selectedFeatureTab === category.name
+                  ? 'bg-blue-100/50 backdrop-blur-sm text-blue-600'
+                  : 'hover:bg-gray-100/50'
+              }`}
             >
               {category.icon && category.icon.url && (
                 <Image
@@ -157,7 +160,7 @@ export const FeaturedSection: React.FC<FeaturedSectionProps> = ({
         </div>
   
         <ScrollArea className="flex-1" style={{ height: sectionHeight }}>
-          <div ref={gridRef} className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-4 p-2">
+          <div ref={gridRef} className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4 p-2">
             {featuredTools[selectedFeatureTab]?.map((item) => (
               <FeaturedToolCard key={item.id} tool={item} />
             ))}
