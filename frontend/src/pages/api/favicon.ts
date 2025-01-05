@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextApiRequest, NextApiResponse } from 'next'
 import * as cheerio from 'cheerio'
 
 const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
@@ -33,10 +33,14 @@ async function findFaviconInHtml(html: string, baseUrl: string): Promise<string 
   return null
 }
 
-export async function GET(req: NextRequest) {
-  const url = new URL(req.url).searchParams.get('url')
-  if (!url) {
-    return new NextResponse('Missing URL parameter', { status: 400 })
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method !== 'GET') {
+    return res.status(405).json({ error: 'Method Not Allowed' })
+  }
+
+  const { url } = req.query
+  if (!url || typeof url !== 'string') {
+    return res.status(400).json({ error: 'Missing URL parameter' })
   }
 
   console.log('Received request for favicon:', url)
@@ -80,15 +84,11 @@ export async function GET(req: NextRequest) {
     }
 
     const faviconBuffer = await response.arrayBuffer()
-    return new NextResponse(faviconBuffer, {
-      headers: {
-        'Content-Type': contentType,
-        'Cache-Control': 'public, max-age=31536000, immutable',
-      },
-    })
+    res.setHeader('Content-Type', contentType)
+    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable')
+    res.status(200).send(Buffer.from(faviconBuffer))
   } catch (error) {
     console.error('Error fetching favicon:', error)
-    return new NextResponse(`Failed to fetch favicon: ${error instanceof Error ? error.message : 'Unknown error'}`, { status: 500 })
+    res.status(500).json({ error: `Failed to fetch favicon: ${error instanceof Error ? error.message : 'Unknown error'}` })
   }
 }
-
