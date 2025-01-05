@@ -40,6 +40,7 @@ RUN npx shadcn@latest add label switch slider scroll-area toast
 RUN npm install @next/third-parties
 RUN npm install react-markdown remark-gfm react-syntax-highlighter rehype-raw
 RUN npm install react-toastify
+RUN npm install axios
 
 COPY . .
 RUN cp -r components/* src/components
