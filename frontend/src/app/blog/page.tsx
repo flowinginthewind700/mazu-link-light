@@ -1,12 +1,17 @@
 'use client'
 
-import { useState } from 'react'
-import Image from 'next/image'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
+import axios from 'axios'
 import { cn } from '@/lib/utils'
-import { categories, blogPosts } from '@/data/mock-data'
-import { categories as blogCategories } from '@/data/blog-categories'
 import { BottomNavbar } from '@/components/bottom-navbar'
+import { BlogCard } from '@/components/blog-card'
+import dynamic from 'next/dynamic'
+
+const PageViewTracker = dynamic(() => import('@/components/ga/PageViewTracker'), { ssr: false })
+
+const apiUrl = process.env.NEXT_PUBLIC_CMS_API_BASE_URL || '';
+const POSTS_PER_PAGE = 9
 
 const container = {
   hidden: { opacity: 1, scale: 0 },
@@ -28,154 +33,233 @@ const item = {
   }
 }
 
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+}
+
+interface BlogPost {
+  id: number;
+  title: string;
+  description: string;
+  slug: string;
+  date: string;
+  category: Category;
+  cover: Array<{
+    formats: {
+      small: {
+        url: string;
+      };
+    };
+  }>;
+}
+
 export default function BlogPage() {
-  const [selectedCategory, setSelectedCategory] = useState('all')
-  const [currentPage, setCurrentPage] = useState(1)
-  const postsPerPage = 9
-  const totalPages = 20 // Assuming 20 pages total
+  const [categories, setCategories] = useState<Category[]>([])
+  const [selectedCategory, setSelectedCategory] = useState<string>('all')
+  const [currentPage, setCurrentPage] = useState<number>(1)
+  const [totalPages, setTotalPages] = useState<number>(1)
+  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([])
 
-  // Generate page numbers to display
-  const getPageNumbers = (current: number, total: number) => {
-    const pages = []
-    const maxVisible = 5
-    let start = Math.max(1, current - 2)
-    let end = Math.min(total, start + maxVisible - 1)
-    
-    if (end - start + 1 < maxVisible) {
-      start = Math.max(1, end - maxVisible + 1)
-    }
+  useEffect(() => {
+    fetchCategories()
+  }, [])
 
-    for (let i = start; i <= end; i++) {
-      pages.push(i)
+  useEffect(() => {
+    fetchBlogPosts()
+  }, [selectedCategory, currentPage])
+
+  const fetchCategories = async () => {
+    try {
+      const query = `
+        query {
+          categories {
+            id
+            name
+            slug
+          }
+        }
+      `
+      const response = await axios.post(`${apiUrl}/graphql`, { query })
+      const fetchedCategories: Category[] = response.data.data.categories
+      setCategories([{ id: 'all', name: 'All', slug: 'all' }, ...fetchedCategories])
+    } catch (error) {
+      console.error('Error fetching categories:', error)
     }
-    return pages
   }
 
-  const pageNumbers = getPageNumbers(currentPage, totalPages)
+  const fetchBlogPosts = async () => {
+    try {
+      let query: string;
+      let variables: Record<string, any>;
 
-  const filteredPosts = selectedCategory === 'all' 
-    ? blogPosts
-    : blogPosts.filter(post => post.category === selectedCategory)
+      if (selectedCategory === 'all') {
+        query = `
+          query($start: Int!, $limit: Int!) {
+            posts(start: $start, limit: $limit, sort: "date:DESC") {
+              id
+              title
+              description
+              slug
+              date
+              category {
+                id
+                name
+                slug
+              }
+              cover {
+                formats
+              }
+            }
+            postsConnection {
+              aggregate {
+                count
+              }
+            }
+          }
+        `;
+        variables = {
+          start: (currentPage - 1) * POSTS_PER_PAGE,
+          limit: POSTS_PER_PAGE,
+        }
+      } else {
+        query = `
+          query($start: Int!, $limit: Int!, $category: String!) {
+            posts(
+              where: { category: { slug: $category } }
+              start: $start
+              limit: $limit
+              sort: "date:DESC"
+            ) {
+              id
+              title
+              description
+              slug
+              date
+              category {
+                id
+                name
+                slug
+              }
+              cover {
+                formats
+              }
+            }
+            postsConnection(where: { category: { slug: $category } }) {
+              aggregate {
+                count
+              }
+            }
+          }
+        `;
+        variables = {
+          start: (currentPage - 1) * POSTS_PER_PAGE,
+          limit: POSTS_PER_PAGE,
+          category: selectedCategory,
+        }
+      }
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+      const response = await axios.post(`${apiUrl}/graphql`, { query, variables })
+      const fetchedPosts: BlogPost[] = response.data.data.posts;
+      setBlogPosts(fetchedPosts);
+      const totalCount = response.data.data.postsConnection.aggregate.count;
+      setTotalPages(Math.ceil(totalCount / POSTS_PER_PAGE));
+    } catch (error) {
+      console.error('Error fetching blog posts:', error);
+      setBlogPosts([]);
+      setTotalPages(0);
+    }
   }
 
-  const handleCategorySelect = (categoryId: string) => {
-    setSelectedCategory(categoryId);
+  const handleCategorySelect = (categorySlug: string) => {
+    setSelectedCategory(categorySlug);
     setCurrentPage(1);
   }
 
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const getPageRange = () => {
+    const range = [];
+    
+    if (totalPages <= 9) {
+      for (let i = 1; i <= totalPages; i++) {
+        range.push(i);
+      }
+    } else {
+      range.push(1);
+      let low = Math.max(2, currentPage - 3);
+      let high = Math.min(totalPages - 1, currentPage + 3);
+
+      if (currentPage - 1 <= 4) {
+        high = 7;
+      }
+  
+      if (totalPages - currentPage <= 4) {
+        low = Math.max(2, totalPages - 6);
+      }
+  
+      if (low > 2) range.push('...');
+      for (let i = low; i <= high; i++) {
+        range.push(i);
+      }
+      if (high < totalPages - 1) range.push('...');
+  
+      range.push(totalPages);
+    }
+  
+    return range;
+  }
+
+  const pageNumbersToShow = getPageRange();
+
   return (
     <div className="min-h-screen bg-background">
-      {/* Remove Navigation component from here */}
+      <PageViewTracker />
       <div className="container mx-auto px-4 py-8">
         <div className="lg:flex lg:gap-8">
-          {/* Categories - Desktop and Mobile */}
           <aside className="mb-6 lg:w-48 lg:flex-shrink-0">
             <div className="flex flex-wrap gap-2 lg:flex-col">
-              {blogCategories.map((category) => (
+              {categories.map((category) => (
                 <motion.button
                   key={category.id}
-                  onClick={() => handleCategorySelect(category.id)}
+                  onClick={() => handleCategorySelect(category.slug)}
                   className={cn(
                     "rounded-full px-4 py-2 text-sm font-medium transition-colors",
-                    selectedCategory === category.id
+                    selectedCategory === category.slug
                       ? "bg-primary text-primary-foreground"
                       : "bg-muted text-muted-foreground hover:bg-muted/80"
                   )}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  {category.label}
+                  {category.name}
                 </motion.button>
               ))}
             </div>
           </aside>
 
-          {/* Main Content */}
           <motion.main 
             className="flex-1"
             variants={container}
             initial="hidden"
             animate="visible"
           >
-            {/* Blog Posts Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredPosts.map((post) => (
-                <motion.article
-                  key={post.id}
-                  className="group rounded-lg border bg-card text-card-foreground shadow-sm transition-shadow hover:shadow-md"
-                  variants={item}
-                >
-                  <motion.div 
-                    className="aspect-video relative overflow-hidden rounded-t-lg"
-                    whileHover={{ scale: 1.05 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <Image
-                      src={post.image}
-                      alt={post.title}
-                      fill
-                      className="object-cover transition-transform group-hover:scale-105"
-                    />
-                  </motion.div>
-                  <div className="p-4 space-y-2">
-                    <h2 className="font-semibold line-clamp-2 text-lg">
-                      {post.title}
-                    </h2>
-                    <p className="text-sm text-muted-foreground line-clamp-2">
-                      {post.excerpt}
-                    </p>
-                    <time className="text-xs text-muted-foreground">
-                      {post.date}
-                    </time>
-                  </div>
-                </motion.article>
+            <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+              {blogPosts.map((post) => (
+                <motion.div key={post.id} variants={item} className="w-full">
+                  <BlogCard post={post} />
+                </motion.div>
               ))}
             </div>
 
-            {/* Pagination */}
-            <motion.div 
-              className="mt-8 flex justify-center items-center gap-2"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.5 }}
-            >
-              <motion.button
-                onClick={() => handlePageChange(1)}
-                disabled={currentPage === 1}
-                className={cn(
-                  "w-8 h-8 flex items-center justify-center rounded-md",
-                  currentPage === 1 
-                    ? "bg-muted/50 cursor-not-allowed" 
-                    : "bg-muted hover:bg-muted/80"
-                )}
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                aria-label="First page"
-              >
-                <span className="sr-only">First page</span>
-                «
-              </motion.button>
-              <motion.button
-                onClick={() => handlePageChange(currentPage - 1)}
-                disabled={currentPage === 1}
-                className={cn(
-                  "w-8 h-8 flex items-center justify-center rounded-md",
-                  currentPage === 1 
-                    ? "bg-muted/50 cursor-not-allowed" 
-                    : "bg-muted hover:bg-muted/80"
-                )}
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                aria-label="Previous page"
-              >
-                <span className="sr-only">Previous page</span>
-                ‹
-              </motion.button>
-              {pageNumbers.map((page) => (
+            <div className="mt-8 flex justify-center items-center gap-2">
+              {pageNumbersToShow.map((page, index) => (
+                typeof page === 'string' ? 
+                <span key={`ellipsis-${index}`} className="w-8 h-8 flex items-center justify-center">...</span> :
                 <motion.button
                   key={page}
                   onClick={() => handlePageChange(page)}
@@ -191,39 +275,7 @@ export default function BlogPage() {
                   {page}
                 </motion.button>
               ))}
-              <motion.button
-                onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === totalPages}
-                className={cn(
-                  "w-8 h-8 flex items-center justify-center rounded-md",
-                  currentPage === totalPages 
-                    ? "bg-muted/50 cursor-not-allowed" 
-                    : "bg-muted hover:bg-muted/80"
-                )}
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                aria-label="Next page"
-              >
-                <span className="sr-only">Next page</span>
-                ›
-              </motion.button>
-              <motion.button
-                onClick={() => handlePageChange(totalPages)}
-                disabled={currentPage === totalPages}
-                className={cn(
-                  "w-8 h-8 flex items-center justify-center rounded-md",
-                  currentPage === totalPages 
-                    ? "bg-muted/50 cursor-not-allowed" 
-                    : "bg-muted hover:bg-muted/80"
-                )}
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                aria-label="Last page"
-              >
-                <span className="sr-only">Last page</span>
-                »
-              </motion.button>
-            </motion.div>
+            </div>
           </motion.main>
         </div>
       </div>
@@ -231,4 +283,3 @@ export default function BlogPage() {
     </div>
   )
 }
-
