@@ -1,17 +1,38 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import * as cheerio from 'cheerio'
+import axios from 'axios'
 
 const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+const TIMEOUT = 10000 // 10 seconds
+const MAX_RETRIES = 2
 
-async function fetchWithBrowserHeaders(url: string): Promise<Response> {
-  return fetch(url, {
-    headers: {
-      'User-Agent': USER_AGENT,
-      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-      'Accept-Language': 'en-US,en;q=0.5',
-      'Referer': 'https://www.google.com/',
-    },
-  })
+interface FaviconResult {
+  url: string
+  buffer: Buffer
+  contentType: string
+}
+
+async function fetchWithRetry(url: string, retries = MAX_RETRIES): Promise<axios.AxiosResponse> {
+  try {
+    return await axios.get(url, {
+      timeout: TIMEOUT,
+      responseType: 'arraybuffer',
+      headers: {
+        'User-Agent': USER_AGENT,
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Connection': 'keep-alive',
+        'Upgrade-Insecure-Requests': '1',
+      },
+    })
+  } catch (error) {
+    if (retries > 0) {
+      console.log(`Retrying fetch for ${url}. Attempts left: ${retries - 1}`)
+      return fetchWithRetry(url, retries - 1)
+    }
+    throw error
+  }
 }
 
 async function findFaviconInHtml(html: string, baseUrl: string): Promise<string | null> {
@@ -20,17 +41,64 @@ async function findFaviconInHtml(html: string, baseUrl: string): Promise<string 
     'link[rel="icon"]',
     'link[rel="shortcut icon"]',
     'link[rel="apple-touch-icon"]',
-    'link[rel="apple-touch-icon-precomposed"]'
+    'link[rel="apple-touch-icon-precomposed"]',
+    'meta[name="msapplication-TileImage"]'
   ]
 
   for (const selector of iconSelectors) {
-    const href = $(selector).attr('href')
+    const href = $(selector).attr('href') || $(selector).attr('content')
     if (href) {
       return new URL(href, baseUrl).href
     }
   }
 
   return null
+}
+
+async function getFavicon(url: string): Promise<FaviconResult> {
+  const parsedUrl = new URL(url)
+  const domain = parsedUrl.hostname
+  const protocol = parsedUrl.protocol
+
+  const faviconCandidates = [
+    `${protocol}//${domain}/favicon.ico`,
+    `${protocol}//${domain}/favicon.png`,
+    `${protocol}//${domain}/apple-touch-icon.png`,
+    `${protocol}//${domain}/apple-touch-icon-precomposed.png`,
+  ]
+
+  for (const candidateUrl of faviconCandidates) {
+    try {
+      const response = await fetchWithRetry(candidateUrl)
+      if (response.headers['content-type']?.includes('image')) {
+        return {
+          url: candidateUrl,
+          buffer: Buffer.from(response.data),
+          contentType: response.headers['content-type'],
+        }
+      }
+    } catch (error) {
+      console.log(`Failed to fetch favicon from ${candidateUrl}: ${error}`)
+    }
+  }
+
+  // If direct attempts fail, try parsing HTML
+  const htmlResponse = await fetchWithRetry(url)
+  const html = htmlResponse.data.toString('utf-8')
+  const foundFaviconUrl = await findFaviconInHtml(html, url)
+
+  if (foundFaviconUrl) {
+    const response = await fetchWithRetry(foundFaviconUrl)
+    if (response.headers['content-type']?.includes('image')) {
+      return {
+        url: foundFaviconUrl,
+        buffer: Buffer.from(response.data),
+        contentType: response.headers['content-type'],
+      }
+    }
+  }
+
+  throw new Error('No valid favicon found')
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -43,52 +111,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(400).json({ error: 'Missing URL parameter' })
   }
 
-  console.log('Received request for favicon:', url)
+  console.log(`Received request for favicon: ${url}`)
 
   try {
-    const parsedUrl = new URL(url)
-    const domain = parsedUrl.hostname
-    const protocol = parsedUrl.protocol
+    const result = await getFavicon(url)
 
-    // Try to fetch favicon.ico directly
-    const faviconUrl = `${protocol}//${domain}/favicon.ico`
-    console.log('Attempting to fetch favicon from:', faviconUrl)
-    
-    let response = await fetchWithBrowserHeaders(faviconUrl)
-    
-    // If favicon.ico fails, try to parse HTML for favicon link
-    if (!response.ok) {
-      console.log('Direct favicon.ico failed, attempting to parse HTML')
-      response = await fetchWithBrowserHeaders(url)
-      if (!response.ok) {
-        throw new Error(`Failed to fetch HTML from ${url}. Status: ${response.status}`)
-      }
-      
-      const html = await response.text()
-      const foundFaviconUrl = await findFaviconInHtml(html, url)
-      
-      if (foundFaviconUrl) {
-        console.log('Found favicon URL in HTML:', foundFaviconUrl)
-        response = await fetchWithBrowserHeaders(foundFaviconUrl)
-        if (!response.ok) {
-          throw new Error(`Failed to fetch favicon from ${foundFaviconUrl}. Status: ${response.status}`)
-        }
-      } else {
-        throw new Error('No favicon found in HTML')
-      }
-    }
+    res.setHeader('Content-Type', result.contentType)
+    res.setHeader('Cache-Control', 'public, max-age=86400, immutable') // Cache for 1 day
+    res.status(200).send(result.buffer)
 
-    const contentType = response.headers.get('Content-Type')
-    if (!contentType || !contentType.includes('image')) {
-      throw new Error(`Invalid content type for favicon: ${contentType}`)
-    }
-
-    const faviconBuffer = await response.arrayBuffer()
-    res.setHeader('Content-Type', contentType)
-    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable')
-    res.status(200).send(Buffer.from(faviconBuffer))
+    console.log(`Successfully fetched favicon for ${url} from ${result.url}`)
   } catch (error) {
-    console.error('Error fetching favicon:', error)
+    console.error(`Error fetching favicon for ${url}:`, error)
     res.status(500).json({ error: `Failed to fetch favicon: ${error instanceof Error ? error.message : 'Unknown error'}` })
   }
 }
