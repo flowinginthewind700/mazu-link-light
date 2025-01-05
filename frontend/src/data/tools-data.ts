@@ -49,6 +49,38 @@ Features include:
 4. Enjoy faster website loading times!
     `,
   },
+  {
+    id: 'favicon-downloader',
+    name: 'Favicon Downloader',
+    description: 'Download favicons from any website',
+    image: '/images/favicondownloader.jpg',
+    pricing: 'Free',
+    tags: ['Web', 'Icon', 'Download'],
+    accessLink: '/tools/favicon-downloader',
+    author: 'AI Tools Directory',
+    submissionDate: '2024-01-03',
+    category: 'web',
+    internalPath: '/tools/favicon-downloader',
+    content: `
+# Favicon Downloader
+
+Our Favicon Downloader tool allows you to easily download favicons from any website. Features include:
+
+- Automatic URL protocol detection (https/http)
+- Support for both PNG and ICO formats
+- Simple and intuitive user interface
+- Fast and efficient favicon retrieval
+
+## How to Use
+
+1. Enter the website URL in the input field
+2. Click "Get Favicon" to fetch the icon
+3. Once loaded, choose to download as PNG or ICO
+4. Enjoy your downloaded favicon!
+
+This tool is perfect for designers, developers, or anyone who needs to quickly grab a website's favicon.
+    `,
+  },
   // ... other tools
 ];
 

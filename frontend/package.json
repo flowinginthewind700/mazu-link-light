@@ -45,7 +45,8 @@
     "xml2js": "*",
     "react-slick": "^0.29.0",
     "slick-carousel": "^1.8.1",
-    "framer-motion": "^4.1.17"
+    "framer-motion": "^4.1.17",
+    "cheerio": "^1.0.0-rc.12"
   },
    "devDependencies": {
     "@types/node": "^20",
