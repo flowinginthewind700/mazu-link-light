@@ -164,7 +164,7 @@ const PostDetail: React.FC<PostDetailProps> = ({ postId }) => {
   const renderAuthorInfo = () => {
     if (post.author) {
       const avatarUrl = post.author.avatar?.url
-        ? `${apiUrl}${post.author.avatar.url}`
+        ? `${post.author.avatar.url}`
         : '/images/defaultavatar.jpg';
 
       return (
