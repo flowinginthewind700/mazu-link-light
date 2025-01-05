@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import * as cheerio from 'cheerio'
-import axios from 'axios'
+import axios, { AxiosResponse } from 'axios'
 
 const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
 const TIMEOUT = 10000 // 10 seconds
@@ -12,7 +12,7 @@ interface FaviconResult {
   contentType: string
 }
 
-async function fetchWithRetry(url: string, retries = MAX_RETRIES): Promise<axios.AxiosResponse> {
+async function fetchWithRetry(url: string, retries = MAX_RETRIES): Promise<AxiosResponse> {
   try {
     return await axios.get(url, {
       timeout: TIMEOUT,
