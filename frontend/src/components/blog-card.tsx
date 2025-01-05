@@ -33,7 +33,7 @@ export function BlogCard({ post }: BlogCardProps) {
   : '/images/default_blog.jpg'
 
   return (
-    <Link href={`/blog/${post.slug}`}>
+    <Link href={`/blog/${post.id}`}>
       <Card className="overflow-hidden h-full hover:shadow-lg transition-shadow duration-300">
         <motion.div 
           whileHover={{ scale: 1.05 }}
