@@ -2,11 +2,23 @@ import React, { useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { FeatureTool } from './types';
+
+interface FeatureTool {
+  id: number;
+  title: string;
+  description: string;
+  linkType: 'internal' | 'external';
+  link: string;
+  image: {
+    url: string;
+  };
+}
 
 interface FeaturedToolCardProps {
   tool: FeatureTool;
 }
+
+const apiUrl = process.env.NEXT_PUBLIC_CMS_API_BASE_URL;
 
 export const FeaturedToolCard: React.FC<FeaturedToolCardProps> = ({ tool }) => {
   const CardWrapper = tool.linkType === 'internal' ? Link : 'a';
@@ -36,7 +48,7 @@ export const FeaturedToolCard: React.FC<FeaturedToolCardProps> = ({ tool }) => {
         className="group relative aspect-[2/1] rounded-lg overflow-hidden bg-gradient-to-r from-accent to-accent/50 hover:shadow-lg transition-all duration-200"
       >
         <Image
-          src={tool.image}
+          src={`${apiUrl}${tool.image.url}`}
           alt={tool.title}
           fill
           className="object-cover transition-transform group-hover:scale-105"
