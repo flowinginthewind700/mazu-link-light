@@ -87,14 +87,16 @@ export const FeaturedSection: React.FC<FeaturedSectionProps> = ({
         }
       `;
       const response = await axios.post(`${apiUrl}/graphql`, { query });
-      setCategories(response.data.data.featuredData);
-      if (response.data.data.featuredData.length > 0) {
-        setSelectedFeatureTab(response.data.data.featuredData[0].name);
+      const fetchedCategories = response.data.data.agifeaturetoolcategories;
+      setCategories(fetchedCategories);
+      if (fetchedCategories.length > 0) {
+        setSelectedFeatureTab(fetchedCategories[0].name);
       }
     } catch (error) {
       console.error('Error fetching featured categories:', error);
     }
   };
+  
 
   const fetchFeaturedTools = async (category: string) => {
     try {
@@ -142,16 +144,18 @@ export const FeaturedSection: React.FC<FeaturedSectionProps> = ({
               }}
               className="h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0"
             >
-              <Image
-                src={`${apiUrl}${category.icon.url}`}
-                alt={category.name}
-                width={24}
-                height={24}
-              />
+              {category.icon && category.icon.url && (
+                <Image
+                  src={`${apiUrl}${category.icon.url}`}
+                  alt={category.name}
+                  width={24}
+                  height={24}
+                />
+              )}
             </Button>
           ))}
         </div>
-
+  
         <ScrollArea className="flex-1" style={{ height: sectionHeight }}>
           <div ref={gridRef} className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-4 p-2">
             {featuredTools[selectedFeatureTab]?.map((item) => (
@@ -161,5 +165,5 @@ export const FeaturedSection: React.FC<FeaturedSectionProps> = ({
         </ScrollArea>
       </div>
     </Card>
-  );
+  );  
 };
