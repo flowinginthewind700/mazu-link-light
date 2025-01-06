@@ -12,6 +12,7 @@ const PageViewTracker = dynamic(() => import('@/components/ga/PageViewTracker'),
 
 const apiUrl = process.env.NEXT_PUBLIC_CMS_API_BASE_URL || '';
 const POSTS_PER_PAGE = 9
+const MARKET_CATEGORY_ID = "1";
 
 const container = {
   hidden: { opacity: 1, scale: 0 },
@@ -74,7 +75,7 @@ export default function BlogPage() {
     try {
       const query = `
         query {
-          categories {
+          categories(where: { id_ne: "${MARKET_CATEGORY_ID}" }) {
             id
             name
             slug
@@ -97,37 +98,8 @@ export default function BlogPage() {
       if (selectedCategory === 'all') {
         query = `
           query($start: Int!, $limit: Int!) {
-            posts(start: $start, limit: $limit, sort: "date:DESC") {
-              id
-              title
-              description
-              slug
-              date
-              category {
-                id
-                name
-                slug
-              }
-              cover {
-                formats
-              }
-            }
-            postsConnection {
-              aggregate {
-                count
-              }
-            }
-          }
-        `;
-        variables = {
-          start: (currentPage - 1) * POSTS_PER_PAGE,
-          limit: POSTS_PER_PAGE,
-        }
-      } else {
-        query = `
-          query($start: Int!, $limit: Int!, $category: String!) {
             posts(
-              where: { category: { slug: $category } }
+              where: { category: { id_ne: "${MARKET_CATEGORY_ID}" } }
               start: $start
               limit: $limit
               sort: "date:DESC"
@@ -146,7 +118,41 @@ export default function BlogPage() {
                 formats
               }
             }
-            postsConnection(where: { category: { slug: $category } }) {
+            postsConnection(where: { category: { id_ne: "${MARKET_CATEGORY_ID}" } }) {
+              aggregate {
+                count
+              }
+            }
+          }
+        `;
+        variables = {
+          start: (currentPage - 1) * POSTS_PER_PAGE,
+          limit: POSTS_PER_PAGE,
+        }
+      } else {
+        query = `
+          query($start: Int!, $limit: Int!, $category: String!) {
+            posts(
+              where: { category: { slug: $category, id_ne: "${MARKET_CATEGORY_ID}" } }
+              start: $start
+              limit: $limit
+              sort: "date:DESC"
+            ) {
+              id
+              title
+              description
+              slug
+              date
+              category {
+                id
+                name
+                slug
+              }
+              cover {
+                formats
+              }
+            }
+            postsConnection(where: { category: { slug: $category, id_ne: "${MARKET_CATEGORY_ID}" } }) {
               aggregate {
                 count
               }
