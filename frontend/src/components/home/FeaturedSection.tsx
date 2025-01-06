@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import Image from 'next/image';
 import { FeaturedToolCard } from './FeaturedToolCard';
 import axios from 'axios';
 
@@ -126,6 +125,14 @@ export const FeaturedSection: React.FC<FeaturedSectionProps> = ({
     }
   };
 
+  const renderSvgIcon = (iconUrl: string) => {
+    return (
+      <svg className="w-6 h-6 fill-current">
+        <use xlinkHref={`${apiUrl}${iconUrl}#icon`} />
+      </svg>
+    );
+  };
+
   return (
     <Card className="p-4 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm">
       <div className="flex flex-col sm:flex-row gap-4">
@@ -144,17 +151,10 @@ export const FeaturedSection: React.FC<FeaturedSectionProps> = ({
               className={`h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0 transition-all duration-200 ${
                 selectedFeatureTab === category.name
                   ? 'bg-blue-100/50 dark:bg-blue-900/50 backdrop-blur-sm text-blue-600 dark:text-blue-300'
-                  : 'hover:bg-gray-100/50 dark:hover:bg-gray-700/50'
+                  : 'hover:bg-gray-100/50 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-300'
               }`}
             >
-              {category.icon && category.icon.url && (
-                <Image
-                  src={`${apiUrl}${category.icon.url}`}
-                  alt={category.name}
-                  width={24}
-                  height={24}
-                />
-              )}
+              {category.icon && category.icon.url && renderSvgIcon(category.icon.url)}
             </Button>
           ))}
         </div>
