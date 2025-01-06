@@ -3,7 +3,7 @@ export interface Category {
     name: string;
   }
   
-  interface Tool {
+export interface Tool {
     id: string;
     name: string;
     Description: string;

@@ -4,22 +4,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { SquareArrowOutUpRight } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-
-interface Tool {
-  id: string;
-  name: string;
-  Description: string;
-  iconimage: {
-    formats?: {
-      thumbnail?: {
-        url: string;
-      };
-    };
-    url: string;
-  };
-  accessLink: string;
-  internalPath: string | null;
-}
+import {Tool } from './types'
 
 interface ToolCardProps {
   tool: Tool;
