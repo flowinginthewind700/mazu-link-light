@@ -12,7 +12,7 @@ const PageViewTracker = dynamic(() => import('@/components/ga/PageViewTracker'),
 
 const apiUrl = process.env.NEXT_PUBLIC_CMS_API_BASE_URL || '';
 const POSTS_PER_PAGE = 9
-const MARKET_CATEGORY_ID = "1";
+const EXCLUDED_CATEGORY_IDS = ["1", "4"]; // IDs for market and stock categories
 
 const container = {
   hidden: { opacity: 1, scale: 0 },
@@ -75,7 +75,7 @@ export default function BlogPage() {
     try {
       const query = `
         query {
-          categories(where: { id_ne: "${MARKET_CATEGORY_ID}" }) {
+          categories(where: { id_nin: ${JSON.stringify(EXCLUDED_CATEGORY_IDS)} }) {
             id
             name
             slug
@@ -99,7 +99,7 @@ export default function BlogPage() {
         query = `
           query($start: Int!, $limit: Int!) {
             posts(
-              where: { category: { id_ne: "${MARKET_CATEGORY_ID}" } }
+              where: { category: { id_nin: ${JSON.stringify(EXCLUDED_CATEGORY_IDS)} } }
               start: $start
               limit: $limit
               sort: "date:DESC"
@@ -118,7 +118,7 @@ export default function BlogPage() {
                 formats
               }
             }
-            postsConnection(where: { category: { id_ne: "${MARKET_CATEGORY_ID}" } }) {
+            postsConnection(where: { category: { id_nin: ${JSON.stringify(EXCLUDED_CATEGORY_IDS)} } }) {
               aggregate {
                 count
               }
@@ -133,7 +133,7 @@ export default function BlogPage() {
         query = `
           query($start: Int!, $limit: Int!, $category: String!) {
             posts(
-              where: { category: { slug: $category, id_ne: "${MARKET_CATEGORY_ID}" } }
+              where: { category: { slug: $category, id_nin: ${JSON.stringify(EXCLUDED_CATEGORY_IDS)} } }
               start: $start
               limit: $limit
               sort: "date:DESC"
@@ -152,7 +152,7 @@ export default function BlogPage() {
                 formats
               }
             }
-            postsConnection(where: { category: { slug: $category, id_ne: "${MARKET_CATEGORY_ID}" } }) {
+            postsConnection(where: { category: { slug: $category, id_nin: ${JSON.stringify(EXCLUDED_CATEGORY_IDS)} } }) {
               aggregate {
                 count
               }
