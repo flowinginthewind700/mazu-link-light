@@ -1,6 +1,6 @@
 # AI Tools Directory
 
-![AI Tools Directory Logo](https://github.com/flowinginthewind700/mazu-link-light/blob/main/frontend/public/images/agientrylogo_large.jpg)
+![AI Tools Directory Logo](https://github.com/flowinginthewind700/mazu-link-light/blob/main/frontend/public/images/agi_screenshot.png)
 
 AI Tools Directory is a comprehensive platform showcasing the latest AI tools and technologies. Our mission is to provide developers, researchers, and AI enthusiasts with a user-friendly interface to discover, compare, and learn about various AI tools available in the market.
 

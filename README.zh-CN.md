@@ -1,6 +1,6 @@
 # AI 工具目录
 
-![AI 工具目录 Logo](https://github.com/flowinginthewind700/mazu-link-light/blob/main/frontend/public/images/agientrylogo_large.jpg)
+![AI 工具目录 Logo](https://github.com/flowinginthewind700/mazu-link-light/blob/main/frontend/public/images/agi_screenshot.png)
 
 AI 工具目录是一个全面展示最新 AI 工具和技术的平台。我们的使命是为开发者、研究人员和 AI 爱好者提供一个用户友好的界面，以发现、比较和了解市场上各种可用的 AI 工具。
 
