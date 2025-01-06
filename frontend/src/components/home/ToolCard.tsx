@@ -3,8 +3,23 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { SquareArrowOutUpRight } from 'lucide-react';
-import { Tool } from './types';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+
+interface Tool {
+  id: string;
+  name: string;
+  Description: string;
+  iconimage: {
+    formats?: {
+      thumbnail?: {
+        url: string;
+      };
+    };
+    url: string;
+  };
+  accessLink: string;
+  internalPath: string | null;
+}
 
 interface ToolCardProps {
   tool: Tool;
@@ -12,6 +27,12 @@ interface ToolCardProps {
 }
 
 export const ToolCard: React.FC<ToolCardProps> = ({ tool, apiUrl }) => {
+  const handleExternalClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    window.open(tool.accessLink, '_blank', 'noopener,noreferrer');
+  };
+
   return (
     <div className="relative">
       <Link href={`/agitool/${tool.id}`} className="block">
@@ -33,24 +54,23 @@ export const ToolCard: React.FC<ToolCardProps> = ({ tool, apiUrl }) => {
           </div>
         </motion.div>
       </Link>
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <a
-              href={tool.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="absolute top-2 right-2 p-1 rounded-full bg-background/80 hover:bg-background transition-colors"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <SquareArrowOutUpRight className="w-4 h-4" />
-            </a>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Access Tool</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+      {tool.accessLink && !tool.internalPath && (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                onClick={handleExternalClick}
+                className="absolute top-2 right-2 p-1 rounded-full bg-background/80 hover:bg-background transition-colors"
+              >
+                <SquareArrowOutUpRight className="w-4 h-4" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Access External Tool</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      )}
     </div>
   );
 };
