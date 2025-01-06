@@ -3,14 +3,20 @@ export interface Category {
     name: string;
   }
   
-  export interface Tool {
+  interface Tool {
     id: string;
     name: string;
     Description: string;
     iconimage: {
-      formats: any;
+      formats?: {
+        thumbnail?: {
+          url: string;
+        };
+      };
       url: string;
     };
+    accessLink: string;
+    internalPath: string | null;
   }
   
   export interface FeatureTool {

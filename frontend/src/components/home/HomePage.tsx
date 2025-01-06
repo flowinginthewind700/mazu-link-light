@@ -72,6 +72,8 @@ export default function HomePage() {
               formats
               url
             }
+            accessLink
+            internalPath
           }
         }
       `
