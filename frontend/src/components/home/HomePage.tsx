@@ -4,7 +4,6 @@ import React, { useRef, useState, useEffect } from 'react'
 import Head from 'next/head'
 import Script from 'next/script'
 import axios from 'axios'
-import Image from 'next/image'
 import { HeroSearch } from './HeroSearch'
 import { FeaturedSection } from './FeaturedSection'
 import { ToolCard } from './ToolCard'
@@ -46,13 +45,13 @@ export default function HomePage() {
   const fetchCategories = async () => {
     try {
       const query = `
-        query {
-          agitoolcategories {
-            id
-            name
-          }
-        }
-      `
+query {
+agitoolcategories {
+id
+name
+}
+}
+`
       const response = await axios.post(`${apiUrl}/graphql`, { query })
       setCategories(response.data.data.agitoolcategories)
     } catch (error) {
@@ -63,23 +62,23 @@ export default function HomePage() {
   const fetchToolsForCategory = async (categoryId: string) => {
     try {
       const query = `
-        query($categoryId: ID!) {
-          agitools(
-            where: { agitoolcategory: { id: $categoryId } }
-            limit: ${TOOLS_PER_CATEGORY}
-          ) {
-            id
-            name
-            Description
-            iconimage {
-              formats
-              url
-            }
-            accessLink
-            internalPath
-          }
-        }
-      `
+query($categoryId: ID!) {
+agitools(
+where: { agitoolcategory: { id: $categoryId } }
+limit: ${TOOLS_PER_CATEGORY}
+) {
+id
+name
+Description
+iconimage {
+formats
+url
+}
+accessLink
+internalPath
+}
+}
+`
       const response = await axios.post(`${apiUrl}/graphql`, {
         query,
         variables: { categoryId }
@@ -152,30 +151,8 @@ export default function HomePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
       <div className="min-h-screen bg-background text-foreground">
-        {/* Fixed Navigation Bar */}
-        <nav className="fixed top-0 left-0 w-full bg-background z-50 shadow-md">
-          <div className="container mx-auto px-4 py-2 flex items-center justify-between">
-            <Image
-              src="/images/agientrylogo_large.jpg"
-              alt="AI Tools Logo"
-              width={60}
-              height={20}
-            />
-            <div className="flex space-x-4">
-              {categories.map((category) => (
-                <button
-                  key={category.id}
-                  onClick={() => scrollToSection(category.id)}
-                  className="text-sm hover:text-primary transition-colors duration-200"
-                >
-                  {category.name}
-                </button>
-              ))}
-            </div>
-          </div>
-        </nav>
-
-        <div className="container mx-auto px-4 py-8 mt-16"> {/* Added margin top to account for fixed nav */}
+        <div className="container mx-auto px-4 py-8">
+          <h1 className="text-4xl font-bold mb-8">Explore AI & AGI Tools</h1>
           <div className="lg:flex lg:gap-8">
             {/* Sidebar */}
             <aside className="hidden lg:block w-48 space-y-4 sticky top-24 h-fit">
@@ -216,6 +193,9 @@ export default function HomePage() {
                     title={category.name}
                     isActive={animatingSection === category.id}
                   />
+                  {/* <p className="text-muted-foreground mb-4">
+Explore the best {category.name.toLowerCase()} tools for AI and AGI applications.
+</p> */}
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {toolsByCategory[category.id]?.map((tool) => (
                       <ToolCard key={tool.id} tool={tool} apiUrl={apiUrl || ''} />
