@@ -4,6 +4,7 @@ import React, { useRef, useState, useEffect } from 'react'
 import Head from 'next/head'
 import Script from 'next/script'
 import axios from 'axios'
+import Image from 'next/image'
 import { HeroSearch } from './HeroSearch'
 import { FeaturedSection } from './FeaturedSection'
 import { ToolCard } from './ToolCard'
@@ -22,7 +23,6 @@ export default function HomePage() {
   const [categories, setCategories] = useState<Category[]>([])
   const [toolsByCategory, setToolsByCategory] = useState<Record<string, Tool[]>>({})
   const [selectedFeatureTab, setSelectedFeatureTab] = useState('agi-tools')
-  const [isScrolled, setIsScrolled] = useState(false)
 
   const sectionRefs = useRef<Record<string, React.RefObject<HTMLDivElement>>>({});
 
@@ -42,20 +42,6 @@ export default function HomePage() {
       });
     }
   }, [categories])
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollTop = window.pageYOffset
-      if (scrollTop > 100) {
-        setIsScrolled(true)
-      } else {
-        setIsScrolled(false)
-      }
-    }
-
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
 
   const fetchCategories = async () => {
     try {
@@ -166,14 +152,30 @@ export default function HomePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
       <div className="min-h-screen bg-background text-foreground">
-        {isScrolled && (
-          <div className="fixed top-0 left-0 w-full bg-background z-50 shadow-md transition-all duration-300">
-            <div className="container mx-auto px-4 py-2">
-              <h1 className="text-xl font-bold">Explore AI & AGI Tools</h1>
+        {/* Fixed Navigation Bar */}
+        <nav className="fixed top-0 left-0 w-full bg-background z-50 shadow-md">
+          <div className="container mx-auto px-4 py-2 flex items-center justify-between">
+            <Image
+              src="/images/agientrylogo_large.jpg"
+              alt="AI Tools Logo"
+              width={60}
+              height={20}
+            />
+            <div className="flex space-x-4">
+              {categories.map((category) => (
+                <button
+                  key={category.id}
+                  onClick={() => scrollToSection(category.id)}
+                  className="text-sm hover:text-primary transition-colors duration-200"
+                >
+                  {category.name}
+                </button>
+              ))}
             </div>
           </div>
-        )}
-        <div className="container mx-auto px-4 py-8">
+        </nav>
+
+        <div className="container mx-auto px-4 py-8 mt-16"> {/* Added margin top to account for fixed nav */}
           <div className="lg:flex lg:gap-8">
             {/* Sidebar */}
             <aside className="hidden lg:block w-48 space-y-4 sticky top-24 h-fit">
