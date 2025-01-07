@@ -22,6 +22,7 @@ export default function HomePage() {
   const [categories, setCategories] = useState<Category[]>([])
   const [toolsByCategory, setToolsByCategory] = useState<Record<string, Tool[]>>({})
   const [selectedFeatureTab, setSelectedFeatureTab] = useState('agi-tools')
+  const [isScrolled, setIsScrolled] = useState(false)
 
   const sectionRefs = useRef<Record<string, React.RefObject<HTMLDivElement>>>({});
 
@@ -35,12 +36,26 @@ export default function HomePage() {
         acc[category.id] = React.createRef<HTMLDivElement>();
         return acc;
       }, {} as Record<string, React.RefObject<HTMLDivElement>>);
-      
+
       categories.forEach(category => {
         fetchToolsForCategory(category.id);
       });
     }
   }, [categories])
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.pageYOffset
+      if (scrollTop > 100) {
+        setIsScrolled(true)
+      } else {
+        setIsScrolled(false)
+      }
+    }
+
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   const fetchCategories = async () => {
     try {
@@ -79,11 +94,11 @@ export default function HomePage() {
           }
         }
       `
-      const response = await axios.post(`${apiUrl}/graphql`, { 
+      const response = await axios.post(`${apiUrl}/graphql`, {
         query,
         variables: { categoryId }
       })
-      
+
       setToolsByCategory(prev => ({
         ...prev,
         [categoryId]: response.data.data.agitools
@@ -151,8 +166,14 @@ export default function HomePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
       <div className="min-h-screen bg-background text-foreground">
+        {isScrolled && (
+          <div className="fixed top-0 left-0 w-full bg-background z-50 shadow-md transition-all duration-300">
+            <div className="container mx-auto px-4 py-2">
+              <h1 className="text-xl font-bold">Explore AI & AGI Tools</h1>
+            </div>
+          </div>
+        )}
         <div className="container mx-auto px-4 py-8">
-          <h1 className="text-4xl font-bold mb-8">Explore AI & AGI Tools</h1>
           <div className="lg:flex lg:gap-8">
             {/* Sidebar */}
             <aside className="hidden lg:block w-48 space-y-4 sticky top-24 h-fit">
@@ -189,13 +210,10 @@ export default function HomePage() {
                   ref={sectionRefs.current[category.id]}
                   className="space-y-4 scroll-mt-24"
                 >
-                  <AnimatedSectionTitle 
-                    title={category.name} 
+                  <AnimatedSectionTitle
+                    title={category.name}
                     isActive={animatingSection === category.id}
                   />
-                  <p className="text-muted-foreground mb-4">
-                    Explore the best {category.name.toLowerCase()} tools for AI and AGI applications.
-                  </p>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {toolsByCategory[category.id]?.map((tool) => (
                       <ToolCard key={tool.id} tool={tool} apiUrl={apiUrl || ''} />

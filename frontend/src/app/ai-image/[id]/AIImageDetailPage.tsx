@@ -6,6 +6,7 @@ import axios from 'axios'
 import { Facebook, Twitter, Linkedin, Share2, Search, X } from 'lucide-react'
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch"
 import * as Dialog from '@radix-ui/react-dialog'
+import { BottomNavbar } from '@/components/bottom-navbar'
 
 const apiUrl = process.env.NEXT_PUBLIC_CMS_API_BASE_URL
 
@@ -145,6 +146,7 @@ export default function AIImageDetailPage({ id }: { id: string }) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">Loading...</div>
+        <BottomNavbar />
       </div>
     )
   }
@@ -252,6 +254,7 @@ export default function AIImageDetailPage({ id }: { id: string }) {
           </button>
         </div>
       </div>
+      <BottomNavbar />
     </div>
   )
 }
