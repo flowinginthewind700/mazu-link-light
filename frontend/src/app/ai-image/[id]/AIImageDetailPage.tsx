@@ -117,26 +117,29 @@ export default function AIImageDetailPage({ id }: { id: string }) {
   }
 
   const handleShare = (platform: string) => {
-    const url = window.location.href
-    const truncatedPrompt = truncateText(image?.prompt || '', 200)
-    const text = `Explore Text2Image Example - ${truncatedPrompt} on LLMStock`
-
+    const url = window.location.href;
+    const truncatedPrompt = truncateText(image?.prompt || '', 200);
+    const text = `Explore Text2Image Example - ${truncatedPrompt} on AGIEntry`;
+    const encodedUrl = encodeURIComponent(url);
+    const encodedText = encodeURIComponent(text);
+  
     switch (platform) {
       case 'facebook':
-        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank')
-        break
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}&quote=${encodedText}`, '_blank');
+        break;
       case 'x':
-        window.open(`https://x.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, '_blank')
-        break
+        window.open(`https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedText}`, '_blank');
+        break;
       case 'linkedin':
-        window.open(`https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(url)}&title=${encodeURIComponent(text)}`, '_blank')
-        break
+        window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}&summary=${encodedText}`, '_blank');
+        break;
       case 'copy':
-        navigator.clipboard.writeText(url)
-        alert('Link copied to clipboard!')
-        break
+        navigator.clipboard.writeText(`${text} ${url}`);
+        alert('Text and link copied to clipboard!');
+        break;
     }
-  }
+  };
+  
 
   if (!image) {
     return (

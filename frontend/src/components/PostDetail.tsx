@@ -122,23 +122,26 @@ const PostDetail: React.FC<{ postId: string }> = ({ postId }) => {
   const handleShare = (platform: string) => {
     const url = window.location.href;
     const text = post.title;
-
+    const encodedUrl = encodeURIComponent(url);
+    const encodedText = encodeURIComponent(text);
+  
     switch (platform) {
       case 'facebook':
-        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}&quote=${encodedText}`, '_blank');
         break;
       case 'twitter':
-        window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, '_blank');
+        window.open(`https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedText}`, '_blank');
         break;
       case 'linkedin':
-        window.open(`https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(url)}&title=${encodeURIComponent(text)}`, '_blank');
+        window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}&title=${encodedText}`, '_blank');
         break;
       case 'copy':
-        navigator.clipboard.writeText(url);
-        alert('Link copied to clipboard!');
+        navigator.clipboard.writeText(`${text} ${url}`);
+        alert('Link and title copied to clipboard!');
         break;
     }
   };
+  
 
   const components = {
     code: CodeRenderer as any,
