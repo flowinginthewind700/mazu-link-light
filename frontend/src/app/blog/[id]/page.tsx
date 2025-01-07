@@ -1,10 +1,41 @@
-// src/app/news/[id]/page.tsx
 import React from 'react';
 import PostDetail from '@/components/PostDetail';
+import { Metadata } from 'next';
+import axios from 'axios';
+
+const apiUrl = process.env.NEXT_PUBLIC_CMS_API_BASE_URL;
 
 interface PageProps {
   params: {
     id: string;
+  };
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { id } = params;
+  const response = await axios.get(`${apiUrl}/posts/${id}`);
+  const post = response.data;
+
+  const title = `${post.title} | LLMStock News`;
+  const description = post.description || 'Read this article on LLMStock News';
+  const imageUrl = post.cover && post.cover.length > 0 
+    ? `${apiUrl}${post.cover[0].url}`
+    : 'https://llmstock.com/images/default_blog.jpg';
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      images: [imageUrl],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [imageUrl],
+    },
   };
 }
 

@@ -7,11 +7,9 @@ import axios from 'axios';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { a11yDark } from 'react-syntax-highlighter/dist/cjs/styles/prism';
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import * as Dialog from '@radix-ui/react-dialog';
-import { X } from 'lucide-react';
+import { X, Facebook, Twitter, Linkedin, Share2 } from 'lucide-react';
 
 // Sub-components
 import { BilibiliEmbed, YouTubeEmbed, VideoEmbed } from './EmbedComponents';
@@ -121,6 +119,27 @@ const PostDetail: React.FC<{ postId: string }> = ({ postId }) => {
     setZoomedImage(imageUrl);
   };
 
+  const handleShare = (platform: string) => {
+    const url = window.location.href;
+    const text = post.title;
+
+    switch (platform) {
+      case 'facebook':
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
+        break;
+      case 'twitter':
+        window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, '_blank');
+        break;
+      case 'linkedin':
+        window.open(`https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(url)}&title=${encodeURIComponent(text)}`, '_blank');
+        break;
+      case 'copy':
+        navigator.clipboard.writeText(url);
+        alert('Link copied to clipboard!');
+        break;
+    }
+  };
+
   const components = {
     code: CodeRenderer as any,
     div: ({ node, ...props }: any) => <BlockNode node={node} {...props} />,
@@ -166,6 +185,22 @@ const PostDetail: React.FC<{ postId: string }> = ({ postId }) => {
           <p className="text-gray-700 break-words leading-6">{post.description}</p>
         </div>
 
+        {/* Social Share Buttons */}
+        <div className="flex gap-4 mb-6">
+          <button onClick={() => handleShare('facebook')} className="p-2 rounded-full bg-[#1877f2] text-white hover:bg-[#1877f2]/90">
+            <Facebook className="w-5 h-5" />
+          </button>
+          <button onClick={() => handleShare('twitter')} className="p-2 rounded-full bg-[#1da1f2] text-white hover:bg-[#1da1f2]/90">
+            <Twitter className="w-5 h-5" />
+          </button>
+          <button onClick={() => handleShare('linkedin')} className="p-2 rounded-full bg-[#0a66c2] text-white hover:bg-[#0a66c2]/90">
+            <Linkedin className="w-5 h-5" />
+          </button>
+          <button onClick={() => handleShare('copy')} className="p-2 rounded-full bg-[#ff4500] text-white hover:bg-[#ff4500]/90">
+            <Share2 className="w-5 h-5" />
+          </button>
+        </div>
+
         <ReactMarkdown
           className="post-markdown-blog text-left"
           rehypePlugins={[rehypeRaw]}
@@ -188,3 +223,4 @@ const PostDetail: React.FC<{ postId: string }> = ({ postId }) => {
 };
 
 export default PostDetail;
+
