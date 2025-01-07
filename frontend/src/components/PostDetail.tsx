@@ -92,7 +92,6 @@ const ImageZoomDialog: React.FC<{ isOpen: boolean; onClose: () => void; imageUrl
   );
 };
 
-
 const PostDetail: React.FC<{ postId: string }> = ({ postId }) => {
   const router = useRouter();
   const [post, setPost] = useState<Post | null>(null);
