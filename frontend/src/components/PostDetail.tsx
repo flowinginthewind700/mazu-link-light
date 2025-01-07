@@ -1,125 +1,22 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
-import ReactMarkdown, { Components } from 'react-markdown';
+import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { a11yDark } from 'react-syntax-highlighter/dist/cjs/styles/prism';
+import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
+import * as Dialog from '@radix-ui/react-dialog';
+import { X } from 'lucide-react';
 
-interface BilibiliEmbedProps {
-  videoId: string;
-}
-
-const BilibiliEmbed: React.FC<BilibiliEmbedProps> = ({ videoId }) => (
-  <div className="relative overflow-hidden pb-[56.25%] h-0">
-    <iframe
-      src={`https://player.bilibili.com/player.html?bvid=${videoId}&page=1`}
-      scrolling="no"
-      frameBorder="0"
-      allowFullScreen
-      title="Embedded bilibili"
-      className="absolute top-0 left-0 w-full h-full"
-    />
-  </div>
-);
-
-interface YouTubeEmbedProps {
-  videoId: string;
-}
-
-const YouTubeEmbed: React.FC<YouTubeEmbedProps> = ({ videoId }) => (
-  <div className="relative overflow-hidden pb-[56.25%] h-0">
-    <iframe
-      width="853"
-      height="480"
-      src={`https://www.youtube.com/embed/${videoId}`}
-      frameBorder="0"
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-      allowFullScreen
-      title="Embedded youtube"
-      className="absolute top-0 left-0 w-full h-full"
-    />
-  </div>
-);
-
-interface VideoEmbedProps {
-  videoUrl: string;
-}
-
-const VideoEmbed: React.FC<VideoEmbedProps> = ({ videoUrl }) => (
-  <div className="relative overflow-hidden pb-[56.25%] h-0">
-    <video controls className="absolute top-0 left-0 w-full h-full">
-      <source src={videoUrl} type="video/mp4" />
-      Your browser does not support the video tag.
-    </video>
-  </div>
-);
-
-interface CodeRendererProps {
-  inline?: boolean;
-  className?: string;
-  children?: React.ReactNode;
-  [key: string]: any;
-}
-
-const CodeRenderer: React.FC<CodeRendererProps> = ({ inline, className = "blog-code", children, ...props }) => {
-  const match = /language-(\w+)/.exec(className || '');
-  return !inline && match ? (
-    <SyntaxHighlighter
-      style={a11yDark}
-      language={match[1]}
-      PreTag="div"
-      {...props}
-      codeTagProps={{
-        className: 'custom-code',
-      }}
-    >
-      {String(children).replace(/\n$/, '')}
-    </SyntaxHighlighter>
-  ) : (
-    <code
-      className={`custom-code ${className}`}
-      {...props}
-    >
-      {children}
-    </code>
-  );
-};
-
-interface BlockNodeProps {
-  node?: any;
-  className: string;
-  children: React.ReactNode;
-}
-
-const BlockNode: React.FC<BlockNodeProps> = ({ node, ...props }) => {
-  const { className } = props;
-
-  if (className === 'youtube') {
-    const youtubeVideoId = node.properties.videoid || node.properties.videoId;
-    return youtubeVideoId ? <YouTubeEmbed videoId={youtubeVideoId} /> : null;
-  }
-
-  if (className === 'bilibili') {
-    const bilibiliVideoId = node.properties.videoid || node.properties.videoId;
-    return bilibiliVideoId ? <BilibiliEmbed videoId={bilibiliVideoId} /> : null;
-  }
-
-  if (className === 'video') {
-    const videoUrl = node.properties.url || node.properties.src;
-    return videoUrl ? <VideoEmbed videoUrl={videoUrl} /> : null;
-  }
-
-  return <div className={className}>{props.children}</div>;
-};
-
-interface PostDetailProps {
-  postId: string;
-}
+// Sub-components
+import { BilibiliEmbed, YouTubeEmbed, VideoEmbed } from './EmbedComponents';
+import { CodeRenderer, BlockNode } from './MarkdownComponents';
+import AuthorInfo from './AuthorInfo';
 
 interface Post {
   cover: { url: string }[];
@@ -129,18 +26,36 @@ interface Post {
   created_at: string;
   author?: {
     name: string;
-    avatar?: {
-      url: string;
-    };
+    avatar?: { url: string };
     twitter?: string;
   };
 }
 
-const PostDetail: React.FC<PostDetailProps> = ({ postId }) => {
+const ImageZoomDialog: React.FC<{ isOpen: boolean; onClose: () => void; imageUrl: string }> = ({ isOpen, onClose, imageUrl }) => (
+  <Dialog.Root open={isOpen} onOpenChange={onClose}>
+    <Dialog.Portal>
+      <Dialog.Overlay className="fixed inset-0 bg-black/75 z-[100]" />
+      <Dialog.Content className="fixed inset-0 z-[101] flex items-center justify-center p-4">
+        <TransformWrapper>
+          <TransformComponent>
+            <img src={imageUrl} alt="Zoomed image" className="max-w-full max-h-full object-contain" />
+          </TransformComponent>
+        </TransformWrapper>
+        <Dialog.Close asChild>
+          <button className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 transition-colors flex items-center justify-center" aria-label="Close">
+            <X className="w-6 h-6 text-white" />
+          </button>
+        </Dialog.Close>
+      </Dialog.Content>
+    </Dialog.Portal>
+  </Dialog.Root>
+);
+
+const PostDetail: React.FC<{ postId: string }> = ({ postId }) => {
   const router = useRouter();
   const [post, setPost] = useState<Post | null>(null);
+  const [zoomedImage, setZoomedImage] = useState<string | null>(null);
   const apiUrl = process.env.NEXT_PUBLIC_CMS_API_BASE_URL as string;
-  const postDetailRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -161,66 +76,32 @@ const PostDetail: React.FC<PostDetailProps> = ({ postId }) => {
     return <div>Loading...</div>;
   }
 
-  const renderAuthorInfo = () => {
-    if (post.author) {
-      const avatarUrl = post.author.avatar?.url
-        ? `${post.author.avatar.url}`
-        : '/images/defaultavatar.jpg';
-
-      return (
-        <div className="flex items-center mt-4">
-          <Image
-            src={avatarUrl}
-            alt={post.author.name}
-            width={40}
-            height={40}
-            className="rounded-full mr-3"
-          />
-          <div>
-            <p className="font-semibold">{post.author.name}</p>
-            <p className="text-gray-500">
-              {new Date(post.created_at).toLocaleDateString()}
-              {post.author.twitter && (
-                <>
-                  {' • '}
-                  <a 
-                    href={`https://twitter.com/intent/follow?screen_name=${post.author.twitter}`}
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-blue-500 hover:underline"
-                  >
-                    Follow on Twitter
-                  </a>
-                </>
-              )}
-            </p>
-          </div>
-        </div>
-      );
-    }
-    return (
-      <div className="mt-4">
-        <p className="text-gray-500">{new Date(post.created_at).toLocaleDateString()} from llmstock.com</p>
-      </div>
-    );
+  const handleImageClick = (imageUrl: string) => {
+    setZoomedImage(imageUrl);
   };
 
-  const components: Components = {
+  const components = {
     code: CodeRenderer as any,
     div: ({ node, ...props }: any) => <BlockNode node={node} {...props} />,
+    a: ({ node, ...props }: any) => <a {...props} className="text-blue-500 hover:underline" target="_blank" rel="noopener noreferrer" />,
+    img: ({ node, ...props }: any) => (
+      <img
+        {...props}
+        className="cursor-zoom-in"
+        onClick={() => handleImageClick(props.src)}
+      />
+    ),
   };
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 md:px-8 lg:px-10" ref={postDetailRef} style={{ overflowX: 'auto' }}>
+    <div className="container mx-auto px-4 sm:px-6 md:px-8 lg:px-10" style={{ overflowX: 'auto' }}>
       <div className="max-w-3xl mx-auto">
-        <div className="flex justify-start mb-4 items-center">
-          <button
-            onClick={() => router.back()}
-            className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 mr-2 flex items-center button-uniform"
-          >
-            Back
-          </button>
-        </div>
+        <button
+          onClick={() => router.back()}
+          className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 mr-2 flex items-center button-uniform mb-4"
+        >
+          Back
+        </button>
 
         {post.cover && post.cover.length > 0 && (
           <div className="mb-4 overflow-hidden rounded-lg" style={{ maxHeight: '400px' }}>
@@ -231,6 +112,8 @@ const PostDetail: React.FC<PostDetailProps> = ({ postId }) => {
               height={400}
               layout="responsive"
               objectFit="cover"
+              className="cursor-zoom-in"
+              onClick={() => handleImageClick(`${apiUrl}${post.cover[0].url}`)}
             />
           </div>
         )}
@@ -241,7 +124,7 @@ const PostDetail: React.FC<PostDetailProps> = ({ postId }) => {
           <p className="text-lg font-semibold text-gray-800 mb-2">Summary:</p>
           <p className="text-gray-700 break-words leading-6">{post.description}</p>
         </div>
-        
+
         <ReactMarkdown
           className="post-markdown-blog text-left"
           rehypePlugins={[rehypeRaw]}
@@ -251,7 +134,13 @@ const PostDetail: React.FC<PostDetailProps> = ({ postId }) => {
           {post.content}
         </ReactMarkdown>
 
-        {renderAuthorInfo()}
+        <AuthorInfo author={post.author} createdAt={post.created_at} />
+
+        <ImageZoomDialog
+          isOpen={!!zoomedImage}
+          onClose={() => setZoomedImage(null)}
+          imageUrl={zoomedImage || ''}
+        />
       </div>
     </div>
   );
