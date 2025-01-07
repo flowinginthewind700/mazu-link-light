@@ -36,7 +36,7 @@ const ImageZoomDialog: React.FC<{ isOpen: boolean; onClose: () => void; imageUrl
 
   useEffect(() => {
     if (isOpen && imageUrl) {
-      const img = new Image();
+      const img = document.createElement('img');
       img.src = imageUrl;
       img.onload = () => {
         const screenWidth = window.innerWidth;
