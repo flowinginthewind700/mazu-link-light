@@ -31,25 +31,67 @@ interface Post {
   };
 }
 
-const ImageZoomDialog: React.FC<{ isOpen: boolean; onClose: () => void; imageUrl: string }> = ({ isOpen, onClose, imageUrl }) => (
-  <Dialog.Root open={isOpen} onOpenChange={onClose}>
-    <Dialog.Portal>
-      <Dialog.Overlay className="fixed inset-0 bg-black/75 z-[100]" />
-      <Dialog.Content className="fixed inset-0 z-[101] flex items-center justify-center p-4">
-        <TransformWrapper>
-          <TransformComponent>
-            <img src={imageUrl} alt="Zoomed image" className="max-w-full max-h-full object-contain" />
-          </TransformComponent>
-        </TransformWrapper>
-        <Dialog.Close asChild>
-          <button className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 transition-colors flex items-center justify-center" aria-label="Close">
-            <X className="w-6 h-6 text-white" />
-          </button>
-        </Dialog.Close>
-      </Dialog.Content>
-    </Dialog.Portal>
-  </Dialog.Root>
-);
+const ImageZoomDialog: React.FC<{ isOpen: boolean; onClose: () => void; imageUrl: string }> = ({ isOpen, onClose, imageUrl }) => {
+  const [dialogSize, setDialogSize] = useState({ width: 'auto', height: 'auto' });
+
+  useEffect(() => {
+    if (isOpen && imageUrl) {
+      const img = new Image();
+      img.src = imageUrl;
+      img.onload = () => {
+        const screenWidth = window.innerWidth;
+        const screenHeight = window.innerHeight;
+        const imgWidth = img.naturalWidth;
+        const imgHeight = img.naturalHeight;
+
+        let width, height;
+
+        if (imgWidth > screenWidth || imgHeight > screenHeight) {
+          const widthRatio = screenWidth / imgWidth;
+          const heightRatio = screenHeight / imgHeight;
+          const ratio = Math.min(widthRatio, heightRatio) * 0.9; // 90% of the screen
+          width = Math.round(imgWidth * ratio);
+          height = Math.round(imgHeight * ratio);
+        } else {
+          width = imgWidth;
+          height = imgHeight;
+        }
+
+        setDialogSize({ 
+          width: `${width}px`, 
+          height: `${height}px` 
+        });
+      };
+    }
+  }, [isOpen, imageUrl]);
+
+  return (
+    <Dialog.Root open={isOpen} onOpenChange={onClose}>
+      <Dialog.Portal>
+        <Dialog.Overlay className="fixed inset-0 bg-black/75 z-[100]" />
+        <Dialog.Content
+          className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] z-[101] flex items-center justify-center p-4"
+          style={{ width: dialogSize.width, height: dialogSize.height }}
+        >
+          <TransformWrapper>
+            <TransformComponent>
+              <img src={imageUrl} alt="Zoomed image" className="w-full h-full object-contain rounded-lg shadow-xl" />
+            </TransformComponent>
+          </TransformWrapper>
+          <Dialog.Close asChild>
+            <button
+              className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 transition-colors flex items-center justify-center"
+              aria-label="Close"
+            >
+              <X className="w-6 h-6 text-white" />
+            </button>
+          </Dialog.Close>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
+  );
+};
+
 
 const PostDetail: React.FC<{ postId: string }> = ({ postId }) => {
   const router = useRouter();
