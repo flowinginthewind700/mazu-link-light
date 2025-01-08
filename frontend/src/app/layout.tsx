@@ -4,7 +4,6 @@ import './globals.css'
 import { ThemeProvider } from '@/components/theme-provider'
 import { Navigation } from '@/components/navigation'
 import { Footer } from '@/components/footer'
-import dynamic from 'next/dynamic'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -21,7 +20,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className="dark">
       <body className={`${inter.className} flex flex-col min-h-screen`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <div className="futuristic-bg-light dark:futuristic-bg-dark tech-pattern min-h-screen">
@@ -37,3 +36,4 @@ export default function RootLayout({
     </html>
   )
 }
+

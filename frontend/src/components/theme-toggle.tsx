@@ -13,7 +13,14 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 export function ThemeToggle() {
-  const { setTheme } = useTheme()
+  const { setTheme, theme } = useTheme()
+
+  React.useEffect(() => {
+    const savedTheme = localStorage.getItem('ai-tools-theme')
+    if (savedTheme) {
+      setTheme(savedTheme)
+    }
+  }, [setTheme])
 
   return (
     <DropdownMenu>
