@@ -5,11 +5,29 @@ import { usePathname } from 'next/navigation'
 import { cn } from "@/lib/utils"
 import { ThemeToggle } from '@/components/theme-toggle'
 import { MobileMenu } from '@/components/mobile-menu'
-import { useNavigation } from '@/components/contexts/NavigationContext'
 
-export function Navigation() {
+// 如果你有一个专门的类型文件，请从那里导入 Category
+// 如果没有，你可以在这里定义它
+interface Category {
+  id: string;
+  name: string;
+  slug?: string;
+}
+
+interface NavigationProps {
+  onCategorySelect?: (categoryId: string) => void;
+  selectedCategory?: string;
+  categories?: Category[];
+  currentPage?: 'home' | 'blog' | 'tools' | 'ai-image';
+}
+
+export function Navigation({ 
+  onCategorySelect, 
+  selectedCategory, 
+  categories = [],
+  currentPage: propCurrentPage
+}: NavigationProps) {
   const pathname = usePathname()
-  const { showMobileMenu, categories, onCategorySelect } = useNavigation()
 
   const getCurrentPage = (pathname: string): 'home' | 'blog' | 'tools' | 'ai-image' => {
     if (pathname.startsWith('/blog')) return 'blog'
@@ -18,7 +36,7 @@ export function Navigation() {
     return 'home'
   }
 
-  const currentPage = getCurrentPage(pathname)
+  const currentPage = propCurrentPage || getCurrentPage(pathname)
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -73,11 +91,12 @@ export function Navigation() {
             {/* You can add a search input here if needed */}
           </div>
           <nav className="flex items-center space-x-2">
-            {showMobileMenu && (
-              <MobileMenu
-                categories={categories}
-                onSelectCategory={onCategorySelect}
+            {(currentPage === 'tools' || currentPage === 'blog' || currentPage === 'ai-image') && (
+              <MobileMenu 
+                categories={categories} 
+                onSelectCategory={onCategorySelect || (() => {})} 
                 currentPage={currentPage}
+                selectedCategory={selectedCategory}
               />
             )}
             <ThemeToggle />
