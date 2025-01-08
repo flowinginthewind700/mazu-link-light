@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import Image from 'next/image'
+import { Navigation } from '@/components/navigation'
 
 export default function FaviconDownloader() {
   const [url, setUrl] = useState('')
@@ -66,6 +67,9 @@ export default function FaviconDownloader() {
   }
 
   return (
+    <><Navigation
+    currentPage=""
+  />
     <div className="container mx-auto px-4 py-8 max-w-2xl">
       <ToastContainer />
       <Card>
@@ -102,5 +106,6 @@ export default function FaviconDownloader() {
         </CardContent>
       </Card>
     </div>
+    </>
   )
 }

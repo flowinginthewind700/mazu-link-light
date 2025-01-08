@@ -98,7 +98,7 @@ export default function ToolPage() {
   return (
     <><Navigation
     currentPage=""
-    showMobileMenu={true}
+    showMobileMenu={false}
   />
     <div className="min-h-screen bg-background text-foreground">
       <ExternalToolInfo tool={tool} similarTools={similarToolsData} />

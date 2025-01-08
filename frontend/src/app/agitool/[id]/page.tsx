@@ -108,7 +108,7 @@ export default function AgiToolPage() {
   return (
     <><Navigation
     currentPage=""
-    showMobileMenu={true}
+    showMobileMenu={false}
   />
     <div className="container mx-auto px-4 py-8 max-w-5xl">
       <Card className="mb-8">

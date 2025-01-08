@@ -180,7 +180,7 @@ export default function ResourcesPage() {
   return (
     <><Navigation
     currentPage=""
-    showMobileMenu={true}
+    showMobileMenu={false}
   />
     <div className="p-4 pb-24 bg-white dark:bg-gray-900 text-black dark:text-white min-h-screen">
       <h1 className="text-3xl font-bold mb-4">Resources</h1>

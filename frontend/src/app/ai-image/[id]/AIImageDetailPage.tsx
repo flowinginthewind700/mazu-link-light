@@ -155,7 +155,7 @@ export default function AIImageDetailPage({ id }: { id: string }) {
   return (
     <><Navigation
     currentPage=""
-    showMobileMenu={true}
+    showMobileMenu={false}
   />
     <div className="container mx-auto px-4 py-8 max-w-5xl">
       {/* Image Preview */}

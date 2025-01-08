@@ -9,6 +9,7 @@ import { Switch } from '@/components/ui/switch'
 import { Slider } from '@/components/ui/slider'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
+import { Navigation } from '@/components/navigation'
 
 interface CompressedImage {
   id: string
@@ -135,6 +136,9 @@ export default function ImageCompressionPage() {
   }
 
   return (
+    <><Navigation
+    currentPage=""
+  />
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       <div className="text-center mb-8">
         <h1 className="text-4xl font-bold mb-2">zippic</h1>
@@ -247,6 +251,7 @@ export default function ImageCompressionPage() {
         )}
       </div>
     </div>
+    </>
   )
 }
 
