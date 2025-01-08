@@ -10,9 +10,17 @@ interface NavigationProps {
   onCategorySelect?: (categoryId: string) => void;
   selectedCategory?: string;
   categories?: any[]; // 使用实际的类型替换 any
+  scrollToCategoryFromMobile?: (categoryId: string) => void;
+  currentPage: 'home' | 'blog' | 'tools' | 'ai-image';
 }
 
-export function Navigation({ onCategorySelect, selectedCategory, categories = [] }: NavigationProps) {
+export function Navigation({ 
+  onCategorySelect, 
+  selectedCategory, 
+  categories = [],
+  scrollToCategoryFromMobile,
+  currentPage
+}: NavigationProps) {
   const pathname = usePathname()
 
   const getCurrentPage = (pathname: string): 'home' | 'blog' | 'tools' | 'ai-image' => {
@@ -21,8 +29,6 @@ export function Navigation({ onCategorySelect, selectedCategory, categories = []
     if (pathname.startsWith('/ai-image')) return 'ai-image'
     return 'home'
   }
-
-  const currentPage = getCurrentPage(pathname)
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -77,11 +83,12 @@ export function Navigation({ onCategorySelect, selectedCategory, categories = []
             {/* You can add a search input here if needed */}
           </div>
           <nav className="flex items-center space-x-2">
-            <MobileMenu 
-              categories={categories} 
-              onSelectCategory={onCategorySelect || (() => {})} 
+            <MobileMenu
+              categories={categories}
+              onSelectCategory={onCategorySelect || (() => {})}
               currentPage={currentPage}
               selectedCategory={selectedCategory}
+              scrollToCategoryFromMobile={scrollToCategoryFromMobile}
             />
             <ThemeToggle />
           </nav>
@@ -90,4 +97,3 @@ export function Navigation({ onCategorySelect, selectedCategory, categories = []
     </header>
   )
 }
-

@@ -145,11 +145,17 @@ internalPath
     }
   }
 
+  const scrollToCategoryFromMobile = (categoryId: string) => {
+    scrollToSection(categoryId);
+  };
+
   return (
     <>
     <Navigation
         onCategorySelect={handleCategorySelect}
         categories={categories}
+        scrollToCategoryFromMobile={scrollToCategoryFromMobile}
+        currentPage="home"
       />
       <Head>
         <link rel="canonical" href="https://agientry.com" />

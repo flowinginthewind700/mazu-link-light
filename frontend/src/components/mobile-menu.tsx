@@ -16,18 +16,22 @@ interface MobileMenuProps {
   onSelectCategory: (id: string) => void
   currentPage: 'home' | 'blog' | 'tools' | 'ai-image'
   selectedCategory?: string
+  scrollToCategoryFromMobile?: (categoryId: string) => void
 }
 
-export function MobileMenu({ categories, onSelectCategory, currentPage, selectedCategory }: MobileMenuProps) {
+export function MobileMenu({ 
+  categories, 
+  onSelectCategory, 
+  currentPage, 
+  selectedCategory,
+  scrollToCategoryFromMobile 
+}: MobileMenuProps) {
   const [open, setOpen] = useState(false)
   const categoriesArray = Array.isArray(categories) ? categories : [];
 
   const handleSelectCategory = (category: Category) => {
-    if (currentPage === 'home') {
-      const element = document.getElementById(category.id)
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'start' })
-      }
+    if (currentPage === 'home' && scrollToCategoryFromMobile) {
+      scrollToCategoryFromMobile(category.id);
     } else {
       onSelectCategory(category.id)
     }
@@ -71,4 +75,3 @@ export function MobileMenu({ categories, onSelectCategory, currentPage, selected
     </Sheet>
   )
 }
-
