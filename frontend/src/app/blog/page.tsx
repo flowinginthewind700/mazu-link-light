@@ -229,6 +229,7 @@ export default function BlogPage() {
         onCategorySelect={handleCategorySelect}
         categories={categories}
         selectedCategory={selectedCategory}
+        currentPage="blog"
       />
       <div className="min-h-screen bg-background">
         <PageViewTracker />

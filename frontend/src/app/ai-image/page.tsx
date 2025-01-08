@@ -198,6 +198,7 @@ export default function AIImagePage() {
     onCategorySelect={handleCategorySelect}
     categories={categories}
     selectedCategory={selectedCategory}
+    currentPage="ai-image"
   />
     <div className="min-h-screen bg-background">
       <PageViewTracker />

@@ -1,7 +1,6 @@
 export const categories = [
-  { id: 'all', label: 'All Tools' },
-  { id: 'image', label: 'Image Tools' },
-  { id: 'web', label: 'Web Tools' },
-  { id: 'others', label: 'Others' },
+  { id: 'all', name: 'All Tools', slug: 'all' },
+  { id: 'image', name: 'Image Tools', slug: 'image' },
+  { id: 'web', name: 'Web Tools', slug: 'web' },
+  { id: 'others', name: 'Others', slug: 'others' },
 ]
-
