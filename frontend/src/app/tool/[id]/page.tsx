@@ -105,7 +105,6 @@ export default function ToolPage() {
       <ExternalToolInfo tool={tool} similarTools={similarToolsData} />
       {/* <Footer /> */}
     </div>
-    <BottomNavbar />
     </>
   )
 }

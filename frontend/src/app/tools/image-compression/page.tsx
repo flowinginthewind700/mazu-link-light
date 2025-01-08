@@ -252,7 +252,6 @@ export default function ImageCompressionPage() {
         )}
       </div>
     </div>
-    <BottomNavbar />
     </>
   )
 }

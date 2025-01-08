@@ -222,7 +222,6 @@ Explore the best {category.name.toLowerCase()} tools for AI and AGI applications
             </main>
           </div>
         </div>
-        <BottomNavbar />
       </div>
     </>
   )

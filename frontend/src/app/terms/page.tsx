@@ -60,7 +60,6 @@ export default function TermsOfServicePage() {
         </p>
       </div>
     </div>
-    <BottomNavbar />
     </>
   )
 }

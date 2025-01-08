@@ -294,7 +294,6 @@ export default function BlogPage() {
             </motion.main>
           </div>
         </div>
-        <BottomNavbar />
       </div>
     </>
   )

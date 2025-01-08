@@ -4,6 +4,7 @@ import './globals.css'
 import { ThemeProvider } from '@/components/theme-provider'
 import { Footer } from '@/components/footer'
 import dynamic from 'next/dynamic'
+import { BottomNavbar } from '@/components/bottom-navbar'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -29,6 +30,7 @@ export default function RootLayout({
             </div>
         </ThemeProvider>
         <Analytics />
+        <BottomNavbar />
       </body>
     </html>
   )

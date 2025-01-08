@@ -337,7 +337,6 @@ export default function ResourcesPage() {
         </Dialog.Root>
       )}
     </div>
-    <BottomNavbar />
     </>
   );
 }

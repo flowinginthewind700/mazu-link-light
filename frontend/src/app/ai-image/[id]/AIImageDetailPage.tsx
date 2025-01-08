@@ -147,7 +147,6 @@ export default function AIImageDetailPage({ id }: { id: string }) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">Loading...</div>
-        <BottomNavbar />
       </div>
     )
   }
@@ -261,7 +260,6 @@ export default function AIImageDetailPage({ id }: { id: string }) {
       </div>
       
     </div>
-    <BottomNavbar /> 
     </>
   )
 }

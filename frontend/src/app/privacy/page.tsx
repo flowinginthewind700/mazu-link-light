@@ -51,7 +51,6 @@ export default function PrivacyPolicyPage() {
       </div>
       
     </div>
-    <BottomNavbar />
     </>
   )
 }

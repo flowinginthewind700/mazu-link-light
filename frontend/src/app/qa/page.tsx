@@ -36,7 +36,6 @@ export default function QAPage() {
         ))}
       </div>  
     </div>
-    <BottomNavbar />
     </>
   );
 }

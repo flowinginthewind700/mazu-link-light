@@ -263,7 +263,6 @@ export default function AIImagePage() {
           </motion.main>
         </div>
       </div>
-      <BottomNavbar />
     </div>
     </>
   )

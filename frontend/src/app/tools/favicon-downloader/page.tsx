@@ -107,7 +107,6 @@ export default function FaviconDownloader() {
         </CardContent>
       </Card>
     </div>
-    <BottomNavbar />
     </>
   )
 }

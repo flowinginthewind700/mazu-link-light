@@ -179,7 +179,6 @@ export default function AgiToolPage() {
       </Card>
       
     </div>
-    <BottomNavbar />
     </>
   )
 }

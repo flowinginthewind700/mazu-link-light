@@ -50,7 +50,6 @@ const NewsDetailPage: React.FC<PageProps> = ({ params }) => {
     <div className="container mx-auto px-4 py-8 dark:bg-gray-900 dark:text-white">
       <PostDetail postId={params.id} />
     </div>
-    <BottomNavbar />
     </>
   );
 };

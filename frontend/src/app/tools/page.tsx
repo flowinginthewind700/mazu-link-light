@@ -91,7 +91,6 @@ export default function ToolsPage() {
             </motion.main>
           </div>
         </div>
-        <BottomNavbar />
       </div>
     </>
   )

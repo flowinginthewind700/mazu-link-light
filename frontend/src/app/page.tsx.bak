@@ -447,7 +447,6 @@ export default function HomePage() {
         </div>
       </div>
       {/* Bottom Navbar (mobile only) */}
-      <BottomNavbar />
     </div>
   )
 }
