@@ -1,14 +1,20 @@
-// contexts/NavigationContext.tsx
 'use client'
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, Dispatch, SetStateAction } from 'react';
+
+// 定义一个 Category 类型
+interface Category {
+  id: string;
+  name: string;
+  slug?: string;
+}
 
 interface NavigationContextType {
   showSidebar: boolean;
   showMobileMenu: boolean;
-  categories: any[];
-  setShowSidebar: (show: boolean) => void;
-  setShowMobileMenu: (show: boolean) => void;
-  setCategories: (categories: any[]) => void;
+  categories: Category[];
+  setShowSidebar: Dispatch<SetStateAction<boolean>>;
+  setShowMobileMenu: Dispatch<SetStateAction<boolean>>;
+  setCategories: Dispatch<SetStateAction<Category[]>>;
 }
 
 const NavigationContext = createContext<NavigationContextType | undefined>(undefined);
@@ -16,7 +22,7 @@ const NavigationContext = createContext<NavigationContextType | undefined>(undef
 export const NavigationProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [showSidebar, setShowSidebar] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
-  const [categories, setCategories] = useState([]);
+  const [categories, setCategories] = useState<Category[]>([]);
 
   return (
     <NavigationContext.Provider value={{
