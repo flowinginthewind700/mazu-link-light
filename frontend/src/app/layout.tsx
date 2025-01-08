@@ -5,6 +5,7 @@ import { ThemeProvider } from '@/components/theme-provider'
 import { Navigation } from '@/components/navigation'
 import { Footer } from '@/components/footer'
 import dynamic from 'next/dynamic'
+import { NavigationProvider } from '@/components/contexts/NavigationContext'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -24,10 +25,13 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning className="dark">
       <body className={`${inter.className} flex flex-col min-h-screen`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <div className="futuristic-bg-light dark:futuristic-bg-dark tech-pattern min-h-screen">
-            {children}
-            <Footer />
-          </div>
+          <NavigationProvider>
+            <div className="futuristic-bg-light dark:futuristic-bg-dark tech-pattern min-h-screen">
+              <Navigation />
+              {children}
+              <Footer />
+            </div>
+          </NavigationProvider>
         </ThemeProvider>
         <Analytics />
       </body>
