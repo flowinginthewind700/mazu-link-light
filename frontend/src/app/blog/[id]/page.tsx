@@ -2,6 +2,7 @@ import React from 'react';
 import PostDetail from '@/components/PostDetail';
 import { Metadata } from 'next';
 import axios from 'axios';
+import { Navigation } from '@/components/navigation'
 
 const apiUrl = process.env.NEXT_PUBLIC_CMS_API_BASE_URL;
 
@@ -41,9 +42,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 const NewsDetailPage: React.FC<PageProps> = ({ params }) => {
   return (
+    <><Navigation
+    currentPage=""
+    showMobileMenu={true}
+  />
     <div className="container mx-auto px-4 py-8 dark:bg-gray-900 dark:text-white">
       <PostDetail postId={params.id} />
     </div>
+    </>
   );
 };
 

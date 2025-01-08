@@ -1,6 +1,7 @@
 "use client";
 
 import ReactMarkdown from "react-markdown";
+import { Navigation } from '@/components/navigation'
 
 export default function QAPage() {
   const questions = [
@@ -18,6 +19,10 @@ export default function QAPage() {
   ];
 
   return (
+    <><Navigation
+    currentPage=""
+    showMobileMenu={true}
+  />
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <h1 className="text-3xl font-bold mb-4">Q&A</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -30,5 +35,6 @@ export default function QAPage() {
         ))}
       </div>
     </div>
+    </>
   );
 }

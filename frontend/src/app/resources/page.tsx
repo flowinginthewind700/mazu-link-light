@@ -5,6 +5,7 @@ import { getFilesAndFolders, getObject, getTags } from "@/services/cosService";
 import { config } from "@/config";
 import * as Dialog from '@radix-ui/react-dialog';
 import { InfoCircledIcon } from '@radix-ui/react-icons';
+import { Navigation } from '@/components/navigation'
 
 const CURRENT_PATH_KEY = 'cosExplorerCurrentPath';
 
@@ -177,6 +178,10 @@ export default function ResourcesPage() {
   };
 
   return (
+    <><Navigation
+    currentPage=""
+    showMobileMenu={true}
+  />
     <div className="p-4 pb-24 bg-white dark:bg-gray-900 text-black dark:text-white min-h-screen">
       <h1 className="text-3xl font-bold mb-4">Resources</h1>
       <div className="mb-4 flex flex-wrap items-center">
@@ -331,5 +336,6 @@ export default function ResourcesPage() {
         </Dialog.Root>
       )}
     </div>
+    </>
   );
 }

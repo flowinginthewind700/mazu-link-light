@@ -3,6 +3,7 @@
 import { useParams } from 'next/navigation'
 import { ExternalToolInfo } from '@/components/external-tool-info'
 import { Footer } from '@/components/footer'
+import { Navigation } from '@/components/navigation'
 
 interface ToolInfo {
   id: string
@@ -95,10 +96,15 @@ export default function ToolPage() {
   }
 
   return (
+    <><Navigation
+    currentPage=""
+    showMobileMenu={true}
+  />
     <div className="min-h-screen bg-background text-foreground">
       <ExternalToolInfo tool={tool} similarTools={similarToolsData} />
       {/* <Footer /> */}
     </div>
+    </>
   )
 }
 

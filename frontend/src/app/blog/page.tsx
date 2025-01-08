@@ -230,6 +230,7 @@ export default function BlogPage() {
         categories={categories}
         selectedCategory={selectedCategory}
         currentPage="blog"
+        showMobileMenu={true}
       />
       <div className="min-h-screen bg-background">
         <PageViewTracker />

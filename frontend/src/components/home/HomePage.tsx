@@ -156,6 +156,7 @@ internalPath
         categories={categories}
         scrollToCategoryFromMobile={scrollToCategoryFromMobile}
         currentPage="home"
+        showMobileMenu={true}
       />
       <Head>
         <link rel="canonical" href="https://agientry.com" />

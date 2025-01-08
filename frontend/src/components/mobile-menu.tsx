@@ -14,7 +14,7 @@ interface Category {
 interface MobileMenuProps {
   categories: Category[]
   onSelectCategory: (id: string) => void
-  currentPage: 'home' | 'blog' | 'tools' | 'ai-image'
+  currentPage: 'home' | 'blog' | 'tools' | 'ai-image' | ''
   selectedCategory?: string
   scrollToCategoryFromMobile?: (categoryId: string) => void
 }
@@ -30,6 +30,9 @@ export function MobileMenu({
   const categoriesArray = Array.isArray(categories) ? categories : [];
 
   const handleSelectCategory = (category: Category) => {
+    if (currentPage === '') {
+      return
+    }
     if (currentPage === 'home' && scrollToCategoryFromMobile) {
       scrollToCategoryFromMobile(category.id);
     } else {

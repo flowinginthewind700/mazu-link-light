@@ -17,8 +17,15 @@ interface Category {
 interface NavigationProps {
   onCategorySelect?: (categoryId: string) => void;
   selectedCategory?: string;
+<<<<<<< HEAD
   categories?: Category[];
   currentPage?: 'home' | 'blog' | 'tools' | 'ai-image';
+=======
+  categories?: any[]; // 使用实际的类型替换 any
+  scrollToCategoryFromMobile?: (categoryId: string) => void;
+  currentPage: 'home' | 'blog' | 'tools' | 'ai-image' | '';
+  showMobileMenu?: boolean;
+>>>>>>> a8e6f6d (fix nav)
 }
 
 export function Navigation({ 
@@ -29,11 +36,12 @@ export function Navigation({
 }: NavigationProps) {
   const pathname = usePathname()
 
-  const getCurrentPage = (pathname: string): 'home' | 'blog' | 'tools' | 'ai-image' => {
+  const getCurrentPage = (pathname: string): 'home' | 'blog' | 'tools' | 'ai-image' | '' => {
+    if (pathname.startsWith('/home')) return 'home'
     if (pathname.startsWith('/blog')) return 'blog'
     if (pathname.startsWith('/tools')) return 'tools'
     if (pathname.startsWith('/ai-image')) return 'ai-image'
-    return 'home'
+    return ''
   }
 
   const currentPage = propCurrentPage || getCurrentPage(pathname)
@@ -91,6 +99,7 @@ export function Navigation({
             {/* You can add a search input here if needed */}
           </div>
           <nav className="flex items-center space-x-2">
+<<<<<<< HEAD
             {(currentPage === 'tools' || currentPage === 'blog' || currentPage === 'ai-image') && (
               <MobileMenu 
                 categories={categories} 
@@ -101,6 +110,19 @@ export function Navigation({
             )}
             <ThemeToggle />
           </nav>
+=======
+  {showMobileMenu && (
+    <MobileMenu
+      categories={categories}
+      onSelectCategory={onCategorySelect || (() => {})}
+      currentPage={currentPage}
+      selectedCategory={selectedCategory}
+      scrollToCategoryFromMobile={scrollToCategoryFromMobile}
+    />
+  )}
+  <ThemeToggle />
+</nav>
+>>>>>>> a8e6f6d (fix nav)
         </div>
       </div>
     </header>

@@ -47,6 +47,7 @@ export default function ToolsPage() {
         categories={categories}
         selectedCategory={selectedCategory}
         currentPage="tools"
+        showMobileMenu={true}
       />
       <div className="min-h-screen bg-background">
         <div className="container mx-auto px-4 py-8">

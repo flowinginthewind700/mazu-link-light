@@ -7,6 +7,7 @@ import { Facebook, Twitter, Linkedin, Share2, Search, X } from 'lucide-react'
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch"
 import * as Dialog from '@radix-ui/react-dialog'
 import { BottomNavbar } from '@/components/bottom-navbar'
+import { Navigation } from '@/components/navigation'
 
 const apiUrl = process.env.NEXT_PUBLIC_CMS_API_BASE_URL
 
@@ -152,6 +153,10 @@ export default function AIImageDetailPage({ id }: { id: string }) {
   }
 
   return (
+    <><Navigation
+    currentPage=""
+    showMobileMenu={true}
+  />
     <div className="container mx-auto px-4 py-8 max-w-5xl">
       {/* Image Preview */}
       <div 
@@ -254,7 +259,8 @@ export default function AIImageDetailPage({ id }: { id: string }) {
           </button>
         </div>
       </div>
-      <BottomNavbar />
+      <BottomNavbar /> 
     </div>
+    </>
   )
 }

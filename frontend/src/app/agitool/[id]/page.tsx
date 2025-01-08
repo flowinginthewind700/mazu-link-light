@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { ExternalLink, Calendar, User, Twitter } from 'lucide-react'
 import EnhancedMarkdown from '@/components/EnhancedMarkdown'
+import { Navigation } from '@/components/navigation'
 
 const apiUrl = process.env.NEXT_PUBLIC_CMS_API_BASE_URL || '';
 
@@ -105,6 +106,10 @@ export default function AgiToolPage() {
   }
 
   return (
+    <><Navigation
+    currentPage=""
+    showMobileMenu={true}
+  />
     <div className="container mx-auto px-4 py-8 max-w-5xl">
       <Card className="mb-8">
         <CardHeader>
@@ -172,5 +177,6 @@ export default function AgiToolPage() {
         </CardContent>
       </Card>
     </div>
+    </>
   )
 }

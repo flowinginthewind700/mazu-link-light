@@ -199,6 +199,7 @@ export default function AIImagePage() {
     categories={categories}
     selectedCategory={selectedCategory}
     currentPage="ai-image"
+    showMobileMenu={true}
   />
     <div className="min-h-screen bg-background">
       <PageViewTracker />
