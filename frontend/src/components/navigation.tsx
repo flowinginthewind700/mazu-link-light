@@ -23,23 +23,24 @@ interface NavigationProps {
   showMobileMenu?: boolean;
 }
 
-export function Navigation({ 
-  onCategorySelect, 
-  selectedCategory, 
+export function Navigation({
+  onCategorySelect,
+  selectedCategory,
   categories = [],
-  currentPage: propCurrentPage
+  currentPage: propCurrentPage,
+  scrollToCategoryFromMobile,
+  showMobileMenu = false // 默认值为 false，除非另行指定
 }: NavigationProps) {
-  const pathname = usePathname()
-
+  const pathname = usePathname();
   const getCurrentPage = (pathname: string): 'home' | 'blog' | 'tools' | 'ai-image' | '' => {
-    if (pathname.startsWith('/home')) return 'home'
-    if (pathname.startsWith('/blog')) return 'blog'
-    if (pathname.startsWith('/tools')) return 'tools'
-    if (pathname.startsWith('/ai-image')) return 'ai-image'
-    return ''
+    if (pathname.startsWith('/home')) return 'home';
+    if (pathname.startsWith('/blog')) return 'blog';
+    if (pathname.startsWith('/tools')) return 'tools';
+    if (pathname.startsWith('/ai-image')) return 'ai-image';
+    return '';
   }
 
-  const currentPage = propCurrentPage || getCurrentPage(pathname)
+  const currentPage = propCurrentPage || getCurrentPage(pathname);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -94,19 +95,19 @@ export function Navigation({
             {/* You can add a search input here if needed */}
           </div>
           <nav className="flex items-center space-x-2">
-  {showMobileMenu && (
-    <MobileMenu
-      categories={categories}
-      onSelectCategory={onCategorySelect || (() => {})}
-      currentPage={currentPage}
-      selectedCategory={selectedCategory}
-      scrollToCategoryFromMobile={scrollToCategoryFromMobile}
-    />
-  )}
-  <ThemeToggle />
-</nav>
+            {showMobileMenu && (
+              <MobileMenu
+                categories={categories}
+                onSelectCategory={onCategorySelect || (() => {})}
+                currentPage={currentPage}
+                selectedCategory={selectedCategory}
+                scrollToCategoryFromMobile={scrollToCategoryFromMobile}
+              />
+            )}
+            <ThemeToggle />
+          </nav>
         </div>
       </div>
     </header>
-  )
+  );
 }
