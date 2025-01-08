@@ -8,6 +8,7 @@ import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import Image from 'next/image'
 import { Navigation } from '@/components/navigation'
+import { BottomNavbar } from '@/components/bottom-navbar'
 
 export default function FaviconDownloader() {
   const [url, setUrl] = useState('')
@@ -106,6 +107,7 @@ export default function FaviconDownloader() {
         </CardContent>
       </Card>
     </div>
+    <BottomNavbar />
     </>
   )
 }

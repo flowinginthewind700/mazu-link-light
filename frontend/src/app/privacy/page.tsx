@@ -1,5 +1,6 @@
 import { Metadata } from 'next'
 import { Navigation } from '@/components/navigation'
+import { BottomNavbar } from '@/components/bottom-navbar'
 
 export const metadata: Metadata = {
   title: 'Privacy Policy | AI Tools Directory',
@@ -48,7 +49,9 @@ export default function PrivacyPolicyPage() {
           If you have any questions about this privacy policy, please contact us at: [Your Contact Information]
         </p>
       </div>
+      
     </div>
+    <BottomNavbar />
     </>
   )
 }

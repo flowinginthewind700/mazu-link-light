@@ -6,6 +6,7 @@ import { config } from "@/config";
 import * as Dialog from '@radix-ui/react-dialog';
 import { InfoCircledIcon } from '@radix-ui/react-icons';
 import { Navigation } from '@/components/navigation'
+import { BottomNavbar } from '@/components/bottom-navbar'
 
 const CURRENT_PATH_KEY = 'cosExplorerCurrentPath';
 
@@ -336,6 +337,7 @@ export default function ResourcesPage() {
         </Dialog.Root>
       )}
     </div>
+    <BottomNavbar />
     </>
   );
 }

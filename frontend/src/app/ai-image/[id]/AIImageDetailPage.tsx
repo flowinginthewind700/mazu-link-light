@@ -259,8 +259,9 @@ export default function AIImageDetailPage({ id }: { id: string }) {
           </button>
         </div>
       </div>
-      <BottomNavbar /> 
+      
     </div>
+    <BottomNavbar /> 
     </>
   )
 }

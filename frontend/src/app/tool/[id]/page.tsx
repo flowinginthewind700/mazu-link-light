@@ -4,6 +4,7 @@ import { useParams } from 'next/navigation'
 import { ExternalToolInfo } from '@/components/external-tool-info'
 import { Footer } from '@/components/footer'
 import { Navigation } from '@/components/navigation'
+import { BottomNavbar } from '@/components/bottom-navbar'
 
 interface ToolInfo {
   id: string
@@ -104,6 +105,7 @@ export default function ToolPage() {
       <ExternalToolInfo tool={tool} similarTools={similarToolsData} />
       {/* <Footer /> */}
     </div>
+    <BottomNavbar />
     </>
   )
 }

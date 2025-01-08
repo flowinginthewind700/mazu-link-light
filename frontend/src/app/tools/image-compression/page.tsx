@@ -10,6 +10,7 @@ import { Slider } from '@/components/ui/slider'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Navigation } from '@/components/navigation'
+import { BottomNavbar } from '@/components/bottom-navbar'
 
 interface CompressedImage {
   id: string
@@ -251,6 +252,7 @@ export default function ImageCompressionPage() {
         )}
       </div>
     </div>
+    <BottomNavbar />
     </>
   )
 }

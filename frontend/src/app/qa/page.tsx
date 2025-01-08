@@ -2,6 +2,7 @@
 
 import ReactMarkdown from "react-markdown";
 import { Navigation } from '@/components/navigation'
+import { BottomNavbar } from '@/components/bottom-navbar'
 
 export default function QAPage() {
   const questions = [
@@ -33,8 +34,9 @@ export default function QAPage() {
             <ReactMarkdown>{item.answer}</ReactMarkdown>
           </div>
         ))}
-      </div>
+      </div>  
     </div>
+    <BottomNavbar />
     </>
   );
 }

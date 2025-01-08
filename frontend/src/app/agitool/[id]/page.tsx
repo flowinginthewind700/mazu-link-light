@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button'
 import { ExternalLink, Calendar, User, Twitter } from 'lucide-react'
 import EnhancedMarkdown from '@/components/EnhancedMarkdown'
 import { Navigation } from '@/components/navigation'
+import { BottomNavbar } from '@/components/bottom-navbar'
 
 const apiUrl = process.env.NEXT_PUBLIC_CMS_API_BASE_URL || '';
 
@@ -176,7 +177,9 @@ export default function AgiToolPage() {
           <EnhancedMarkdown content={tool.content} />
         </CardContent>
       </Card>
+      
     </div>
+    <BottomNavbar />
     </>
   )
 }

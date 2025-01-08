@@ -1,5 +1,6 @@
 import { Metadata } from 'next'
 import { Navigation } from '@/components/navigation'
+import { BottomNavbar } from '@/components/bottom-navbar'
 
 export const metadata: Metadata = {
   title: 'Terms of Service | AI Tools Directory',
@@ -59,6 +60,7 @@ export default function TermsOfServicePage() {
         </p>
       </div>
     </div>
+    <BottomNavbar />
     </>
   )
 }
