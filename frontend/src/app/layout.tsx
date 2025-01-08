@@ -2,10 +2,8 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import { ThemeProvider } from '@/components/theme-provider'
-import { Navigation } from '@/components/navigation'
 import { Footer } from '@/components/footer'
 import dynamic from 'next/dynamic'
-import { ClientNavigationProvider } from '@/components/ClientNavigationProvider'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -25,13 +23,10 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning className="dark">
       <body className={`${inter.className} flex flex-col min-h-screen`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <ClientNavigationProvider>
             <div className="futuristic-bg-light dark:futuristic-bg-dark tech-pattern min-h-screen">
-              <Navigation />
               {children}
               <Footer />
             </div>
-          </ClientNavigationProvider>
         </ThemeProvider>
         <Analytics />
       </body>
