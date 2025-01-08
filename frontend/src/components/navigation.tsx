@@ -27,8 +27,8 @@ export function Navigation({
   onCategorySelect,
   selectedCategory,
   categories = [],
-  currentPage: propCurrentPage,
   scrollToCategoryFromMobile,
+  currentPage: propCurrentPage,
   showMobileMenu = false // 默认值为 false，除非另行指定
 }: NavigationProps) {
   const pathname = usePathname();
