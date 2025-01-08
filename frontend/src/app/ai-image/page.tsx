@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils'
 import { BottomNavbar } from '@/components/bottom-navbar'
 import { AIImageCard } from '@/components/ai-image-card'
 import dynamic from 'next/dynamic'
+import { Navigation } from '@/components/navigation'
 
 const PageViewTracker = dynamic(() => import('@/components/ga/PageViewTracker'), { ssr: false })
 
@@ -193,6 +194,11 @@ export default function AIImagePage() {
   const pageNumbersToShow = getPageRange();
 
   return (
+    <><Navigation
+    onCategorySelect={handleCategorySelect}
+    categories={categories}
+    selectedCategory={selectedCategory}
+  />
     <div className="min-h-screen bg-background">
       <PageViewTracker />
       <div className="container mx-auto px-4 py-8">
@@ -257,5 +263,6 @@ export default function AIImagePage() {
       </div>
       <BottomNavbar />
     </div>
+    </>
   )
 }

@@ -10,6 +10,7 @@ import { ToolCard } from './ToolCard'
 import { AnimatedSectionTitle } from '@/components/animated-section-title'
 import { BottomNavbar } from '@/components/bottom-navbar'
 import { Category, Tool } from './types'
+import { Navigation } from '@/components/navigation'
 
 const apiUrl = process.env.NEXT_PUBLIC_CMS_API_BASE_URL
 const TOOLS_PER_CATEGORY = 24
@@ -41,6 +42,10 @@ export default function HomePage() {
       });
     }
   }, [categories])
+
+  const handleCategorySelect = (categoryId: string) => {
+    scrollToSection(categoryId);
+  };
 
   const fetchCategories = async () => {
     try {
@@ -142,6 +147,10 @@ internalPath
 
   return (
     <>
+    <Navigation
+        onCategorySelect={handleCategorySelect}
+        categories={categories}
+      />
       <Head>
         <link rel="canonical" href="https://agientry.com" />
       </Head>

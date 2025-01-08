@@ -25,10 +25,7 @@ export default function RootLayout({
       <body className={`${inter.className} flex flex-col min-h-screen`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <div className="futuristic-bg-light dark:futuristic-bg-dark tech-pattern min-h-screen">
-            <Navigation />
-            <main className="flex-grow">
-              {children}
-            </main>
+            {children}
             <Footer />
           </div>
         </ThemeProvider>
@@ -37,4 +34,3 @@ export default function RootLayout({
     </html>
   )
 }
-

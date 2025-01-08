@@ -7,6 +7,7 @@ import { ToolCard } from '@/components/tool-card'
 import { categories } from '@/data/tools-categories'
 import { toolsData } from '@/data/tools-data'
 import { BottomNavbar } from '@/components/bottom-navbar'
+import { Navigation } from '@/components/navigation'
 
 const container = {
   hidden: { opacity: 1, scale: 0 },
@@ -40,6 +41,11 @@ export default function ToolsPage() {
   }
 
   return (
+    <><Navigation
+    onCategorySelect={handleCategorySelect}
+    categories={categories}
+    selectedCategory={selectedCategory}
+  />
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
         <div className="lg:flex lg:gap-8">
@@ -84,6 +90,7 @@ export default function ToolsPage() {
       </div>
       <BottomNavbar />
     </div>
+    </>
   )
 }
 
