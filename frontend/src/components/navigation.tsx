@@ -17,15 +17,10 @@ interface Category {
 interface NavigationProps {
   onCategorySelect?: (categoryId: string) => void;
   selectedCategory?: string;
-<<<<<<< HEAD
-  categories?: Category[];
-  currentPage?: 'home' | 'blog' | 'tools' | 'ai-image';
-=======
   categories?: any[]; // 使用实际的类型替换 any
   scrollToCategoryFromMobile?: (categoryId: string) => void;
   currentPage: 'home' | 'blog' | 'tools' | 'ai-image' | '';
   showMobileMenu?: boolean;
->>>>>>> a8e6f6d (fix nav)
 }
 
 export function Navigation({ 
@@ -99,18 +94,6 @@ export function Navigation({
             {/* You can add a search input here if needed */}
           </div>
           <nav className="flex items-center space-x-2">
-<<<<<<< HEAD
-            {(currentPage === 'tools' || currentPage === 'blog' || currentPage === 'ai-image') && (
-              <MobileMenu 
-                categories={categories} 
-                onSelectCategory={onCategorySelect || (() => {})} 
-                currentPage={currentPage}
-                selectedCategory={selectedCategory}
-              />
-            )}
-            <ThemeToggle />
-          </nav>
-=======
   {showMobileMenu && (
     <MobileMenu
       categories={categories}
@@ -122,7 +105,6 @@ export function Navigation({
   )}
   <ThemeToggle />
 </nav>
->>>>>>> a8e6f6d (fix nav)
         </div>
       </div>
     </header>
