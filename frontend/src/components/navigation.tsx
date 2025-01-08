@@ -5,17 +5,14 @@ import { usePathname } from 'next/navigation'
 import { cn } from "@/lib/utils"
 import { ThemeToggle } from '@/components/theme-toggle'
 import { MobileMenu } from '@/components/mobile-menu'
-import { categories as homeCategories } from '@/data/categories'
-import { categories as blogCategories } from '@/data/blog-categories'
-import { categories as toolsCategories } from '@/data/tools-categories'
-import { categories as aiImageCategories } from '@/data/ai-image-categories'
 
 interface NavigationProps {
   onCategorySelect?: (categoryId: string) => void;
   selectedCategory?: string;
+  categories?: any[]; // 使用实际的类型替换 any
 }
 
-export function Navigation({ onCategorySelect, selectedCategory }: NavigationProps) {
+export function Navigation({ onCategorySelect, selectedCategory, categories = [] }: NavigationProps) {
   const pathname = usePathname()
 
   const getCurrentPage = (pathname: string): 'home' | 'blog' | 'tools' | 'ai-image' => {
@@ -26,21 +23,6 @@ export function Navigation({ onCategorySelect, selectedCategory }: NavigationPro
   }
 
   const currentPage = getCurrentPage(pathname)
-
-  const getCurrentCategories = (currentPage: 'home' | 'blog' | 'tools' | 'ai-image') => {
-    switch (currentPage) {
-      case 'home':
-        return homeCategories
-      case 'blog':
-        return blogCategories
-      case 'tools':
-        return toolsCategories
-      case 'ai-image':
-        return aiImageCategories
-    }
-  }
-
-  const currentCategories = getCurrentCategories(currentPage)
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -96,7 +78,7 @@ export function Navigation({ onCategorySelect, selectedCategory }: NavigationPro
           </div>
           <nav className="flex items-center space-x-2">
             <MobileMenu 
-              categories={currentCategories} 
+              categories={categories} 
               onSelectCategory={onCategorySelect || (() => {})} 
               currentPage={currentPage}
               selectedCategory={selectedCategory}
@@ -108,4 +90,6 @@ export function Navigation({ onCategorySelect, selectedCategory }: NavigationPro
     </header>
   )
 }
+
+export { Navigation };
 

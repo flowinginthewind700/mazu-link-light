@@ -7,7 +7,8 @@ import { Menu } from 'lucide-react'
 
 interface Category {
   id: string;
-  label: string;
+  name: string;
+  slug?: string;
 }
 
 interface MobileMenuProps {
@@ -19,17 +20,16 @@ interface MobileMenuProps {
 
 export function MobileMenu({ categories, onSelectCategory, currentPage, selectedCategory }: MobileMenuProps) {
   const [open, setOpen] = useState(false)
+  const categoriesArray = Array.isArray(categories) ? categories : [];
 
-  const handleSelectCategory = (id: string) => {
+  const handleSelectCategory = (category: Category) => {
     if (currentPage === 'home') {
-      // For home page, scroll to the corresponding section
-      const element = document.getElementById(id)
+      const element = document.getElementById(category.id)
       if (element) {
         element.scrollIntoView({ behavior: 'smooth', block: 'start' })
       }
     } else {
-      // For other pages, use the provided handler
-      onSelectCategory(id)
+      onSelectCategory(category.id)
     }
     setOpen(false)
   }
@@ -53,14 +53,17 @@ export function MobileMenu({ categories, onSelectCategory, currentPage, selected
                 : 'AI Image Categories'}
         </h2>
         <nav className="flex flex-col gap-4">
-          {categories.map((category) => (
+          {categoriesArray.length === 0 && (
+            <p className="text-muted-foreground p-2">No categories available</p>
+          )}
+          {categoriesArray.map((category) => (
             <Button
               key={category.id}
               variant={selectedCategory === category.id ? "default" : "ghost"}
               className="justify-start"
-              onClick={() => handleSelectCategory(category.id)}
+              onClick={() => handleSelectCategory(category)}
             >
-              {category.label}
+              {category.name}
             </Button>
           ))}
         </nav>
