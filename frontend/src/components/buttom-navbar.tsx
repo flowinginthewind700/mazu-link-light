@@ -7,7 +7,7 @@ const navItems = [
   { icon: Home, label: 'Home', href: '/' },
   { icon: Newspaper, label: 'Blog', href: '/blog' },
   { icon: Search, label: 'Tools', href: '/tools' },
-  { icon: PlusCircle, label: 'Submit', href: '/submit' },
+  // { icon: PlusCircle, label: 'Submit', href: '/submit' },
 ]
 
 export function BottomNavbar() {
