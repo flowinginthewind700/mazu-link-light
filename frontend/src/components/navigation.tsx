@@ -91,5 +91,3 @@ export function Navigation({ onCategorySelect, selectedCategory, categories = []
   )
 }
 
-export { Navigation };
-
