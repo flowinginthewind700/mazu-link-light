@@ -17,8 +17,8 @@ interface Category {
 interface NavigationProps {
   onCategorySelect?: (categoryId: string) => void;
   selectedCategory?: string;
-  categories?: any[]; // 使用实际的类型替换 any
-  scrollToCategoryFromMobile?: (categoryId: string) => void;
+  categories?: Category[];
+  scrollToCategoryFromMobile?: (categoryId: string) => void; // 确保包含这个定义
   currentPage: 'home' | 'blog' | 'tools' | 'ai-image' | '';
   showMobileMenu?: boolean;
 }
