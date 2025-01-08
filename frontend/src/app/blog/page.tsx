@@ -132,9 +132,9 @@ export default function BlogPage() {
         }
       } else {
         query = `
-          query($start: Int!, $limit: Int!, $category: String!) {
+          query($start: Int!, $limit: Int!, $categoryId: ID!) {
             posts(
-              where: { category: { slug: $category, id_nin: ${JSON.stringify(EXCLUDED_CATEGORY_IDS)} } }
+              where: { category: { id: $categoryId, id_nin: ${JSON.stringify(EXCLUDED_CATEGORY_IDS)} } }
               start: $start
               limit: $limit
               sort: "date:DESC"
@@ -153,7 +153,7 @@ export default function BlogPage() {
                 formats
               }
             }
-            postsConnection(where: { category: { slug: $category, id_nin: ${JSON.stringify(EXCLUDED_CATEGORY_IDS)} } }) {
+            postsConnection(where: { category: { id: $categoryId, id_nin: ${JSON.stringify(EXCLUDED_CATEGORY_IDS)} } }) {
               aggregate {
                 count
               }
@@ -163,7 +163,7 @@ export default function BlogPage() {
         variables = {
           start: (currentPage - 1) * POSTS_PER_PAGE,
           limit: POSTS_PER_PAGE,
-          category: selectedCategory,
+          categoryId: selectedCategory,
         }
       }
 
@@ -179,8 +179,8 @@ export default function BlogPage() {
     }
   }
 
-  const handleCategorySelect = (categorySlug: string) => {
-    setSelectedCategory(categorySlug);
+  const handleCategorySelect = (categoryId: string) => {
+    setSelectedCategory(categoryId);
     setCurrentPage(1);
   }
 
@@ -191,7 +191,7 @@ export default function BlogPage() {
 
   const getPageRange = () => {
     const range = [];
-    
+
     if (totalPages <= 9) {
       for (let i = 1; i <= totalPages; i++) {
         range.push(i);
@@ -204,95 +204,96 @@ export default function BlogPage() {
       if (currentPage - 1 <= 4) {
         high = 7;
       }
-  
+
       if (totalPages - currentPage <= 4) {
         low = Math.max(2, totalPages - 6);
       }
-  
+
       if (low > 2) range.push('...');
       for (let i = low; i <= high; i++) {
         range.push(i);
       }
       if (high < totalPages - 1) range.push('...');
-  
+
       range.push(totalPages);
     }
-  
+
     return range;
   }
 
   const pageNumbersToShow = getPageRange();
 
   return (
-    <> <Navigation
-    onCategorySelect={handleCategorySelect}
-    categories={categories}
-    selectedCategory={selectedCategory}
-  />
-    <div className="min-h-screen bg-background">
-      <PageViewTracker />
-      <div className="container mx-auto px-4 py-8">
-        <div className="lg:flex lg:gap-8">
-          <aside className="mb-6 lg:w-48 lg:flex-shrink-0">
-            <div className="flex flex-wrap gap-2 lg:flex-col">
-              {categories.map((category) => (
-                <motion.button
-                  key={category.id}
-                  onClick={() => handleCategorySelect(category.slug)}
-                  className={cn(
-                    "rounded-full px-4 py-2 text-sm font-medium transition-colors",
-                    selectedCategory === category.slug
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted text-muted-foreground hover:bg-muted/80"
-                  )}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  {category.name}
-                </motion.button>
-              ))}
-            </div>
-          </aside>
+    <>
+      <Navigation
+        onCategorySelect={handleCategorySelect}
+        categories={categories}
+        selectedCategory={selectedCategory}
+      />
+      <div className="min-h-screen bg-background">
+        <PageViewTracker />
+        <div className="container mx-auto px-4 py-8">
+          <div className="lg:flex lg:gap-8">
+            <aside className="mb-6 lg:w-48 lg:flex-shrink-0">
+              <div className="flex flex-wrap gap-2 lg:flex-col">
+                {categories.map((category) => (
+                  <motion.button
+                    key={category.id}
+                    onClick={() => handleCategorySelect(category.id)}
+                    className={cn(
+                      "rounded-full px-4 py-2 text-sm font-medium transition-colors",
+                      selectedCategory === category.id
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted text-muted-foreground hover:bg-muted/80"
+                    )}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    {category.name}
+                  </motion.button>
+                ))}
+              </div>
+            </aside>
 
-          <motion.main 
-            className="flex-1"
-            variants={container}
-            initial="hidden"
-            animate="visible"
-          >
-            <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-              {blogPosts.map((post) => (
-                <motion.div key={post.id} variants={item} className="w-full">
-                  <BlogCard post={post} />
-                </motion.div>
-              ))}
-            </div>
+            <motion.main
+              className="flex-1"
+              variants={container}
+              initial="hidden"
+              animate="visible"
+            >
+              <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                {blogPosts.map((post) => (
+                  <motion.div key={post.id} variants={item} className="w-full">
+                    <BlogCard post={post} />
+                  </motion.div>
+                ))}
+              </div>
 
-            <div className="mt-8 flex justify-center items-center gap-2">
-              {pageNumbersToShow.map((page, index) => (
-                typeof page === 'string' ? 
-                <span key={`ellipsis-${index}`} className="w-8 h-8 flex items-center justify-center">...</span> :
-                <motion.button
-                  key={page}
-                  onClick={() => handlePageChange(page)}
-                  className={cn(
-                    "w-8 h-8 flex items-center justify-center rounded-md text-sm",
-                    currentPage === page
-                      ? "bg-primary text-primary-foreground font-bold"
-                      : "bg-muted hover:bg-muted/80"
-                  )}
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                >
-                  {page}
-                </motion.button>
-              ))}
-            </div>
-          </motion.main>
+              <div className="mt-8 flex justify-center items-center gap-2">
+                {pageNumbersToShow.map((page, index) => (
+                  typeof page === 'string' ?
+                    <span key={`ellipsis-${index}`} className="w-8 h-8 flex items-center justify-center">...</span> :
+                    <motion.button
+                      key={page}
+                      onClick={() => handlePageChange(page)}
+                      className={cn(
+                        "w-8 h-8 flex items-center justify-center rounded-md text-sm",
+                        currentPage === page
+                          ? "bg-primary text-primary-foreground font-bold"
+                          : "bg-muted hover:bg-muted/80"
+                      )}
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                    >
+                      {page}
+                    </motion.button>
+                ))}
+              </div>
+            </motion.main>
+          </div>
         </div>
+        <BottomNavbar />
       </div>
-      <BottomNavbar />
-    </div>
     </>
   )
 }
