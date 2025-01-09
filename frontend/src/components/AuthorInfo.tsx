@@ -33,7 +33,7 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({ author, createdAt }) => {
               <>
                 {' • '}
                 <a
-                  href={`https://twitter.com/${author.twitter}`}
+                  href={`https://x.com/intent/follow?screen_name=${author.twitter}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-blue-500 hover:underline"

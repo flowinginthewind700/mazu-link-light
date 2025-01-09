@@ -246,7 +246,7 @@ export default function AgiToolClient() {
                   <div className="flex items-center gap-2">
                     <Twitter className="w-4 h-4 dark:text-gray-300" />
                     <a
-                      href={`https://twitter.com/${tool.author.twitter}`}
+                      href={`https://x.com/intent/follow?screen_name=${tool.author.twitter}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-sm text-primary hover:underline dark:text-blue-400"
