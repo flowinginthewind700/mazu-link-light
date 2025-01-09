@@ -10,7 +10,7 @@ const navItems = [
   { icon: Newspaper, label: 'Blog', href: '/blog' },
   { icon: PocketKnife, label: 'Tools', href: '/tools' },
   { icon: Image, label: 'AI Images', href: '/ai-image' },
-  { icon: PlusCircle, label: 'Submit', href: '/submit' },
+  // { icon: PlusCircle, label: 'Submit', href: '/submit' },
 
 ]
 
