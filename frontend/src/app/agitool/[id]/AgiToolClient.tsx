@@ -14,6 +14,9 @@ import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
 import { Navigation } from '@/components/navigation';
 import { BottomNavbar } from '@/components/bottom-navbar';
+import * as Dialog from '@radix-ui/react-dialog';
+import { X } from 'lucide-react';
+import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
 
 const apiUrl = process.env.NEXT_PUBLIC_CMS_API_BASE_URL || '';
 
@@ -51,10 +54,72 @@ const BlockNode = ({ node, ...props }: any) => (
   <div className="my-4" {...props} />
 );
 
+const ImageZoomDialog: React.FC<{ isOpen: boolean; onClose: () => void; imageUrl: string }> = ({ isOpen, onClose, imageUrl }) => {
+  const [dialogSize, setDialogSize] = useState({ width: 'auto', height: 'auto' });
+
+  useEffect(() => {
+    if (isOpen && imageUrl) {
+      const img = document.createElement('img');
+      img.src = imageUrl;
+      img.onload = () => {
+        const screenWidth = window.innerWidth;
+        const screenHeight = window.innerHeight;
+        const imgWidth = img.naturalWidth;
+        const imgHeight = img.naturalHeight;
+
+        let width, height;
+
+        if (imgWidth > screenWidth || imgHeight > screenHeight) {
+          const widthRatio = screenWidth / imgWidth;
+          const heightRatio = screenHeight / imgHeight;
+          const ratio = Math.min(widthRatio, heightRatio) * 0.9; // 90% of the screen
+          width = Math.round(imgWidth * ratio);
+          height = Math.round(imgHeight * ratio);
+        } else {
+          width = imgWidth;
+          height = imgHeight;
+        }
+
+        setDialogSize({ 
+          width: `${width}px`, 
+          height: `${height}px` 
+        });
+      };
+    }
+  }, [isOpen, imageUrl]);
+
+  return (
+    <Dialog.Root open={isOpen} onOpenChange={onClose}>
+      <Dialog.Portal>
+        <Dialog.Overlay className="fixed inset-0 bg-black/75 z-[100]" />
+        <Dialog.Content
+          className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] z-[101] flex items-center justify-center p-4"
+          style={{ width: dialogSize.width, height: dialogSize.height }}
+        >
+          <TransformWrapper>
+            <TransformComponent>
+              <img src={imageUrl} alt="Zoomed image" className="w-full h-full object-contain rounded-lg shadow-xl" />
+            </TransformComponent>
+          </TransformWrapper>
+          <Dialog.Close asChild>
+            <button
+              className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 transition-colors flex items-center justify-center"
+              aria-label="Close"
+            >
+              <X className="w-6 h-6 text-white" />
+            </button>
+          </Dialog.Close>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
+  );
+};
+
 export default function AgiToolClient() {
   const params = useParams();
   const router = useRouter();
   const [tool, setTool] = useState<AgiTool | null>(null);
+  const [zoomedImage, setZoomedImage] = useState<string | null>(null);
 
   useEffect(() => {
     fetchToolDetails();
@@ -132,6 +197,10 @@ export default function AgiToolClient() {
     }
   };
 
+  const handleImageClick = (imageUrl: string) => {
+    setZoomedImage(imageUrl);
+  };
+
   if (!tool) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -155,7 +224,8 @@ export default function AgiToolClient() {
                   src={`${apiUrl}${tool.screenshot?.url || tool.imagelarge?.url}`}
                   alt={tool.name}
                   fill
-                  className="object-cover"
+                  className="object-cover cursor-zoom-in"
+                  onClick={() => handleImageClick(`${apiUrl}${tool.screenshot?.url || tool.imagelarge?.url}`)}
                 />
               </div>
               <div className="flex flex-wrap gap-2">
@@ -201,22 +271,18 @@ export default function AgiToolClient() {
                 </span>
               </Button>
               <div className="flex gap-4">
-                <Button onClick={() => handleShare('facebook')} className="flex-1">
-                  <Facebook className="w-4 h-4 mr-2" />
-                  Share
-                </Button>
-                <Button onClick={() => handleShare('twitter')} className="flex-1">
-                  <Twitter className="w-4 h-4 mr-2" />
-                  Tweet
-                </Button>
-                <Button onClick={() => handleShare('linkedin')} className="flex-1">
-                  <Linkedin className="w-4 h-4 mr-2" />
-                  Share
-                </Button>
-                <Button onClick={() => handleShare('copy')} className="flex-1">
-                  <Share2 className="w-4 h-4 mr-2" />
-                  Copy
-                </Button>
+                <button onClick={() => handleShare('facebook')} className="p-2 rounded-full bg-[#1877f2] text-white hover:bg-[#1877f2]/90">
+                  <Facebook className="w-5 h-5" />
+                </button>
+                <button onClick={() => handleShare('twitter')} className="p-2 rounded-full bg-[#1da1f2] text-white hover:bg-[#1da1f2]/90">
+                  <Twitter className="w-5 h-5" />
+                </button>
+                <button onClick={() => handleShare('linkedin')} className="p-2 rounded-full bg-[#0a66c2] text-white hover:bg-[#0a66c2]/90">
+                  <Linkedin className="w-5 h-5" />
+                </button>
+                <button onClick={() => handleShare('copy')} className="p-2 rounded-full bg-[#ff4500] text-white hover:bg-[#ff4500]/90">
+                  <Share2 className="w-5 h-5" />
+                </button>
               </div>
             </div>
           </CardContent>
@@ -233,6 +299,13 @@ export default function AgiToolClient() {
                 a: ({ node, ...props }: any) => (
                   <a {...props} className="text-blue-500 hover:underline" target="_blank" rel="noopener noreferrer" />
                 ),
+                img: ({ node, ...props }: any) => (
+                  <img
+                    {...props}
+                    className="cursor-zoom-in"
+                    onClick={() => handleImageClick(props.src)}
+                  />
+                ),
               }}
             >
               {tool.content}
@@ -240,6 +313,12 @@ export default function AgiToolClient() {
           </CardContent>
         </Card>
       </div>
+
+      <ImageZoomDialog
+        isOpen={!!zoomedImage}
+        onClose={() => setZoomedImage(null)}
+        imageUrl={zoomedImage || ''}
+      />
     </>
   );
 }
