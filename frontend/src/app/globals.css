@@ -62,7 +62,7 @@
     --accent-foreground: 210 40% 98%;
 
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 85.7% 97.3%;
+    --destructive-foreground: 210 40% 98%;
 
     --ring: 217.2 32.6% 17.5%;
   }
@@ -78,122 +78,199 @@
   }
 }
 
-.futuristic-bg-light {
-  background: linear-gradient(135deg, #f0f8ff 0%, #e6f0ff 100%);
+/* Markdown 样式 */
+.prose {
+  color: hsl(var(--foreground)); /* 使用 Tailwind 变量 */
+  font-size: 1rem;
+  line-height: 1.75;
+  max-width: 65ch;
+  margin: 0 auto;
+  padding: 1rem;
 }
 
-.futuristic-bg-dark {
-  background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+.prose p {
+  margin-bottom: 1.5em;
+  text-indent: 2em;
 }
 
-.card-hover-effect {
-  transition: all 0.3s ease;
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4,
+.prose h5,
+.prose h6 {
+  margin-top: 2em;
+  margin-bottom: 1em;
+  font-weight: 600;
+  line-height: 1.3;
+  color: hsl(var(--foreground)); /* 使用 Tailwind 变量 */
 }
 
-.card-hover-effect:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+.prose h1 {
+  font-size: 2.25rem;
 }
 
-.glow-effect {
-  position: relative;
-  overflow: hidden;
+.prose h2 {
+  font-size: 1.875rem;
 }
 
-.glow-effect::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 70%);
-  transform: rotate(45deg);
-  transition: all 0.3s ease;
-  opacity: 0;
+.prose h3 {
+  font-size: 1.5rem;
 }
 
-.glow-effect:hover::before {
-  opacity: 1;
+.prose h4 {
+  font-size: 1.25rem;
 }
 
-.neon-border {
-  box-shadow: 0 0 5px theme('colors.primary.DEFAULT'),
-              0 0 10px theme('colors.primary.DEFAULT'),
-              0 0 15px theme('colors.primary.DEFAULT'),
-              0 0 20px theme('colors.primary.DEFAULT');
+.prose h5 {
+  font-size: 1.125rem;
 }
 
-.tech-pattern {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.05'%3E%3Cpath opacity='.5' d='M96 95h4v1h-4v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9zm-1 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+.prose h6 {
+  font-size: 1rem;
 }
 
-.gradient-text {
-  background: linear-gradient(45deg, #3490dc, #6574cd);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  text-fill-color: transparent;
+.prose a {
+  color: hsl(var(--primary)); /* 使用 Tailwind 变量 */
+  text-decoration: underline;
+  transition: color 0.2s ease-in-out;
 }
 
-.futuristic-card {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  transition: all 0.3s ease;
+.prose a:hover {
+  color: hsl(var(--primary) / 0.8); /* 使用 Tailwind 变量 */
 }
 
-.futuristic-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+.prose code {
+  background-color: hsl(var(--muted)); /* 使用 Tailwind 变量 */
+  padding: 0.25em 0.5em;
+  border-radius: 0.25em;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.9em;
+  color: hsl(var(--foreground)); /* 使用 Tailwind 变量 */
 }
 
-.neon-glow {
-  box-shadow: 0 0 5px theme('colors.primary.DEFAULT'),
-              0 0 10px theme('colors.primary.DEFAULT'),
-              0 0 15px theme('colors.primary.DEFAULT'),
-              0 0 20px theme('colors.primary.DEFAULT');
+.prose pre {
+  background-color: hsl(var(--muted)); /* 使用 Tailwind 变量 */
+  color: hsl(var(--foreground)); /* 使用 Tailwind 变量 */
+  padding: 1em;
+  border-radius: 0.5em;
+  overflow-x: auto;
+  margin-bottom: 1.5em;
 }
 
-.tech-bg-pattern {
-  background-color: #f0f4ff;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.05'%3E%3Cpath opacity='.5' d='M96 95h4v1h-4v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9zm-1 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+.prose pre code {
+  background-color: transparent;
+  padding: 0;
+  font-size: 0.9em;
 }
 
-/* Dark mode styles */
-.dark {
-  --background: 222.2 84% 4.9%;
-  --foreground: 210 40% 98%;
-
-  --card: 222.2 84% 4.9%;
-  --card-foreground: 210 40% 98%;
-
-  --popover: 222.2 84% 4.9%;
-  --popover-foreground: 210 40% 98%;
-
-  --primary: 217.2 91.2% 59.8%;
-  --primary-foreground: 222.2 47.4% 11.2%;
-
-  --secondary: 217.2 32.6% 17.5%;
-  --secondary-foreground: 210 40% 98%;
-
-  --muted: 217.2 32.6% 17.5%;
-  --muted-foreground: 215 20.2% 65.1%;
-
-  --accent: 217.2 32.6% 17.5%;
-  --accent-foreground: 210 40% 98%;
-
-  --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 210 40% 98%;
-
-  --border: 217.2 32.6% 17.5%;
-  --input: 217.2 32.6% 17.5%;
-  --ring: 212.7 26.8% 83.9%;
+.prose blockquote {
+  border-left: 4px solid hsl(var(--border)); /* 使用 Tailwind 变量 */
+  padding-left: 1em;
+  color: hsl(var(--muted-foreground)); /* 使用 Tailwind 变量 */
+  margin-bottom: 1.5em;
 }
 
-/* Ensure dark mode is applied to the root element */
-:root.dark {
-  color-scheme: dark;
+.prose ul,
+.prose ol {
+  margin-bottom: 1.5em;
+  padding-left: 2em;
 }
 
+.prose li {
+  margin-bottom: 0.5em;
+  color: hsl(var(--foreground)); /* 使用 Tailwind 变量 */
+}
+
+.prose ul {
+  list-style-type: disc;
+}
+
+.prose ol {
+  list-style-type: decimal;
+}
+
+.prose img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5em;
+  margin-bottom: 1.5em;
+}
+
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1.5em;
+}
+
+.prose th,
+.prose td {
+  padding: 0.75em;
+  border: 1px solid hsl(var(--border)); /* 使用 Tailwind 变量 */
+}
+
+.prose th {
+  background-color: hsl(var(--muted)); /* 使用 Tailwind 变量 */
+  font-weight: 600;
+  color: hsl(var(--foreground)); /* 使用 Tailwind 变量 */
+}
+
+.prose hr {
+  border: 1px solid hsl(var(--border)); /* 使用 Tailwind 变量 */
+  margin: 2em 0;
+}
+
+/* 深色模式下的 Markdown 样式 */
+.dark .prose {
+  color: hsl(var(--foreground)); /* 使用 Tailwind 变量 */
+}
+
+.dark .prose h1,
+.dark .prose h2,
+.dark .prose h3,
+.dark .prose h4,
+.dark .prose h5,
+.dark .prose h6 {
+  color: hsl(var(--foreground)); /* 使用 Tailwind 变量 */
+}
+
+.dark .prose a {
+  color: hsl(var(--primary)); /* 使用 Tailwind 变量 */
+}
+
+.dark .prose a:hover {
+  color: hsl(var(--primary) / 0.8); /* 使用 Tailwind 变量 */
+}
+
+.dark .prose code {
+  background-color: hsl(var(--muted)); /* 使用 Tailwind 变量 */
+  color: hsl(var(--foreground)); /* 使用 Tailwind 变量 */
+}
+
+.dark .prose pre {
+  background-color: hsl(var(--muted)); /* 使用 Tailwind 变量 */
+  color: hsl(var(--foreground)); /* 使用 Tailwind 变量 */
+}
+
+.dark .prose blockquote {
+  border-left-color: hsl(var(--border)); /* 使用 Tailwind 变量 */
+  color: hsl(var(--muted-foreground)); /* 使用 Tailwind 变量 */
+}
+
+.dark .prose li {
+  color: hsl(var(--foreground)); /* 使用 Tailwind 变量 */
+}
+
+.dark .prose th,
+.dark .prose td {
+  border-color: hsl(var(--border)); /* 使用 Tailwind 变量 */
+}
+
+.dark .prose th {
+  background-color: hsl(var(--muted)); /* 使用 Tailwind 变量 */
+  color: hsl(var(--foreground)); /* 使用 Tailwind 变量 */
+}
+
+.dark .prose hr {
+  border-color: hsl(var(--border)); /* 使用 Tailwind 变量 */
+}

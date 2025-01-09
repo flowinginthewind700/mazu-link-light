@@ -1,4 +1,3 @@
-// app/agitool/[id]/AgiToolClient.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -213,9 +212,9 @@ export default function AgiToolClient() {
     <>
       <Navigation currentPage="" showMobileMenu={false} />
       <div className="container mx-auto px-4 py-8 max-w-5xl">
-        <Card className="mb-8">
+        <Card className="mb-8 dark:bg-gray-800 dark:border-gray-700">
           <CardHeader>
-            <CardTitle className="text-3xl">{tool.name}</CardTitle>
+            <CardTitle className="text-3xl dark:text-white">{tool.name}</CardTitle>
           </CardHeader>
           <CardContent className="grid md:grid-cols-2 gap-8">
             <div className="space-y-4">
@@ -230,37 +229,37 @@ export default function AgiToolClient() {
               </div>
               <div className="flex flex-wrap gap-2">
                 {tool.agitooltags.map((tag) => (
-                  <Badge key={tag.id} variant="secondary">
+                  <Badge key={tag.id} variant="secondary" className="dark:bg-gray-700 dark:text-gray-200">
                     {tag.tagname}
                   </Badge>
                 ))}
               </div>
             </div>
             <div className="space-y-4">
-              <p className="text-lg">{tool.Description}</p>
+              <p className="text-lg dark:text-gray-300">{tool.Description}</p>
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <User className="w-4 h-4" />
-                  <span className="text-sm">By: {tool.author.name}</span>
+                  <User className="w-4 h-4 dark:text-gray-300" />
+                  <span className="text-sm dark:text-gray-300">By: {tool.author.name}</span>
                 </div>
                 {tool.author.twitter && (
                   <div className="flex items-center gap-2">
-                    <Twitter className="w-4 h-4" />
+                    <Twitter className="w-4 h-4 dark:text-gray-300" />
                     <a
                       href={`https://twitter.com/${tool.author.twitter}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-sm text-primary hover:underline"
+                      className="text-sm text-primary hover:underline dark:text-blue-400"
                     >
                       @{tool.author.twitter}
                     </a>
                   </div>
                 )}
                 <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4" />
-                  <span className="text-sm">Submitted: {new Date(tool.submissionDate).toLocaleDateString()}</span>
+                  <Calendar className="w-4 h-4 dark:text-gray-300" />
+                  <span className="text-sm dark:text-gray-300">Submitted: {new Date(tool.submissionDate).toLocaleDateString()}</span>
                 </div>
-                <div className="text-sm">
+                <div className="text-sm dark:text-gray-300">
                   <strong>Pricing:</strong> {tool.price}
                 </div>
               </div>
@@ -288,7 +287,7 @@ export default function AgiToolClient() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="dark:bg-gray-800 dark:border-gray-700">
           <CardContent className="prose dark:prose-invert max-w-none p-6">
             <ReactMarkdown
               rehypePlugins={[rehypeRaw]}
@@ -297,7 +296,7 @@ export default function AgiToolClient() {
                 code: CodeRenderer,
                 div: BlockNode,
                 a: ({ node, ...props }: any) => (
-                  <a {...props} className="text-blue-500 hover:underline" target="_blank" rel="noopener noreferrer" />
+                  <a {...props} className="text-blue-500 hover:underline dark:text-blue-400" target="_blank" rel="noopener noreferrer" />
                 ),
                 img: ({ node, ...props }: any) => (
                   <img

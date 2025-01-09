@@ -141,7 +141,6 @@ const PostDetail: React.FC<{ postId: string }> = ({ postId }) => {
         break;
     }
   };
-  
 
   const components = {
     code: CodeRenderer as any,
@@ -181,11 +180,11 @@ const PostDetail: React.FC<{ postId: string }> = ({ postId }) => {
           </div>
         )}
 
-        <h1 className="text-3xl font-bold mb-4 break-words text-left">{post.title}</h1>
+        <h1 className="text-3xl font-bold mb-4 break-words text-left dark:text-white">{post.title}</h1>
 
-        <div className="mb-8 p-6 bg-white bg-opacity-30 backdrop-filter backdrop-blur-lg rounded-lg shadow-lg">
-          <p className="text-lg font-semibold text-gray-800 mb-2">Summary:</p>
-          <p className="text-gray-700 break-words leading-6">{post.description}</p>
+        <div className="mb-8 p-6 bg-white bg-opacity-30 backdrop-filter backdrop-blur-lg rounded-lg shadow-lg dark:bg-gray-800 dark:bg-opacity-50 dark:text-gray-200">
+          <p className="text-lg font-semibold text-gray-800 mb-2 dark:text-gray-200">Summary:</p>
+          <p className="text-gray-700 break-words leading-6 dark:text-gray-300">{post.description}</p>
         </div>
 
         {/* Social Share Buttons */}
@@ -205,7 +204,7 @@ const PostDetail: React.FC<{ postId: string }> = ({ postId }) => {
         </div>
 
         <ReactMarkdown
-          className="post-markdown-blog text-left"
+          className="post-markdown-blog text-left dark:text-gray-300"
           rehypePlugins={[rehypeRaw]}
           remarkPlugins={[remarkGfm]}
           components={components}
@@ -226,4 +225,3 @@ const PostDetail: React.FC<{ postId: string }> = ({ postId }) => {
 };
 
 export default PostDetail;
-
