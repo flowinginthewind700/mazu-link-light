@@ -18,11 +18,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const response = await axios.get(`${apiUrl}/posts/${id}`);
   const post = response.data;
 
-  const title = `${post.title} | LLMStock News`;
+  const title = `${post.title} | AGIEntry News`;
   const description = post.description || 'Read this article on LLMStock News';
   const imageUrl = post.cover && post.cover.length > 0 
     ? `${apiUrl}${post.cover[0].url}`
-    : 'https://llmstock.com/images/default_blog.jpg';
+    : `${apiUrl}/images/default_blog.jpg`;
 
   return {
     title,
