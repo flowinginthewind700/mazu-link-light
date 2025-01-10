@@ -77,7 +77,7 @@ export const CardSpotlight: React.FC<CardSpotlightProps> = ({
       )}
 
       {/* 卡片内容 */}
-      <div className="relative z-10 p-6">{children}</div>
+      <div className="relative z-10 p-4">{children}</div> {/* 缩小 padding */}
     </div>
   );
 };

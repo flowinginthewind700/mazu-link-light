@@ -21,7 +21,7 @@ export const ToolCard: React.FC<ToolCardProps> = ({ tool, apiUrl }) => {
   return (
     <CardSpotlight>
       <Link href={`/agitool/${tool.id}`} className="block">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 p-4"> {/* 缩小 padding */}
           <Image
             src={`${apiUrl}${tool.iconimage.formats?.thumbnail?.url || tool.iconimage.url}`}
             alt={tool.name}
@@ -30,8 +30,12 @@ export const ToolCard: React.FC<ToolCardProps> = ({ tool, apiUrl }) => {
             className="rounded-lg"
           />
           <div>
-            <h3 className="font-medium text-foreground hover:underline">{tool.name}</h3>
-            <p className="text-sm text-muted-foreground">{tool.Description}</p>
+            <h3 className="font-medium text-foreground hover:underline group-hover/spotlight:text-gray-900 dark:group-hover/spotlight:text-gray-100">
+              {tool.name}
+            </h3>
+            <p className="text-sm text-muted-foreground group-hover/spotlight:text-gray-700 dark:group-hover/spotlight:text-gray-300">
+              {tool.Description}
+            </p>
           </div>
         </div>
       </Link>

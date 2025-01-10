@@ -43,7 +43,7 @@ export const FeaturedToolCard: React.FC<FeaturedToolCardProps> = ({ tool }) => {
           </div>
         </div>
         <div className="p-2 sm:p-3">
-          <p className="text-gray-700 dark:text-gray-300 text-xs sm:text-sm line-clamp-2">
+          <p className="text-gray-700 dark:text-gray-300 text-xs sm:text-sm line-clamp-2 group-hover/spotlight:text-gray-900 dark:group-hover/spotlight:text-gray-100">
             {tool.description}
           </p>
         </div>
