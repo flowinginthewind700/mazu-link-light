@@ -57,6 +57,6 @@ export const ToolCard: React.FC<ToolCardProps> = ({ tool, apiUrl }) => {
           </Tooltip>
         </TooltipProvider>
       )}
-    </div>
+    </CardSpotlight> 
   );
 };
