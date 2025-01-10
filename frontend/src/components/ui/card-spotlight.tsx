@@ -1,22 +1,22 @@
 "use client";
 
 import { useMotionValue, motion, useMotionTemplate } from "framer-motion";
-import React, { useState, ReactNode } from "react";
+import React, { useState } from "react";
 import { CanvasRevealEffect } from "@/components/ui/canvas-reveal-effect";
 import { cn } from "@/components/lib/utils";
 
 interface CardSpotlightProps {
-  children: ReactNode; // 明确 children 的类型
+  children: React.ReactNode;
   radius?: number;
   color?: string;
   className?: string;
-  [key: string]: any; // 允许其他任意属性
+  [key: string]: any;
 }
 
 export const CardSpotlight: React.FC<CardSpotlightProps> = ({
   children,
   radius = 350,
-  color = "#262626",
+  color = "rgba(38, 38, 38, 0.1)", // 使用半透明颜色
   className,
   ...props
 }) => {
@@ -40,7 +40,7 @@ export const CardSpotlight: React.FC<CardSpotlightProps> = ({
   return (
     <div
       className={cn(
-        "group/spotlight p-10 rounded-md relative border border-neutral-800 bg-black dark:border-neutral-800",
+        "group/spotlight relative rounded-md", // 移除默认的 padding 和背景色
         className
       )}
       onMouseMove={handleMouseMove}

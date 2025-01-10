@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { SquareArrowOutUpRight } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import {Tool } from './types'
+import { Tool } from './types';
 import { CardSpotlight } from "@/components/ui/card-spotlight";
 
 interface ToolCardProps {
@@ -20,12 +20,12 @@ export const ToolCard: React.FC<ToolCardProps> = ({ tool, apiUrl }) => {
   };
 
   return (
-    <div className="relative">
+    <CardSpotlight className="bg-background dark:bg-neutral-900 rounded-lg border">
       <Link href={`/agitool/${tool.id}`} className="block">
         <motion.div
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          className="flex items-center gap-3 p-4 rounded-lg border hover:shadow-md transition-shadow bg-background/50 backdrop-blur-sm card-hover-effect glow-effect"
+          className="flex items-center gap-3 p-4 rounded-lg hover:shadow-md transition-shadow bg-background/50 dark:bg-neutral-800/50 backdrop-blur-sm card-hover-effect glow-effect"
         >
           <Image
             src={`${apiUrl}${tool.iconimage.formats?.thumbnail?.url || tool.iconimage.url}`}
@@ -57,6 +57,6 @@ export const ToolCard: React.FC<ToolCardProps> = ({ tool, apiUrl }) => {
           </Tooltip>
         </TooltipProvider>
       )}
-    </div> 
+    </CardSpotlight>
   );
 };
