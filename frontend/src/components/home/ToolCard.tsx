@@ -20,7 +20,7 @@ export const ToolCard: React.FC<ToolCardProps> = ({ tool, apiUrl }) => {
   };
 
   return (
-    <CardSpotlight className="relative">
+    <div className="relative">
       <Link href={`/agitool/${tool.id}`} className="block">
         <motion.div
           whileHover={{ scale: 1.05 }}
@@ -57,6 +57,6 @@ export const ToolCard: React.FC<ToolCardProps> = ({ tool, apiUrl }) => {
           </Tooltip>
         </TooltipProvider>
       )}
-    </CardSpotlight> 
+    </div> 
   );
 };
