@@ -16,7 +16,7 @@ interface CardSpotlightProps {
 export const CardSpotlight: React.FC<CardSpotlightProps> = ({
   children,
   radius = 350,
-  color = "rgba(38, 38, 38, 0.1)", // 使用半透明颜色
+  color = "rgba(120, 120, 120, 0.1)", // 半透明颜色，兼容深色和浅色模式
   className,
   ...props
 }) => {
@@ -40,7 +40,7 @@ export const CardSpotlight: React.FC<CardSpotlightProps> = ({
   return (
     <div
       className={cn(
-        "group/spotlight relative rounded-md", // 移除默认的 padding 和背景色
+        "group/spotlight relative rounded-lg border bg-background dark:bg-neutral-900 overflow-hidden", // 兼容深色和浅色模式
         className
       )}
       onMouseMove={handleMouseMove}
@@ -48,8 +48,9 @@ export const CardSpotlight: React.FC<CardSpotlightProps> = ({
       onMouseLeave={handleMouseLeave}
       {...props}
     >
+      {/* 光斑效果 */}
       <motion.div
-        className="pointer-events-none absolute z-0 -inset-px rounded-md opacity-0 transition duration-300 group-hover/spotlight:opacity-100"
+        className="pointer-events-none absolute z-0 -inset-px rounded-lg opacity-0 transition-opacity duration-300 group-hover/spotlight:opacity-100"
         style={{
           backgroundColor: color,
           maskImage: useMotionTemplate`
@@ -60,20 +61,23 @@ export const CardSpotlight: React.FC<CardSpotlightProps> = ({
             )
           `,
         }}
-      >
-        {isHovering && (
-          <CanvasRevealEffect
-            animationSpeed={5}
-            containerClassName="bg-transparent absolute inset-0 pointer-events-none"
-            colors={[
-              [59, 130, 246],
-              [139, 92, 246],
-            ]}
-            dotSize={3}
-          />
-        )}
-      </motion.div>
-      {children}
+      />
+
+      {/* CanvasRevealEffect 动画 */}
+      {isHovering && (
+        <CanvasRevealEffect
+          animationSpeed={5}
+          containerClassName="bg-transparent absolute inset-0 pointer-events-none"
+          colors={[
+            [59, 130, 246], // 蓝色
+            [139, 92, 246], // 紫色
+          ]}
+          dotSize={3}
+        />
+      )}
+
+      {/* 卡片内容 */}
+      <div className="relative z-10 p-6">{children}</div>
     </div>
   );
 };
