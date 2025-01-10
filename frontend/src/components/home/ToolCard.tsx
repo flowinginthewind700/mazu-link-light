@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { SquareArrowOutUpRight } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import {Tool } from './types'
+import { CardSpotlight } from "@/components/ui/card-spotlight";
 
 interface ToolCardProps {
   tool: Tool;
@@ -19,7 +20,7 @@ export const ToolCard: React.FC<ToolCardProps> = ({ tool, apiUrl }) => {
   };
 
   return (
-    <div className="relative">
+    <CardSpotlight className="relative">
       <Link href={`/agitool/${tool.id}`} className="block">
         <motion.div
           whileHover={{ scale: 1.05 }}
