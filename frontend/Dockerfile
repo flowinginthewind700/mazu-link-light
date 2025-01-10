@@ -41,6 +41,8 @@ RUN npm install @next/third-parties
 RUN npm install react-markdown remark-gfm react-syntax-highlighter rehype-raw
 RUN npm install react-toastify
 RUN npm install axios
+RUN npm install @react-three/fiber three
+RUN npm install --save-dev @types/three
 
 COPY . .
 RUN cp -r components/ui/* src/components/ui
