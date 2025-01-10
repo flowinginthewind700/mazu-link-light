@@ -43,7 +43,7 @@ RUN npm install react-toastify
 RUN npm install axios
 
 COPY . .
-RUN cp -r components/* src/components
+RUN cp -r components/ui/* src/components/ui
 
 # 调试：列出 .shadcn 目录和组件目录
 #RUN ls -la .shadcn
