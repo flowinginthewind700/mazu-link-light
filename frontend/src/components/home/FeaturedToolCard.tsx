@@ -1,7 +1,7 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
+import { CardSpotlight } from "@/components/ui/card-spotlight";
 
 interface FeatureTool {
   id: number;
@@ -28,12 +28,7 @@ export const FeaturedToolCard: React.FC<FeaturedToolCardProps> = ({ tool }) => {
 
   return (
     <CardWrapper {...cardProps}>
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -20 }}
-        className="group flex flex-col rounded-lg overflow-hidden bg-white/80 dark:bg-gray-800/80 shadow-sm hover:shadow-md transition-all duration-200"
-      >
+      <CardSpotlight className="group flex flex-col rounded-lg overflow-hidden bg-white/80 dark:bg-gray-800/80 shadow-sm hover:shadow-md transition-all duration-200">
         <div className="relative aspect-[2/1] overflow-hidden">
           <Image
             src={`${apiUrl}${tool.image.url}`}
@@ -52,7 +47,7 @@ export const FeaturedToolCard: React.FC<FeaturedToolCardProps> = ({ tool }) => {
             {tool.description}
           </p>
         </div>
-      </motion.div>
+      </CardSpotlight>
     </CardWrapper>
   );
 };
