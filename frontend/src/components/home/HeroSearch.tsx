@@ -1,7 +1,32 @@
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ToolCard } from './ToolCard';
+import axios from 'axios';
+
+// 定义 HeroSearchProps 接口
+interface HeroSearchProps {
+  selectedTopTab: string;
+  selectedEngine: string;
+  onTopTabChange: (value: string) => void;
+  onEngineChange: (value: string) => void;
+}
+
+const topTabs = [
+  { id: 'default', label: 'Default' },
+  { id: 'search', label: 'Search' },
+  { id: 'community', label: 'Community' },
+  { id: 'images', label: 'Images' },
+];
+
+const searchOptions = {
+  default: ['this site', 'google', 'bing', 'baidu', 'Perplexity'],
+  search: ['google', 'bing', 'baidu', 'Perplexity'],
+  community: ['huggingface', 'github'],
+  images: ['civitai', 'openart', 'lexica'],
+};
 
 const WEAVIATE_URL = 'http://weaviate:8080/v1/graphql';
 
@@ -51,7 +76,26 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
 
   return (
     <div className="text-center space-y-6">
-      {/* 其他代码保持不变 */}
+      <Image
+        src="/images/agientrylogo_large.jpg"
+        alt="AI Tools Logo Large"
+        width={120}
+        height={40}
+        className="mx-auto"
+      />
+      <Tabs value={selectedTopTab} onValueChange={onTopTabChange} className="w-full max-w-2xl mx-auto">
+        <TabsList className="grid w-full grid-cols-4 p-1 rounded-full bg-muted/50 backdrop-blur-sm">
+          {topTabs.map((tab) => (
+            <TabsTrigger
+              key={tab.id}
+              value={tab.id}
+              className="rounded-full transition-all duration-200 ease-in-out data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-lg"
+            >
+              {tab.label}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </Tabs>
       <div className="relative max-w-2xl mx-auto">
         <Input
           type="search"
@@ -63,6 +107,19 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
         />
         <Search className="absolute right-4 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
       </div>
+      <Tabs value={selectedEngine} onValueChange={onEngineChange} className="w-full max-w-2xl mx-auto">
+        <TabsList className="justify-center bg-transparent">
+          {searchOptions[selectedTopTab as keyof typeof searchOptions].map((engine) => (
+            <TabsTrigger
+              key={engine}
+              value={engine}
+              className="data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:underline transition-all duration-200 ease-in-out"
+            >
+              {engine}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </Tabs>
 
       {/* 显示搜索结果 */}
       {loading && <p>Loading...</p>}
