@@ -60,9 +60,7 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
             name
             description
             content
-            iconimage {
-              url
-            }
+            iconimageUrl
             accessLink
             internalPath
           }
@@ -79,6 +77,9 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
         ...tool,
         id: tool.strapiId, // 将 strapiId 赋值给 id
         Description: tool.description,
+        iconimage: {
+          url: tool.iconimageUrl, // 将 iconimageUrl 映射到 iconimage.url
+        },
       }));
   
       setSearchResults(mappedResults);
