@@ -1,6 +1,8 @@
 require('dotenv').config({ path: '.env.local' });
 const { v5: uuidv5, validate: uuidValidate } = require('uuid');
 
+const UUID_NAMESPACE = '1b671a64-40d5-491e-99b0-da01ff1f3343';
+
 const axios = require('axios');
 
 const STRAPI_API_URL = process.env.NEXT_PUBLIC_CMS_API_BASE_URL;
