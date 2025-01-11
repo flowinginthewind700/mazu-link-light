@@ -56,7 +56,6 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
               certainty: 0.7
             }
           ) {
-            id
             strapiId
             name
             Description
