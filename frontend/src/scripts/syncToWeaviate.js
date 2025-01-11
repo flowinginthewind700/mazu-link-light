@@ -1,11 +1,18 @@
+require('dotenv').config({ path: '.env.local' }); // 加载 .env.local 文件
+
 const axios = require('axios');
+
+// 从环境变量中读取 Strapi API URL
+const STRAPI_API_URL = process.env.NEXT_PUBLIC_CMS_API_BASE_URL;
+
+if (!STRAPI_API_URL) {
+  console.error('Error: NEXT_PUBLIC_CMS_API_BASE_URL environment variable is not set.');
+  process.exit(1);
+}
 
 // Weaviate 配置
 const WEAVIATE_URL = 'http://weaviate:8080/v1/objects';
 const WEAVIATE_CLASS_NAME = 'Agitool'; // Weaviate 中的类名
-
-// Strapi GraphQL API 配置
-const STRAPI_API_URL = process.env.NEXT_PUBLIC_CMS_API_BASE_URL;
 
 // 分页获取 agitool 数据
 const fetchAgitools = async (limit = 20, start = 0) => {

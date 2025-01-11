@@ -1,1 +1,1 @@
-docker exec -it mazu_link_light_frontend node /app/scripts/syncToWeaviate.js
+sudo docker exec -it mazu-link-light-mazu_link_light_frontend-1 node /app/src/scripts/syncToWeaviate.js
