@@ -23,6 +23,16 @@ const fetchAgitools = async (limit = 20, start = 0) => {
         name
         Description
         content
+        iconimage {
+          formats {
+            thumbnail {
+              url
+            }
+          }
+          url
+        }
+        accessLink
+        internalPath
       }
     }
   `;
@@ -47,13 +57,16 @@ const syncToWeaviate = async (data) => {
       properties: {
         id: data.id,
         name: data.name,
-        description: data.Description,
+        description: data.Description, // 注意字段名大小写
         content: data.content,
+        iconimage: data.iconimage, // 同步 iconimage 字段
+        accessLink: data.accessLink, // 同步 accessLink 字段
+        internalPath: data.internalPath, // 同步 internalPath 字段
       },
     });
     console.log(`Synced tool ${data.name} to Weaviate:`, response.data);
   } catch (error) {
-    console.error('Error syncing to Weaviate:', error);
+    console.error('Error syncing to Weaviate:', error.response?.data || error.message);
   }
 };
 
