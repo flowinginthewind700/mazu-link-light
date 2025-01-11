@@ -43,6 +43,7 @@ RUN npm install react-toastify
 RUN npm install axios
 RUN npm install @react-three/fiber three
 RUN npm install --save-dev @types/three
+RUN npm install simplex-noise
 
 COPY . .
 RUN cp -r components/ui/* src/components/ui
