@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import { FeaturedToolCard } from './FeaturedToolCard';
 import axios from 'axios';
+import { WavyBackground } from '@/components/ui/wavy-background' // 导入 WavyBackground 组件
 
 interface FeaturedCategory {
   id: number;
