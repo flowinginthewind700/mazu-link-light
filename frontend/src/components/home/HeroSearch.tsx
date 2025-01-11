@@ -29,7 +29,8 @@ const searchOptions = {
   images: ['civitai', 'openart', 'lexica'],
 };
 
-const WEAVIATE_URL = 'http://weaviate:8080/v1/graphql';
+const WEAVIATE_URL = '/api/weaviate';
+// const WEAVIATE_URL = 'http://weaviate:8080/v1/graphql';
 
 export const HeroSearch: React.FC<HeroSearchProps> = ({
   selectedTopTab,
