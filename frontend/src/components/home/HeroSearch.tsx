@@ -58,7 +58,7 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
           ) {
             strapiId
             name
-            Description
+            description
             content
             iconimage {
               formats {
@@ -83,6 +83,7 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
       const mappedResults = results.map((tool: any) => ({
         ...tool,
         id: tool.strapiId, // 将 strapiId 赋值给 id
+        Description: tool.description,
       }));
   
       setSearchResults(mappedResults);
