@@ -35,6 +35,21 @@ export const WavyBackground = ({
     ctx: any,
     canvas: any;
   const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  // 获取当前主题
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  useEffect(() => {
+    const darkModeMediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    setIsDarkMode(darkModeMediaQuery.matches);
+
+    const handleChange = (e: MediaQueryListEvent) => {
+      setIsDarkMode(e.matches);
+    };
+
+    darkModeMediaQuery.addEventListener("change", handleChange);
+    return () => darkModeMediaQuery.removeEventListener("change", handleChange);
+  }, []);
+
   const getSpeed = () => {
     switch (speed) {
       case "slow":
@@ -61,13 +76,15 @@ export const WavyBackground = ({
     render();
   };
 
-  const waveColors = colors ?? [
-    "#38bdf8",
-    "#818cf8",
-    "#c084fc",
-    "#e879f9",
-    "#22d3ee",
-  ];
+  // 根据主题动态设置波浪颜色
+  const waveColors = colors ?? (isDarkMode
+    ? ["#38bdf8", "#818cf8", "#c084fc", "#e879f9", "#22d3ee"] // 深色模式下的颜色
+    : ["#3b82f6", "#6366f1", "#8b5cf6", "#d946ef", "#06b6d4"] // 浅色模式下的颜色
+  );
+
+  // 根据主题动态设置背景填充颜色
+  const fillColor = backgroundFill || (isDarkMode ? "black" : "white");
+
   const drawWave = (n: number) => {
     nt += getSpeed();
     for (i = 0; i < n; i++) {
@@ -76,7 +93,7 @@ export const WavyBackground = ({
       ctx.strokeStyle = waveColors[i % waveColors.length];
       for (x = 0; x < w; x += 5) {
         var y = noise(x / 800, 0.3 * i, nt) * 100;
-        ctx.lineTo(x, y + h * 0.5); // adjust for height, currently at 50% of the container
+        ctx.lineTo(x, y + h * 0.5); // 调整波浪高度
       }
       ctx.stroke();
       ctx.closePath();
@@ -85,7 +102,7 @@ export const WavyBackground = ({
 
   let animationId: number;
   const render = () => {
-    ctx.fillStyle = backgroundFill || "black";
+    ctx.fillStyle = fillColor;
     ctx.globalAlpha = waveOpacity || 0.5;
     ctx.fillRect(0, 0, w, h);
     drawWave(5);
@@ -97,11 +114,11 @@ export const WavyBackground = ({
     return () => {
       cancelAnimationFrame(animationId);
     };
-  }, []);
+  }, [isDarkMode]); // 依赖 isDarkMode，主题变化时重新渲染
 
   const [isSafari, setIsSafari] = useState(false);
   useEffect(() => {
-    // I'm sorry but i have got to support it on safari.
+    // 检测是否为 Safari 浏览器
     setIsSafari(
       typeof window !== "undefined" &&
         navigator.userAgent.includes("Safari") &&
