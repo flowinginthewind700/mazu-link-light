@@ -62,7 +62,18 @@ export const FeaturedSection: React.FC<FeaturedSectionProps> = ({
         if (gridItems.length > 0) {
           const itemHeight = gridItems[0].getBoundingClientRect().height;
           const gap = 16;
-          const rows = Math.ceil(gridItems.length / 2); // 移动端 2 列
+
+          // 根据屏幕宽度动态计算列数
+          let columns = 2; // 移动端默认 2 列
+          if (window.innerWidth >= 768) {
+            columns = 3; // 桌面端 3 列
+          }
+          if (window.innerWidth >= 1024) {
+            columns = 4; // 大屏幕桌面端 4 列
+          }
+
+          // 根据列数计算行数
+          const rows = Math.ceil(gridItems.length / columns);
           const newHeight = rows * (itemHeight + gap) - gap;
           setSectionHeight(`${newHeight}px`);
         }
