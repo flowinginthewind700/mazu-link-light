@@ -168,7 +168,6 @@ internalPath
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
       {/* 添加 WavyBackground 组件 */}
-      <WavyBackground>
         <div className="min-h-screen bg-background text-foreground">
           <div className="container mx-auto px-4 py-8">
             {/* <h1 className="text-4xl font-bold mb-8">Explore AI & AGI Tools</h1> */}
@@ -226,7 +225,6 @@ Explore the best {category.name.toLowerCase()} tools for AI and AGI applications
             </div>
           </div>
         </div>
-      </WavyBackground>
     </>
   )
 }
