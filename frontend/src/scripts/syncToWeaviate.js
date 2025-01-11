@@ -59,8 +59,9 @@ const syncToWeaviate = async (data) => {
   try {
     const response = await axios.post(WEAVIATE_URL, {
       class: WEAVIATE_CLASS_NAME,
+      id: data.id, // 使用 Strapi 的 id 作为 Weaviate 的对象 id
       properties: {
-        id: data.id,
+        strapiId: data.id, // 保存 Strapi 的 id 作为一个普通属性
         name: data.name,
         description: data.Description,
         price: data.price,
