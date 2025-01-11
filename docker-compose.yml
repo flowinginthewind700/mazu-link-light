@@ -17,7 +17,7 @@ services:
       - app-network
 
   t2v-transformers:
-    image: semitechnologies/transformers-inference:sentence-transformers-multi-qa-mpnet-base-dot-v1
+    image: semitechnologies/transformers-inference:snowflake-snowflake-arctic-embed-l-onnx
     environment:
       - ENABLE_CUDA=0
     networks:
