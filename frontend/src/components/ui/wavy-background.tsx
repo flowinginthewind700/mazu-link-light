@@ -13,6 +13,7 @@ export const WavyBackground = ({
   blur = 10,
   speed = "fast",
   waveOpacity = 0.5,
+  height = "400px", // 默认高度，可以通过 props 覆盖
   ...props
 }: {
   children?: any;
@@ -24,6 +25,7 @@ export const WavyBackground = ({
   blur?: number;
   speed?: "slow" | "fast";
   waveOpacity?: number;
+  height?: string; // 新增高度属性
   [key: string]: any;
 }) => {
   const noise = createNoise3D();
@@ -65,12 +67,12 @@ export const WavyBackground = ({
     canvas = canvasRef.current;
     ctx = canvas.getContext("2d");
     w = ctx.canvas.width = window.innerWidth;
-    h = ctx.canvas.height = window.innerHeight;
+    h = ctx.canvas.height = parseInt(height, 10); // 使用传入的高度
     ctx.filter = `blur(${blur}px)`;
     nt = 0;
     window.onresize = function () {
       w = ctx.canvas.width = window.innerWidth;
-      h = ctx.canvas.height = window.innerHeight;
+      h = ctx.canvas.height = parseInt(height, 10); // 使用传入的高度
       ctx.filter = `blur(${blur}px)`;
     };
     render();
@@ -114,7 +116,7 @@ export const WavyBackground = ({
     return () => {
       cancelAnimationFrame(animationId);
     };
-  }, [isDarkMode]); // 依赖 isDarkMode，主题变化时重新渲染
+  }, [isDarkMode, height]); // 依赖 isDarkMode 和 height，主题或高度变化时重新渲染
 
   const [isSafari, setIsSafari] = useState(false);
   useEffect(() => {
@@ -129,12 +131,13 @@ export const WavyBackground = ({
   return (
     <div
       className={cn(
-        "h-screen flex flex-col items-center justify-center",
+        "relative w-full", // 移除 h-screen，改为 relative
         containerClassName
       )}
+      style={{ height }} // 通过 style 设置高度
     >
       <canvas
-        className="absolute inset-0 z-0"
+        className="absolute inset-0 z-0 w-full h-full" // 确保 canvas 充满容器
         ref={canvasRef}
         id="canvas"
         style={{
