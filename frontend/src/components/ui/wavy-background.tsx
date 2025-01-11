@@ -73,6 +73,15 @@ export const WavyBackground = ({
     render();
   };
 
+  const resizeCanvas = () => {
+    if (canvasRef.current) {
+      w = canvasRef.current.width = window.innerWidth;
+      h = canvasRef.current.height = parseInt(height, 10);
+      ctx.filter = `blur(${blur}px)`;
+      render();
+    }
+  };
+
   // 根据主题动态设置波浪颜色
   const waveColors = colors ?? (isDarkMode
     ? ["#38bdf8", "#818cf8", "#c084fc", "#e879f9", "#22d3ee"] // 深色模式下的颜色
@@ -122,6 +131,23 @@ export const WavyBackground = ({
         !navigator.userAgent.includes("Chrome")
     );
   }, []);
+
+  // 监听高度变化
+  useEffect(() => {
+    const observer = new ResizeObserver(() => {
+      resizeCanvas();
+    });
+
+    if (canvasRef.current) {
+      observer.observe(canvasRef.current);
+    }
+
+    return () => {
+      if (canvasRef.current) {
+        observer.unobserve(canvasRef.current);
+      }
+    };
+  }, [height]);
 
   return (
     <div

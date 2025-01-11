@@ -73,7 +73,7 @@ export const FeaturedSection: React.FC<FeaturedSectionProps> = ({
     window.addEventListener("resize", updateHeight);
 
     return () => window.removeEventListener("resize", updateHeight);
-  }, [selectedFeatureTab]);
+  }, [selectedFeatureTab, featuredTools]); // 依赖 featuredTools，内容加载完成后更新高度
 
   const fetchCategories = async () => {
     try {
