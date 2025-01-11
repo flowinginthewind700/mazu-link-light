@@ -136,7 +136,7 @@ export const FeaturedSection: React.FC<FeaturedSectionProps> = ({
       backgroundFill="rgba(255, 255, 255, 0.5)" // 浅色模式背景
       waveOpacity={0.3} // 波浪透明度
     >
-      <Card className="p-4 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm">
+      <Card className="p-4 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-lg overflow-hidden">
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="flex sm:flex-col gap-2 sm:border-r sm:pr-4 overflow-x-auto sm:overflow-x-visible pb-2 sm:pb-0">
             {categories.map((category) => (

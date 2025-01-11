@@ -70,11 +70,6 @@ export const WavyBackground = ({
     h = ctx.canvas.height = parseInt(height, 10); // 使用传入的高度
     ctx.filter = `blur(${blur}px)`;
     nt = 0;
-    window.onresize = function () {
-      w = ctx.canvas.width = window.innerWidth;
-      h = ctx.canvas.height = parseInt(height, 10); // 使用传入的高度
-      ctx.filter = `blur(${blur}px)`;
-    };
     render();
   };
 
@@ -85,7 +80,7 @@ export const WavyBackground = ({
   );
 
   // 根据主题动态设置背景填充颜色
-  const fillColor = backgroundFill || (isDarkMode ? "black" : "white");
+  const fillColor = backgroundFill || (isDarkMode ? "rgba(31, 41, 55, 0.5)" : "rgba(255, 255, 255, 0.5)");
 
   const drawWave = (n: number) => {
     nt += getSpeed();
@@ -131,7 +126,7 @@ export const WavyBackground = ({
   return (
     <div
       className={cn(
-        "relative w-full", // 移除 h-screen，改为 relative
+        "relative w-full rounded-lg overflow-hidden", // 移除 h-screen，改为 relative
         containerClassName
       )}
       style={{ height }} // 通过 style 设置高度
