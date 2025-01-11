@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ToolCard } from './ToolCard';
 import axios from 'axios';
+import { Tool } from './types'; // 导入 Tool 类型
 
 // 定义 HeroSearchProps 接口
 interface HeroSearchProps {
@@ -37,7 +38,7 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
   onEngineChange,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
+  const [searchResults, setSearchResults] = useState<Tool[]>([]); // 指定类型为 Tool[]
   const [loading, setLoading] = useState(false);
 
   // 搜索函数
@@ -57,8 +58,18 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
           ) {
             id
             name
-            description
+            Description
             content
+            iconimage {
+              formats {
+                thumbnail {
+                  url
+                }
+              }
+              url
+            }
+            accessLink
+            internalPath
           }
         }
       }
