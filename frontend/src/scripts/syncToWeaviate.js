@@ -38,6 +38,9 @@ const fetchAgitools = async (limit = 20, start = 0) => {
         imagelarge {
           url
         }
+        iconimage {
+          url
+        }
         agitooltags {
           id
           tagname
@@ -86,6 +89,7 @@ const syncToWeaviate = async (data) => {
         content: data.content,
         screenshotUrl: data.screenshot ? data.screenshot.url : null,
         imageLargeUrl: data.imagelarge ? data.imagelarge.url : null,
+        iconimageUrl: data.iconimage ? data.iconimage.url : null, // 新增 iconimage 字段
         tags: data.agitooltags ? data.agitooltags.map(tag => tag.tagname) : []
       },
     });

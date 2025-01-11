@@ -61,11 +61,6 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
             description
             content
             iconimage {
-              formats {
-                thumbnail {
-                  url
-                }
-              }
               url
             }
             accessLink
