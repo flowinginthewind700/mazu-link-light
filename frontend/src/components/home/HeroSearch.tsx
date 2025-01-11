@@ -42,12 +42,11 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
   const [searchResults, setSearchResults] = useState<Tool[]>([]); // 指定类型为 Tool[]
   const [loading, setLoading] = useState(false);
 
-  // 搜索函数
   const handleSearch = async () => {
     if (!searchQuery) return;
-
+  
     setLoading(true);
-
+  
     const query = `
       query {
         Get {
@@ -58,6 +57,7 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
             }
           ) {
             id
+            strapiId
             name
             Description
             content
@@ -75,10 +75,18 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
         }
       }
     `;
-
+  
     try {
       const response = await axios.post(WEAVIATE_URL, { query });
-      setSearchResults(response.data.data.Get.Agitool);
+      const results = response.data.data.Get.Agitool;
+  
+      // 将 strapiId 映射回 id
+      const mappedResults = results.map((tool: any) => ({
+        ...tool,
+        id: tool.strapiId, // 将 strapiId 赋值给 id
+      }));
+  
+      setSearchResults(mappedResults);
     } catch (error) {
       console.error('Error searching:', error);
     } finally {
