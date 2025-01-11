@@ -44,6 +44,7 @@ RUN npm install axios
 RUN npm install @react-three/fiber three
 RUN npm install --save-dev @types/three
 RUN npm install simplex-noise
+RUN npm install uuid@latest
 
 COPY . .
 RUN cp -r components/ui/* src/components/ui

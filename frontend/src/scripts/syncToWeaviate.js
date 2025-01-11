@@ -1,6 +1,5 @@
 require('dotenv').config({ path: '.env.local' });
-const { v5: uuidv5 } = require('uuid');
-const UUID_NAMESPACE = '1b671a64-40d5-491e-99b0-da01ff1f3344';
+const { v5: uuidv5, validate: uuidValidate } = require('uuid');
 
 const axios = require('axios');
 
@@ -59,12 +58,18 @@ const fetchAgitools = async (limit = 20, start = 0) => {
 
 const syncToWeaviate = async (data) => {
   try {
+    let id;
+    if (uuidValidate(data.id)) {
+      id = data.id;
+    } else {
+      id = uuidv5(data.id.toString(), UUID_NAMESPACE);
+    }
+
     const response = await axios.post(WEAVIATE_URL, {
       class: WEAVIATE_CLASS_NAME,
-      // id: data.id, // 使用 Strapi 的 id 作为 Weaviate 的对象 id
-      id: uuidv5(data.id.toString(), UUID_NAMESPACE),
+      id: id,
       properties: {
-        strapiId: data.id, // 保存 Strapi 的 id 作为一个普通属性
+        strapiId: data.id.toString(), // 保存 Strapi 的 id 作为一个字符串
         name: data.name,
         description: data.Description,
         price: data.price,
