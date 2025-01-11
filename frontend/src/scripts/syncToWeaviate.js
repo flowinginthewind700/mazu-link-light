@@ -1,8 +1,7 @@
-require('dotenv').config({ path: '.env.local' }); // 加载 .env.local 文件
+require('dotenv').config({ path: '.env.local' });
 
 const axios = require('axios');
 
-// 从环境变量中读取 Strapi API URL
 const STRAPI_API_URL = process.env.NEXT_PUBLIC_CMS_API_BASE_URL;
 
 if (!STRAPI_API_URL) {
@@ -10,11 +9,9 @@ if (!STRAPI_API_URL) {
   process.exit(1);
 }
 
-// Weaviate 配置
 const WEAVIATE_URL = 'http://weaviate:8080/v1/objects';
-const WEAVIATE_CLASS_NAME = 'Agitool'; // Weaviate 中的类名
+const WEAVIATE_CLASS_NAME = 'Agitool';
 
-// 分页获取 agitool 数据
 const fetchAgitools = async (limit = 20, start = 0) => {
   const query = `
     query($limit: Int!, $start: Int!) {
@@ -22,17 +19,26 @@ const fetchAgitools = async (limit = 20, start = 0) => {
         id
         name
         Description
-        content
-        iconimage {
-          formats {
-            thumbnail {
-              url
-            }
-          }
-          url
-        }
+        price
         accessLink
         internalPath
+        author {
+          name
+          avatar
+          twitter
+        }
+        submissionDate
+        content
+        screenshot {
+          url
+        }
+        imagelarge {
+          url
+        }
+        agitooltags {
+          id
+          tagname
+        }
       }
     }
   `;
@@ -44,12 +50,11 @@ const fetchAgitools = async (limit = 20, start = 0) => {
     });
     return response.data.data.agitools;
   } catch (error) {
-    console.error('Error fetching agitools:', error);
+    console.error('Error fetching agitools:', error.response?.data || error.message);
     return [];
   }
 };
 
-// 同步数据到 Weaviate
 const syncToWeaviate = async (data) => {
   try {
     const response = await axios.post(WEAVIATE_URL, {
@@ -57,11 +62,20 @@ const syncToWeaviate = async (data) => {
       properties: {
         id: data.id,
         name: data.name,
-        description: data.Description, // 注意字段名大小写
+        description: data.Description,
+        price: data.price,
+        accessLink: data.accessLink,
+        internalPath: data.internalPath,
+        author: data.author ? {
+          name: data.author.name,
+          avatar: data.author.avatar,
+          twitter: data.author.twitter
+        } : null,
+        submissionDate: data.submissionDate,
         content: data.content,
-        iconimage: data.iconimage, // 同步 iconimage 字段
-        accessLink: data.accessLink, // 同步 accessLink 字段
-        internalPath: data.internalPath, // 同步 internalPath 字段
+        screenshotUrl: data.screenshot ? data.screenshot.url : null,
+        imageLargeUrl: data.imagelarge ? data.imagelarge.url : null,
+        tags: data.agitooltags ? data.agitooltags.map(tag => tag.tagname) : []
       },
     });
     console.log(`Synced tool ${data.name} to Weaviate:`, response.data);
@@ -70,7 +84,6 @@ const syncToWeaviate = async (data) => {
   }
 };
 
-// 主函数：分页同步数据
 const main = async () => {
   let start = 0;
   const limit = 20;
@@ -94,7 +107,6 @@ const main = async () => {
   console.log('Sync completed!');
 };
 
-// 手动调用
 if (require.main === module) {
   main();
 }
