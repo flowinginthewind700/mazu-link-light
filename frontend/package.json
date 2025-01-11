@@ -46,7 +46,8 @@
     "react-slick": "^0.29.0",
     "slick-carousel": "^1.8.1",
     "framer-motion": "^4.1.17",
-    "cheerio": "^1.0.0-rc.12"
+    "cheerio": "^1.0.0-rc.12",
+    "dotenv": "^16.3.1",
   },
    "devDependencies": {
     "@types/node": "^20",
