@@ -1,0 +1,1 @@
+docker exec -it mazu_link_light_frontend node /app/scripts/syncToWeaviate.js

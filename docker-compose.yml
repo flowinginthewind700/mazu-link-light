@@ -53,6 +53,10 @@ services:
       - "3456:3000"
     networks:
       - app-network
+    command: >
+      sh -c "npm install && npm run start &&
+             echo '0 * * * * node /app/scripts/syncToWeaviate.js >> /app/scripts/sync.log 2>&1' | crontab - &&
+             cron -f"
 
   # suppose I already have a strapi app
   # strapi_mazu_link_light:
