@@ -15,6 +15,54 @@ if (!STRAPI_API_URL) {
 const WEAVIATE_URL = 'http://weaviate:8080/v1/objects';
 const WEAVIATE_CLASS_NAME = 'Agitool';
 
+// 根据 id 获取单条 Agitool
+const fetchAgitoolById = async (id) => {
+  const query = `
+    query($id: ID!) {
+      agitool(id: $id) {
+        id
+        name
+        Description
+        price
+        accessLink
+        internalPath
+        author {
+          name
+          avatar
+          twitter
+        }
+        submissionDate
+        content
+        screenshot {
+          url
+        }
+        imagelarge {
+          url
+        }
+        iconimage {
+          url
+        }
+        agitooltags {
+          id
+          tagname
+        }
+      }
+    }
+  `;
+
+  try {
+    const response = await axios.post(`${STRAPI_API_URL}/graphql`, {
+      query,
+      variables: { id },
+    });
+    return response.data.data.agitool;
+  } catch (error) {
+    console.error('Error fetching agitool by id:', error.response?.data || error.message);
+    return null;
+  }
+};
+
+// 获取所有 Agitool
 const fetchAgitools = async (limit = 20, start = 0) => {
   const query = `
     query($limit: Int!, $start: Int!) {
@@ -61,6 +109,40 @@ const fetchAgitools = async (limit = 20, start = 0) => {
   }
 };
 
+// 同步单条 Agitool 到 Weaviate
+const syncSingleAgitoolToWeaviate = async (id) => {
+  const agitool = await fetchAgitoolById(id);
+  if (!agitool) {
+    console.error(`Agitool with id ${id} not found.`);
+    return;
+  }
+
+  await syncToWeaviate(agitool);
+};
+
+// 同步所有 Agitool 到 Weaviate
+const syncAllAgitoolsToWeaviate = async () => {
+  let start = 0;
+  const limit = 20;
+  let hasMore = true;
+
+  while (hasMore) {
+    const agitools = await fetchAgitools(limit, start);
+    if (agitools.length === 0) {
+      hasMore = false;
+      break;
+    }
+
+    for (const tool of agitools) {
+      await syncToWeaviate(tool);
+    }
+
+    start += limit;
+    console.log(`Synced ${start} tools so far...`);
+  }
+};
+
+// 同步 Agitool 到 Weaviate
 const syncToWeaviate = async (data) => {
   try {
     let id;
@@ -99,24 +181,51 @@ const syncToWeaviate = async (data) => {
   }
 };
 
+// 显示帮助信息
+const showHelp = () => {
+  console.log(`
+Usage:
+  node syncToWeaviate.js [options]
+
+Options:
+  --id <id>       Sync a single Agitool by ID
+  --all           Sync all Agitools
+  --help          Show this help message
+
+Examples:
+  Sync a single Agitool:
+    node syncToWeaviate.js --id 123
+
+  Sync all Agitools:
+    node syncToWeaviate.js --all
+  `);
+};
+
+// 主函数
 const main = async () => {
-  let start = 0;
-  const limit = 20;
-  let hasMore = true;
+  const args = process.argv.slice(2);
 
-  while (hasMore) {
-    const agitools = await fetchAgitools(limit, start);
-    if (agitools.length === 0) {
-      hasMore = false;
-      break;
+  if (args.includes('--help')) {
+    showHelp();
+    return;
+  }
+
+  if (args.includes('--id')) {
+    const idIndex = args.indexOf('--id') + 1;
+    if (idIndex >= args.length) {
+      console.error('Error: --id requires a value.');
+      showHelp();
+      return;
     }
-
-    for (const tool of agitools) {
-      await syncToWeaviate(tool);
-    }
-
-    start += limit;
-    console.log(`Synced ${start} tools so far...`);
+    const id = args[idIndex];
+    console.log(`Syncing Agitool with id: ${id}`);
+    await syncSingleAgitoolToWeaviate(id);
+  } else if (args.includes('--all')) {
+    console.log('Syncing all Agitools...');
+    await syncAllAgitoolsToWeaviate();
+  } else {
+    console.error('Error: No valid option provided.');
+    showHelp();
   }
 
   console.log('Sync completed!');
