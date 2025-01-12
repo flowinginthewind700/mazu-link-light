@@ -69,7 +69,7 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
         url = `https://github.com/search?q=${encodedQuery}&type=repositories`;
         break;
       case 'civitai':
-        url = `https://civitai.com/?query=${encodedQuery}`;
+        url = `https://civitai.com/search/images?sortBy=images_v6&query=${encodedQuery}`;
         break;
       case 'openart':
         url = `https://openart.ai/discovery?q=${encodedQuery}`;
