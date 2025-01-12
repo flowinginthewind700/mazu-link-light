@@ -44,16 +44,22 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
 
   const handleSearch = async () => {
     if (!searchQuery) return;
-
+  
     setLoading(true);
-
+  
+    const lowercaseQuery = searchQuery.toLowerCase();
+  
     const query = `
       query {
         Get {
           Agitool(
             nearText: {
-              concepts: ["${searchQuery}"]
+              concepts: ["${lowercaseQuery}"]
               certainty: 0.8
+            }
+            bm25: {
+              query: "${lowercaseQuery}"
+              properties: ["name", "description", "content"]
             }
           ) {
             strapiId
@@ -67,21 +73,20 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
         }
       }
     `;
-
+  
     try {
       const response = await axios.post(WEAVIATE_URL, { query });
       const results = response.data.data.Get.Agitool;
-
-      // 将 strapiId 映射回 id
+  
       const mappedResults = results.map((tool: any) => ({
         ...tool,
-        id: tool.strapiId, // 将 strapiId 赋值给 id
+        id: tool.strapiId,
         Description: tool.description,
         iconimage: {
-          url: tool.iconimageUrl, // 将 iconimageUrl 映射到 iconimage.url
+          url: tool.iconimageUrl,
         },
       }));
-
+  
       setSearchResults(mappedResults);
     } catch (error) {
       console.error('Error searching:', error);
