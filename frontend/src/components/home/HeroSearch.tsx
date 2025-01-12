@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { Search } from 'lucide-react';
+import { Search, Eraser } from 'lucide-react'; // 导入 Eraser 图标
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ToolCard } from './ToolCard';
@@ -44,16 +44,16 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
 
   const handleSearch = async () => {
     if (!searchQuery) return;
-  
+
     setLoading(true);
-  
+
     const query = `
       query {
         Get {
           Agitool(
             nearText: {
               concepts: ["${searchQuery}"]
-              certainty: 0.7
+              certainty: 0.8 // 提高匹配的 certainty
             }
           ) {
             strapiId
@@ -67,11 +67,11 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
         }
       }
     `;
-  
+
     try {
       const response = await axios.post(WEAVIATE_URL, { query });
       const results = response.data.data.Get.Agitool;
-  
+
       // 将 strapiId 映射回 id
       const mappedResults = results.map((tool: any) => ({
         ...tool,
@@ -81,13 +81,19 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
           url: tool.iconimageUrl, // 将 iconimageUrl 映射到 iconimage.url
         },
       }));
-  
+
       setSearchResults(mappedResults);
     } catch (error) {
       console.error('Error searching:', error);
     } finally {
       setLoading(false);
     }
+  };
+
+  // 清空搜索结果
+  const clearSearchResults = () => {
+    setSearchResults([]);
+    setSearchQuery('');
   };
 
   return (
@@ -140,10 +146,20 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
       {/* 显示搜索结果 */}
       {loading && <p>Loading...</p>}
       {searchResults.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {searchResults.map((tool) => (
-            <ToolCard key={tool.id} tool={tool} apiUrl={process.env.NEXT_PUBLIC_CMS_API_BASE_URL || ''} />
-          ))}
+        <div className="relative">
+          {/* 清空搜索结果的按钮 */}
+          <button
+            onClick={clearSearchResults}
+            className="absolute top-0 right-0 flex items-center px-4 py-2 text-sm text-red-500 hover:text-red-700 transition-colors duration-200"
+          >
+            <Eraser className="w-4 h-4 mr-2" />
+            Clear Results
+          </button>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-8">
+            {searchResults.map((tool) => (
+              <ToolCard key={tool.id} tool={tool} apiUrl={process.env.NEXT_PUBLIC_CMS_API_BASE_URL || ''} />
+            ))}
+          </div>
         </div>
       )}
     </div>
