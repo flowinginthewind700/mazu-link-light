@@ -53,7 +53,7 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
           Agitool(
             nearText: {
               concepts: ["${searchQuery}"]
-              certainty: 0.8 // 提高匹配的 certainty
+              certainty: 0.8
             }
           ) {
             strapiId
