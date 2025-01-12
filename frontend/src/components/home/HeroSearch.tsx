@@ -44,11 +44,11 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
 
   const handleSearch = async () => {
     if (!searchQuery) return;
-  
+
     setLoading(true);
-  
+
     const lowercaseQuery = searchQuery.toLowerCase();
-  
+
     const query = `
       query {
         Get {
@@ -69,11 +69,11 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
         }
       }
     `;
-  
+
     try {
       const response = await axios.post(WEAVIATE_URL, { query });
       const results = response.data.data.Get.Agitool;
-  
+
       const mappedResults = results.map((tool: any) => ({
         ...tool,
         id: tool.strapiId,
@@ -82,7 +82,7 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
           url: tool.iconimageUrl,
         },
       }));
-  
+
       setSearchResults(mappedResults);
     } catch (error) {
       console.error('Error searching:', error);
@@ -149,13 +149,15 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
       {searchResults.length > 0 && (
         <div className="relative">
           {/* 清空搜索结果的按钮 */}
-          <button
-            onClick={clearSearchResults}
-            className="absolute top-0 right-0 flex items-center px-4 py-2 text-sm text-red-500 hover:text-red-700 transition-colors duration-200"
-          >
-            <Eraser className="w-4 h-4 mr-2" />
-            Clear Results
-          </button>
+          <div className="flex justify-center mt-4">
+            <button
+              onClick={clearSearchResults}
+              className="flex items-center px-4 py-2 text-sm text-red-500 hover:text-red-700 transition-colors duration-200"
+            >
+              <Eraser className="w-4 h-4 mr-2" />
+              Clear Results
+            </button>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-8">
             {searchResults.map((tool) => (
               <ToolCard key={tool.id} tool={tool} apiUrl={process.env.NEXT_PUBLIC_CMS_API_BASE_URL || ''} />
