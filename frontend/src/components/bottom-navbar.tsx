@@ -18,7 +18,7 @@ export function BottomNavbar() {
   const pathname = usePathname()
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-background border-t border-border lg:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 bg-background border-t border-border lg:hidden z-50">
       <ul className="flex justify-around items-center h-16">
         {navItems.map((item) => (
           <li key={item.label}>
