@@ -42,6 +42,15 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
   const [searchResults, setSearchResults] = useState<Tool[]>([]); // 指定类型为 Tool[]
   const [loading, setLoading] = useState(false);
 
+  // 动态设置搜索框的提示词
+  const getPlaceholderText = () => {
+    if (selectedEngine === 'this site') {
+      return 'Search AI tools';
+    } else {
+      return 'Input search text';
+    }
+  };
+
   // 处理外部搜索
   const handleExternalSearch = () => {
     if (!searchQuery) return;
@@ -172,7 +181,7 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
       <div className="relative max-w-2xl mx-auto">
         <Input
           type="search"
-          placeholder="Search AI tools..."
+          placeholder={getPlaceholderText()} // 动态设置提示词
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
