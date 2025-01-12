@@ -53,10 +53,6 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
       query {
         Get {
           Agitool(
-            nearText: {
-              concepts: ["${lowercaseQuery}"]
-              certainty: 0.8
-            }
             bm25: {
               query: "${lowercaseQuery}"
               properties: ["name", "description", "content"]
