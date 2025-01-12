@@ -42,8 +42,58 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
   const [searchResults, setSearchResults] = useState<Tool[]>([]); // 指定类型为 Tool[]
   const [loading, setLoading] = useState(false);
 
+  // 处理外部搜索
+  const handleExternalSearch = () => {
+    if (!searchQuery) return;
+
+    let url = '';
+    const encodedQuery = encodeURIComponent(searchQuery);
+
+    switch (selectedEngine) {
+      case 'google':
+        url = `https://www.google.com/search?q=${encodedQuery}`;
+        break;
+      case 'baidu':
+        url = `https://www.baidu.com/s?wd=${encodedQuery}`;
+        break;
+      case 'bing':
+        url = `https://www.bing.com/search?q=${encodedQuery}`;
+        break;
+      case 'Perplexity':
+        url = `https://www.perplexity.ai/search?q=${encodedQuery}&focus=internet`;
+        break;
+      case 'huggingface':
+        url = `https://huggingface.co/search/full-text?q=${encodedQuery}`;
+        break;
+      case 'github':
+        url = `https://github.com/search?q=${encodedQuery}&type=repositories`;
+        break;
+      case 'civitai':
+        url = `https://civitai.com/?query=${encodedQuery}`;
+        break;
+      case 'openart':
+        url = `https://openart.ai/discovery?q=${encodedQuery}`;
+        break;
+      case 'lexica':
+        url = `https://lexica.art/?q=${encodedQuery}`;
+        break;
+      default:
+        return; // 如果是 "this site"，不执行外部搜索
+    }
+
+    // 在新窗口打开外部搜索
+    window.open(url, '_blank');
+  };
+
+  // 处理内部搜索
   const handleSearch = async () => {
     if (!searchQuery) return;
+
+    // 如果是外部搜索引擎，执行外部搜索
+    if (selectedEngine !== 'this site') {
+      handleExternalSearch();
+      return;
+    }
 
     setLoading(true);
 
