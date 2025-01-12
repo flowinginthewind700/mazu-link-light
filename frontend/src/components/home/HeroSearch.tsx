@@ -6,6 +6,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ToolCard } from './ToolCard';
 import axios from 'axios';
 import { Tool } from './types'; // 导入 Tool 类型
+import { BackgroundGradient } from '@/components/ui/background-gradient';
 
 // 定义 HeroSearchProps 接口
 interface HeroSearchProps {
@@ -158,13 +159,17 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
 
   return (
     <div className="text-center space-y-6">
-      <Image
-        src="/images/agientrylogo_large.jpg"
-        alt="AI Tools Logo Large"
-        width={120}
-        height={40}
-        className="mx-auto"
-      />
+      {/* 只在 Image 组件外部使用 BackgroundGradient */}
+      <BackgroundGradient className="inline-block p-2 rounded-lg">
+        <Image
+          src="/images/agientrylogo_large.jpg"
+          alt="AI Tools Logo Large"
+          width={120}
+          height={40}
+          className="mx-auto"
+        />
+      </BackgroundGradient>
+
       <Tabs value={selectedTopTab} onValueChange={onTopTabChange} className="w-full max-w-2xl mx-auto">
         <TabsList className="grid w-full grid-cols-4 p-1 rounded-full bg-muted/50 backdrop-blur-sm">
           {topTabs.map((tab) => (
