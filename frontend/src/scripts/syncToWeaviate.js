@@ -152,7 +152,8 @@ const syncToWeaviate = async (data) => {
       id = uuidv5(data.id.toString(), UUID_NAMESPACE);
     }
 
-    const response = await axios.post(WEAVIATE_URL, {
+    // 使用 PUT 请求创建或更新对象
+    const response = await axios.put(`${WEAVIATE_URL}/${WEAVIATE_CLASS_NAME}/${id}`, {
       class: WEAVIATE_CLASS_NAME,
       id: id,
       properties: {
@@ -175,7 +176,12 @@ const syncToWeaviate = async (data) => {
         tags: data.agitooltags ? data.agitooltags.map(tag => tag.tagname) : []
       },
     });
-    console.log(`Synced tool ${data.name} to Weaviate:`, response.data);
+
+    if (response.status === 201) {
+      console.log(`Created tool ${data.name} in Weaviate:`, response.data);
+    } else if (response.status === 200) {
+      console.log(`Updated tool ${data.name} in Weaviate:`, response.data);
+    }
   } catch (error) {
     console.error('Error syncing to Weaviate:', error.response?.data || error.message);
   }
