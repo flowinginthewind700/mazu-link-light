@@ -142,6 +142,19 @@ const syncAllAgitoolsToWeaviate = async () => {
   }
 };
 
+// 检查对象是否存在
+const checkObjectExists = async (id) => {
+  try {
+    const response = await axios.get(`${WEAVIATE_URL}/${WEAVIATE_CLASS_NAME}/${id}`);
+    return response.status === 200;
+  } catch (error) {
+    if (error.response?.status === 404) {
+      return false;
+    }
+    throw error;
+  }
+};
+
 // 同步 Agitool 到 Weaviate
 const syncToWeaviate = async (data) => {
   try {
@@ -152,8 +165,9 @@ const syncToWeaviate = async (data) => {
       id = uuidv5(data.id.toString(), UUID_NAMESPACE);
     }
 
-    // 使用 PUT 请求创建或更新对象
-    const response = await axios.put(`${WEAVIATE_URL}/${WEAVIATE_CLASS_NAME}/${id}`, {
+    const objectExists = await checkObjectExists(id);
+
+    const payload = {
       class: WEAVIATE_CLASS_NAME,
       id: id,
       properties: {
@@ -175,12 +189,17 @@ const syncToWeaviate = async (data) => {
         iconimageUrl: data.iconimage ? data.iconimage.url : null, // 新增 iconimage 字段
         tags: data.agitooltags ? data.agitooltags.map(tag => tag.tagname) : []
       },
-    });
+    };
 
-    if (response.status === 201) {
-      console.log(`Created tool ${data.name} in Weaviate:`, response.data);
-    } else if (response.status === 200) {
+    let response;
+    if (objectExists) {
+      // 如果对象存在，使用 PUT 更新
+      response = await axios.put(`${WEAVIATE_URL}/${WEAVIATE_CLASS_NAME}/${id}`, payload);
       console.log(`Updated tool ${data.name} in Weaviate:`, response.data);
+    } else {
+      // 如果对象不存在，使用 POST 创建
+      response = await axios.post(`${WEAVIATE_URL}/${WEAVIATE_CLASS_NAME}`, payload);
+      console.log(`Created tool ${data.name} in Weaviate:`, response.data);
     }
   } catch (error) {
     console.error('Error syncing to Weaviate:', error.response?.data || error.message);
