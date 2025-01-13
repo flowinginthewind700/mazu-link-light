@@ -10,7 +10,6 @@ import { Slider } from '@/components/ui/slider'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Navigation } from '@/components/navigation'
-import { BottomNavbar } from '@/components/bottom-navbar'
 
 interface CompressedImage {
   id: string
@@ -24,15 +23,14 @@ interface CompressedImage {
 
 export default function ImageCompressionPage() {
   const [images, setImages] = useState<CompressedImage[]>([])
-  const [quality, setQuality] = useState(80)
+  const [quality, setQuality] = useState(50) // Lower default quality for better compression
   const [convertToJPG, setConvertToJPG] = useState(true)
   const [convertToWebP, setConvertToWebP] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
 
   const compressImage = async (file: File): Promise<CompressedImage> => {
     const options = {
-      maxSizeMB: 5,
-      maxWidthOrHeight: 2048,
+      maxSizeMB: 0.5, // Lower max size for better compression
       useWebWorker: true,
       fileType: convertToJPG ? 'image/jpeg' : convertToWebP ? 'image/webp' : file.type,
       quality: quality / 100,
@@ -234,7 +232,7 @@ export default function ImageCompressionPage() {
                         className="w-16 h-16 object-cover rounded-md"
                       />
                       <div className="min-w-0">
-                        <p className="font-medium mb-1 truncate">
+                        <p className="font-medium mb-1 truncate max-w-[200px]">
                           {image.originalFile.name}
                           {convertToJPG ? '.jpg' : convertToWebP ? '.webp' : ''}
                         </p>
