@@ -163,7 +163,7 @@ async function generateSitemap() {
 
   const blogPosts = await fetchAllBlogPosts();
   const blogUrls = blogPosts.map((post) => ({
-    url: `${baseUrl}/blog/${post.slug || post.id}`,
+    url: `${baseUrl}/blog/${post.id}`,
     lastmod: new Date(post.date).toISOString(),
     changefreq: 'monthly',
     priority: '0.6',
