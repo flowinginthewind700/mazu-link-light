@@ -44,6 +44,7 @@ export const FeaturedSection: React.FC<FeaturedSectionProps> = ({
   const gridRef = useRef<HTMLDivElement>(null);
   const [categories, setCategories] = useState<FeaturedCategory[]>([]);
   const [featuredTools, setFeaturedTools] = useState<Record<string, FeatureTool[]>>({});
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     fetchCategories();
@@ -84,7 +85,7 @@ export const FeaturedSection: React.FC<FeaturedSectionProps> = ({
     window.addEventListener("resize", updateHeight);
 
     return () => window.removeEventListener("resize", updateHeight);
-  }, [selectedFeatureTab, featuredTools]); // 依赖 featuredTools，内容加载完成后更新高度
+  }, [selectedFeatureTab, featuredTools, loading]); // 依赖 featuredTools 和 loading，内容加载完成后更新高度
 
   const fetchCategories = async () => {
     try {
@@ -108,10 +109,13 @@ export const FeaturedSection: React.FC<FeaturedSectionProps> = ({
       }
     } catch (error) {
       console.error("Error fetching featured categories:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   const fetchFeaturedTools = async (category: string) => {
+    setLoading(true);
     try {
       const query = `
         query($category: String!) {
@@ -137,7 +141,28 @@ export const FeaturedSection: React.FC<FeaturedSectionProps> = ({
       }));
     } catch (error) {
       console.error("Error fetching featured tools:", error);
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const renderSkeleton = () => {
+    return (
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4 p-2">
+        {Array.from({ length: 8 }).map((_, index) => (
+          <div key={index} className="w-full">
+            <div className="relative space-y-5 overflow-hidden rounded-2xl bg-white/5 p-4 shadow-xl shadow-black/5 before:absolute before:inset-0 before:-translate-x-full before:-skew-x-12 before:animate-[shimmer_2s_infinite] before:border-t before:border-white/10 before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent">
+              <div className="h-24 rounded-lg bg-white/5"></div>
+              <div className="space-y-3">
+                <div className="h-3 w-3/5 rounded-lg bg-white/5"></div>
+                <div className="h-3 w-4/5 rounded-lg bg-white/10"></div>
+                <div className="h-3 w-2/5 rounded-lg bg-white/5"></div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
   };
 
   return (
@@ -180,14 +205,18 @@ export const FeaturedSection: React.FC<FeaturedSectionProps> = ({
           </div>
 
           <ScrollArea className="flex-1" style={{ height: sectionHeight }}>
-            <div
-              ref={gridRef}
-              className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4 p-2"
-            >
-              {featuredTools[selectedFeatureTab]?.map((item) => (
-                <FeaturedToolCard key={item.id} tool={item} />
-              ))}
-            </div>
+            {loading ? (
+              renderSkeleton()
+            ) : (
+              <div
+                ref={gridRef}
+                className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4 p-2"
+              >
+                {featuredTools[selectedFeatureTab]?.map((item) => (
+                  <FeaturedToolCard key={item.id} tool={item} />
+                ))}
+              </div>
+            )}
           </ScrollArea>
         </div>
       </Card>

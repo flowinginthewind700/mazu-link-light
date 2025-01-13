@@ -1,35 +1,36 @@
-'use client'
+'use client';
 
-import React, { useRef, useState, useEffect } from 'react'
-import Head from 'next/head'
-import Script from 'next/script'
-import axios from 'axios'
-import { HeroSearch } from './HeroSearch'
-import { FeaturedSection } from './FeaturedSection'
-import { ToolCard } from './ToolCard'
-import { AnimatedSectionTitle } from '@/components/animated-section-title'
-import { BottomNavbar } from '@/components/bottom-navbar'
-import { Category, Tool } from './types'
-import { Navigation } from '@/components/navigation'
-import { WavyBackground } from '@/components/ui/wavy-background' // 导入 WavyBackground 组件
+import React, { useRef, useState, useEffect } from 'react';
+import Head from 'next/head';
+import Script from 'next/script';
+import axios from 'axios';
+import { HeroSearch } from './HeroSearch';
+import { FeaturedSection } from './FeaturedSection';
+import { ToolCard } from './ToolCard';
+import { AnimatedSectionTitle } from '@/components/animated-section-title';
+import { BottomNavbar } from '@/components/bottom-navbar';
+import { Category, Tool } from './types';
+import { Navigation } from '@/components/navigation';
+import { WavyBackground } from '@/components/ui/wavy-background';
 
-const apiUrl = process.env.NEXT_PUBLIC_CMS_API_BASE_URL
-const TOOLS_PER_CATEGORY = 24
+const apiUrl = process.env.NEXT_PUBLIC_CMS_API_BASE_URL;
+const TOOLS_PER_CATEGORY = 24;
 
 export default function HomePage() {
-  const [selectedTopTab, setSelectedTopTab] = useState('default')
-  const [selectedEngine, setSelectedEngine] = useState('this site')
-  const [activeSection, setActiveSection] = useState('')
-  const [animatingSection, setAnimatingSection] = useState('')
-  const [categories, setCategories] = useState<Category[]>([])
-  const [toolsByCategory, setToolsByCategory] = useState<Record<string, Tool[]>>({})
-  const [selectedFeatureTab, setSelectedFeatureTab] = useState('agi-tools')
+  const [selectedTopTab, setSelectedTopTab] = useState('default');
+  const [selectedEngine, setSelectedEngine] = useState('this site');
+  const [activeSection, setActiveSection] = useState('');
+  const [animatingSection, setAnimatingSection] = useState('');
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [toolsByCategory, setToolsByCategory] = useState<Record<string, Tool[]>>({});
+  const [selectedFeatureTab, setSelectedFeatureTab] = useState('agi-tools');
+  const [loading, setLoading] = useState<boolean>(true); // 新增 loading 状态
 
   const sectionRefs = useRef<Record<string, React.RefObject<HTMLDivElement>>>({});
 
   useEffect(() => {
-    fetchCategories()
-  }, [])
+    fetchCategories();
+  }, []);
 
   useEffect(() => {
     if (categories.length > 0) {
@@ -42,7 +43,7 @@ export default function HomePage() {
         fetchToolsForCategory(category.id);
       });
     }
-  }, [categories])
+  }, [categories]);
 
   const handleCategorySelect = (categoryId: string) => {
     scrollToSection(categoryId);
@@ -51,62 +52,64 @@ export default function HomePage() {
   const fetchCategories = async () => {
     try {
       const query = `
-query {
-agitoolcategories {
-id
-name
-}
-}
-`
-      const response = await axios.post(`${apiUrl}/graphql`, { query })
-      setCategories(response.data.data.agitoolcategories)
+        query {
+          agitoolcategories {
+            id
+            name
+          }
+        }
+      `;
+      const response = await axios.post(`${apiUrl}/graphql`, { query });
+      setCategories(response.data.data.agitoolcategories);
     } catch (error) {
-      console.error('Error fetching categories:', error)
+      console.error('Error fetching categories:', error);
+    } finally {
+      setLoading(false); // 数据加载完成后关闭 loading
     }
-  }
+  };
 
   const fetchToolsForCategory = async (categoryId: string) => {
     try {
       const query = `
-query($categoryId: ID!) {
-agitools(
-where: { agitoolcategory: { id: $categoryId } }
-limit: ${TOOLS_PER_CATEGORY}
-) {
-id
-name
-Description
-iconimage {
-formats
-url
-}
-accessLink
-internalPath
-}
-}
-`
+        query($categoryId: ID!) {
+          agitools(
+            where: { agitoolcategory: { id: $categoryId } }
+            limit: ${TOOLS_PER_CATEGORY}
+          ) {
+            id
+            name
+            Description
+            iconimage {
+              formats
+              url
+            }
+            accessLink
+            internalPath
+          }
+        }
+      `;
       const response = await axios.post(`${apiUrl}/graphql`, {
         query,
-        variables: { categoryId }
-      })
+        variables: { categoryId },
+      });
 
       setToolsByCategory(prev => ({
         ...prev,
-        [categoryId]: response.data.data.agitools
-      }))
+        [categoryId]: response.data.data.agitools,
+      }));
     } catch (error) {
-      console.error('Error fetching tools:', error)
+      console.error('Error fetching tools:', error);
     }
-  }
+  };
 
   const scrollToSection = (sectionId: string) => {
     sectionRefs.current[sectionId]?.current?.scrollIntoView({
       behavior: 'smooth',
       block: 'start',
-    })
-    setAnimatingSection(sectionId)
-    setTimeout(() => setAnimatingSection(''), 1000)
-  }
+    });
+    setAnimatingSection(sectionId);
+    setTimeout(() => setAnimatingSection(''), 1000);
+  };
 
   useEffect(() => {
     const observers = categories.map(category => {
@@ -114,48 +117,31 @@ internalPath
         (entries) => {
           entries.forEach((entry) => {
             if (entry.isIntersecting) {
-              setActiveSection(category.id)
+              setActiveSection(category.id);
             }
-          })
+          });
         },
         { threshold: 0.5 }
-      )
+      );
 
       if (sectionRefs.current[category.id]?.current) {
-        observer.observe(sectionRefs.current[category.id].current!)
+        observer.observe(sectionRefs.current[category.id].current!);
       }
 
-      return observer
-    })
+      return observer;
+    });
 
     return () => {
-      observers.forEach(observer => observer.disconnect())
-    }
-  }, [categories])
-
-  const structuredData = {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    "name": "AGI Entry",
-    "url": "https://agientry.com",
-    "description": "A comprehensive directory of AI and AGI tools including chatbots, image generators, and coding assistants.",
-    "potentialAction": {
-      "@type": "SearchAction",
-      "target": "https://agientry.com/search?q={search_term_string}",
-      "query-input": "required name=search_term_string"
-    }
-  }
-
-  const scrollToCategoryFromMobile = (categoryId: string) => {
-    scrollToSection(categoryId);
-  };
+      observers.forEach(observer => observer.disconnect());
+    };
+  }, [categories]);
 
   return (
     <>
       <Navigation
         onCategorySelect={handleCategorySelect}
         categories={categories}
-        scrollToCategoryFromMobile={scrollToCategoryFromMobile}
+        scrollToCategoryFromMobile={(categoryId) => scrollToSection(categoryId)}
         currentPage="home"
         showMobileMenu={true}
       />
@@ -165,13 +151,21 @@ internalPath
       <Script
         id="structured-data"
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          "name": "AGI Entry",
+          "url": "https://agientry.com",
+          "description": "A comprehensive directory of AI and AGI tools including chatbots, image generators, and coding assistants.",
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://agientry.com/search?q={search_term_string}",
+            "query-input": "required name=search_term_string"
+          }
+        }) }}
       />
-      {/* 添加 WavyBackground 组件 */}
       <div className="min-h-screen bg-background text-foreground pb-20">
-
         <div className="container mx-auto px-4 py-8">
-          {/* <h1 className="text-4xl font-bold mb-8">Explore AI & AGI Tools</h1> */}
           <div className="lg:flex lg:gap-8">
             {/* Sidebar */}
             <aside className="hidden lg:block w-48 space-y-4 sticky top-24 h-fit">
@@ -212,21 +206,33 @@ internalPath
                     title={category.name}
                     isActive={animatingSection === category.id}
                   />
-                  {/* <p className="text-muted-foreground mb-4">
-Explore the best {category.name.toLowerCase()} tools for AI and AGI applications.
-</p> */}
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {toolsByCategory[category.id]?.map((tool) => (
-                      <ToolCard key={tool.id} tool={tool} apiUrl={apiUrl || ''} />
-                    ))}
+                  {loading
+  ? Array.from({ length: 6 }).map((_, index) => (
+      <ToolCard
+        key={index}
+        tool={{
+          id: index.toString(),
+          name: 'Loading AI tool...',
+          Description: 'Loading AI tool...',
+          iconimage: { url: '/imames/placeholder.svg' },
+          accessLink: '', // 补充缺失的属性
+          internalPath: '', // 补充缺失的属性
+        }}
+        apiUrl={apiUrl || ''}
+        loading={true} // 启用骨架屏
+      />
+    ))
+  : toolsByCategory[category.id]?.map((tool) => (
+      <ToolCard key={tool.id} tool={tool} apiUrl={apiUrl || ''} />
+    ))}
                   </div>
                 </div>
               ))}
             </main>
           </div>
         </div>
-
       </div>
     </>
-  )
+  );
 }
