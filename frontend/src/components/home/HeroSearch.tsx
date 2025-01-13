@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Search, Eraser } from 'lucide-react'; // 导入 Eraser 图标
 import { Input } from '@/components/ui/input';
@@ -31,7 +31,6 @@ const searchOptions = {
 };
 
 const WEAVIATE_URL = '/api/weaviate';
-// const WEAVIATE_URL = 'http://weaviate:8080/v1/graphql';
 
 export const HeroSearch: React.FC<HeroSearchProps> = ({
   selectedTopTab,
@@ -42,6 +41,50 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<Tool[]>([]); // 指定类型为 Tool[]
   const [loading, setLoading] = useState(false);
+
+  // 从 localStorage 中读取用户的选择
+  useEffect(() => {
+    const storedTopTab = localStorage.getItem('selectedTopTab');
+    const storedEngine = localStorage.getItem('selectedEngine');
+
+    if (storedTopTab) {
+      onTopTabChange(storedTopTab);
+    } else {
+      // 如果没有存储的 topTab，默认选中第一个
+      onTopTabChange(topTabs[0].id);
+    }
+
+    if (storedEngine) {
+      onEngineChange(storedEngine);
+    } else {
+      // 如果没有存储的 engine，默认选中当前 topTab 的第一个 engine
+      const defaultEngine = searchOptions[storedTopTab as keyof typeof searchOptions]?.[0] || searchOptions.default[0];
+      onEngineChange(defaultEngine);
+    }
+  }, [onTopTabChange, onEngineChange]);
+
+  // 当用户更改 topTab 时，更新 localStorage 并检查 engine 的选择
+  const handleTopTabChange = (value: string) => {
+    onTopTabChange(value);
+    localStorage.setItem('selectedTopTab', value);
+
+    // 检查当前 topTab 对应的 engine 是否已经存储在 localStorage 中
+    const storedEngine = localStorage.getItem('selectedEngine');
+    const enginesForTab = searchOptions[value as keyof typeof searchOptions];
+
+    if (!storedEngine || !enginesForTab.includes(storedEngine)) {
+      // 如果没有存储的 engine 或者存储的 engine 不属于当前 topTab，则默认选中第一个 engine
+      const defaultEngine = enginesForTab[0];
+      onEngineChange(defaultEngine);
+      localStorage.setItem('selectedEngine', defaultEngine);
+    }
+  };
+
+  // 当用户更改 engine 时，更新 localStorage
+  const handleEngineChange = (value: string) => {
+    onEngineChange(value);
+    localStorage.setItem('selectedEngine', value);
+  };
 
   // 动态设置搜索框的提示词
   const getPlaceholderText = () => {
@@ -172,7 +215,7 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
         </BackgroundGradient>
       </div>
 
-      <Tabs value={selectedTopTab} onValueChange={onTopTabChange} className="w-full max-w-2xl mx-auto">
+      <Tabs value={selectedTopTab} onValueChange={handleTopTabChange} className="w-full max-w-2xl mx-auto">
         <TabsList className="grid w-full grid-cols-4 p-1 rounded-full bg-muted/50 backdrop-blur-sm">
           {topTabs.map((tab) => (
             <TabsTrigger
@@ -196,7 +239,7 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
         />
         <Search className="absolute right-4 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
       </div>
-      <Tabs value={selectedEngine} onValueChange={onEngineChange} className="w-full max-w-2xl mx-auto">
+      <Tabs value={selectedEngine} onValueChange={handleEngineChange} className="w-full max-w-2xl mx-auto">
         <TabsList className="justify-center bg-transparent">
           {searchOptions[selectedTopTab as keyof typeof searchOptions].map((engine) => (
             <TabsTrigger
