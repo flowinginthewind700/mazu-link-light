@@ -35,6 +35,7 @@ export const FeaturedToolCard: React.FC<FeaturedToolCardProps> = ({ tool }) => {
             alt={tool.title}
             fill
             className="object-cover transition-transform group-hover:scale-105"
+            loading="lazy"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent p-2 sm:p-3 flex flex-col justify-end">
             <h3 className="text-white font-semibold text-xs sm:text-sm md:text-base truncate">

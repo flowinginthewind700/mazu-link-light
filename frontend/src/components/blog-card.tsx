@@ -45,6 +45,7 @@ export function BlogCard({ post }: BlogCardProps) {
             alt={post.title}
             layout="fill"
             objectFit="cover"
+            loading="lazy"
           />
         </motion.div>
         <CardContent className="p-4">

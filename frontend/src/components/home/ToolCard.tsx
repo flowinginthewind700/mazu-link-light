@@ -50,6 +50,7 @@ export const ToolCard: React.FC<ToolCardProps> = ({ tool, apiUrl, loading }) => 
             width={48}
             height={48}
             className="rounded-lg"
+            loading="lazy"
           />
           <div>
             <h3 className="font-medium text-foreground hover:underline group-hover/spotlight:text-gray-900 dark:group-hover/spotlight:text-gray-100">

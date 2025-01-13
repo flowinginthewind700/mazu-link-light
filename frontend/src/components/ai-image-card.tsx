@@ -119,6 +119,7 @@ export function AIImageCard({ image }: AIImageCardProps) {
         alt={image.prompt}
         fill
         className="object-contain transition-transform duration-300 group-hover:scale-105"
+        loading="lazy"
       />
       
       {/* Overlay buttons */}
