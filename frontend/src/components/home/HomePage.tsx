@@ -215,7 +215,7 @@ export default function HomePage() {
           id: index.toString(),
           name: 'Loading AI tool...',
           Description: 'Loading AI tool...',
-          iconimage: { url: '/imames/placeholder.svg' },
+          iconimage: { url: '/imames/placeholder.svg ' },
           accessLink: '', // 补充缺失的属性
           internalPath: '', // 补充缺失的属性
         }}
