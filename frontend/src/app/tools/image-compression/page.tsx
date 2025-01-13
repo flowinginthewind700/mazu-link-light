@@ -25,6 +25,7 @@ interface CompressedImage {
 export default function ImageCompressionPage() {
   const [images, setImages] = useState<CompressedImage[]>([])
   const [quality, setQuality] = useState(80)
+  const [convertToJPG, setConvertToJPG] = useState(true)
   const [convertToWebP, setConvertToWebP] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
 
@@ -33,7 +34,7 @@ export default function ImageCompressionPage() {
       maxSizeMB: 5,
       maxWidthOrHeight: 2048,
       useWebWorker: true,
-      fileType: convertToWebP ? 'image/webp' : file.type,
+      fileType: convertToJPG ? 'image/jpeg' : convertToWebP ? 'image/webp' : file.type,
       quality: quality / 100,
     }
 
@@ -79,7 +80,7 @@ export default function ImageCompressionPage() {
 
     setImages(prev => [...prev, ...newImages])
     setIsProcessing(false)
-  }, [quality, convertToWebP])
+  }, [quality, convertToJPG, convertToWebP])
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -95,7 +96,7 @@ export default function ImageCompressionPage() {
     const blob = await image.compressedFile.arrayBuffer()
     const url = URL.createObjectURL(new Blob([blob]))
     link.href = url
-    link.download = `compressed-${image.originalFile.name}${convertToWebP ? '.webp' : ''}`
+    link.download = `compressed-${image.originalFile.name}${convertToJPG ? '.jpg' : convertToWebP ? '.webp' : ''}`
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
@@ -107,7 +108,7 @@ export default function ImageCompressionPage() {
 
     for (const image of images) {
       const blob = await image.compressedFile.arrayBuffer()
-      zip.file(`compressed-${image.originalFile.name}${convertToWebP ? '.webp' : ''}`, blob)
+      zip.file(`compressed-${image.originalFile.name}${convertToJPG ? '.jpg' : convertToWebP ? '.webp' : ''}`, blob)
     }
 
     const content = await zip.generateAsync({ type: 'blob' })
@@ -137,122 +138,134 @@ export default function ImageCompressionPage() {
   }
 
   return (
-    <><Navigation
-    currentPage=""
-  />
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold mb-2">zippic</h1>
-        <p className="text-xl text-muted-foreground">
-          Smart Image Compression for Faster Websites
-        </p>
-      </div>
-
-      <div 
-        {...getRootProps()} 
-        className={`
-          border-2 border-dashed rounded-lg p-12 text-center cursor-pointer
-          transition-colors duration-200
-          ${isDragActive ? 'border-primary bg-primary/5' : 'border-muted-foreground/25'}
-        `}
-      >
-        <input {...getInputProps()} />
-        <Upload className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-        <p className="text-lg mb-2">Drop your images here!</p>
-        <p className="text-sm text-muted-foreground">Up to 20 images, max 5 MB each.</p>
-      </div>
-
-      <div className="mt-8 space-y-6">
-        <div className="bg-card rounded-lg p-6">
-          <h2 className="text-xl font-semibold mb-4">Advanced Settings</h2>
-          
-          <div className="space-y-6">
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <Label>Quality ({quality}%)</Label>
-              </div>
-              <Slider
-                value={[quality]}
-                onValueChange={([value]) => setQuality(value)}
-                min={0}
-                max={100}
-                step={1}
-              />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <Label>Convert to WebP</Label>
-              <Switch
-                checked={convertToWebP}
-                onCheckedChange={setConvertToWebP}
-              />
-            </div>
-          </div>
+    <>
+      <Navigation currentPage="" />
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold mb-2">zippic</h1>
+          <p className="text-xl text-muted-foreground">
+            Smart Image Compression for Faster Websites
+          </p>
         </div>
 
-        {images.length > 0 && (
-          <div className="bg-card rounded-lg p-6">
-            <div className="flex justify-between items-center mb-6">
-              <div>
-                <h2 className="text-xl font-semibold">
-                  Saved you {getTotalSavings()}%
-                </h2>
-                <p className="text-sm text-muted-foreground">
-                  {images.length} images optimized
-                </p>
-              </div>
-              <Button onClick={downloadAllImages} disabled={isProcessing}>
-                <Download className="w-4 h-4 mr-2" />
-                Download all images
-              </Button>
-            </div>
+        <div 
+          {...getRootProps()} 
+          className={`
+            border-2 border-dashed rounded-lg p-12 text-center cursor-pointer
+            transition-colors duration-200
+            ${isDragActive ? 'border-primary bg-primary/5' : 'border-muted-foreground/25'}
+          `}
+        >
+          <input {...getInputProps()} />
+          <Upload className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+          <p className="text-lg mb-2">Drop your images here!</p>
+          <p className="text-sm text-muted-foreground">Up to 20 images, max 5 MB each.</p>
+        </div>
 
-            <div className="space-y-4">
-              {images.map((image) => (
-                <div
-                  key={image.id}
-                  className="flex items-center justify-between p-4 bg-muted/50 rounded-lg"
-                >
-                  <div className="flex items-center gap-4">
-                    <img
-                      src={image.thumbnail}
-                      alt="Preview"
-                      className="w-16 h-16 object-cover rounded-md"
-                    />
-                    <div>
-                      <p className="font-medium mb-1">
-                        {image.originalFile.name}
-                        {convertToWebP ? '.webp' : ''}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        {formatFileSize(image.originalSize)} → {formatFileSize(image.compressedSize)}{' '}
-                        <span className="text-green-500">
-                          ({Math.round((1 - image.compressedSize / image.originalSize) * 100)}%)
-                        </span>
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => downloadImage(image)}
-                      disabled={image.status === 'processing'}
-                    >
-                      <Download className="w-4 h-4" />
-                    </Button>
-                    <span className="text-sm text-green-500">
-                      {image.status === 'complete' ? 'Complete' : 'Processing...'}
-                    </span>
-                  </div>
+        <div className="mt-8 space-y-6">
+          <div className="bg-card rounded-lg p-6">
+            <h2 className="text-xl font-semibold mb-4">Advanced Settings</h2>
+            
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <Label>Quality ({quality}%)</Label>
                 </div>
-              ))}
+                <Slider
+                  value={[quality]}
+                  onValueChange={([value]) => setQuality(value)}
+                  min={0}
+                  max={100}
+                  step={1}
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <Label>Convert to JPG</Label>
+                <Switch
+                  checked={convertToJPG}
+                  onCheckedChange={(checked) => {
+                    setConvertToJPG(checked)
+                    if (checked) setConvertToWebP(false)
+                  }}
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <Label>Convert to WebP</Label>
+                <Switch
+                  checked={convertToWebP}
+                  onCheckedChange={(checked) => {
+                    setConvertToWebP(checked)
+                    if (checked) setConvertToJPG(false)
+                  }}
+                />
+              </div>
             </div>
           </div>
-        )}
+
+          {images.length > 0 && (
+            <div className="bg-card rounded-lg p-6">
+              <div className="flex justify-between items-center mb-6">
+                <div>
+                  <h2 className="text-xl font-semibold">
+                    Saved you {getTotalSavings()}%
+                  </h2>
+                  <p className="text-sm text-muted-foreground">
+                    {images.length} images optimized
+                  </p>
+                </div>
+                <Button onClick={downloadAllImages} disabled={isProcessing}>
+                  <Download className="w-4 h-4 mr-2" />
+                  Download all images
+                </Button>
+              </div>
+
+              <div className="space-y-4">
+                {images.map((image) => (
+                  <div
+                    key={image.id}
+                    className="flex items-center justify-between p-4 bg-muted/50 rounded-lg"
+                  >
+                    <div className="flex items-center gap-4">
+                      <img
+                        src={image.thumbnail}
+                        alt="Preview"
+                        className="w-16 h-16 object-cover rounded-md"
+                      />
+                      <div className="min-w-0">
+                        <p className="font-medium mb-1 truncate">
+                          {image.originalFile.name}
+                          {convertToJPG ? '.jpg' : convertToWebP ? '.webp' : ''}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          {formatFileSize(image.originalSize)} → {formatFileSize(image.compressedSize)}{' '}
+                          <span className="text-green-500">
+                            ({Math.round((1 - image.compressedSize / image.originalSize) * 100)}%)
+                          </span>
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => downloadImage(image)}
+                        disabled={image.status === 'processing'}
+                      >
+                        <Download className="w-4 h-4" />
+                      </Button>
+                      <span className="text-sm text-green-500">
+                        {image.status === 'complete' ? 'Complete' : 'Processing...'}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
     </>
   )
 }
-
