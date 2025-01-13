@@ -245,7 +245,7 @@ export default function AIImagePage() {
                         <div className="relative space-y-5 overflow-hidden rounded-2xl bg-white/5 p-4 shadow-xl shadow-black/5 before:absolute before:inset-0 before:-translate-x-full before:-skew-x-12 before:animate-[shimmer_2s_infinite] before:border-t before:border-white/10 before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent">
                           <div className="h-48 w-full rounded-lg bg-white/5">
                             <Image
-                              src="/images/placeholder.svg"
+                              src="/placeholder.svg"
                               alt="Loading..."
                               width={400}
                               height={400}
