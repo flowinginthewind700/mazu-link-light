@@ -109,7 +109,11 @@ export function AIImageCard({ image }: AIImageCardProps) {
   }
 
   return (
-    <div className="relative group rounded-2xl overflow-hidden" style={{ aspectRatio: aspectRatio }}>
+    <div 
+      className="relative group rounded-2xl overflow-hidden" 
+      style={{ aspectRatio: aspectRatio }}
+      onDoubleClick={handleZoomClick} // 双击触发放大
+    >
       <Image 
         src={image.url} 
         alt={image.prompt}
@@ -191,7 +195,7 @@ export function AIImageCard({ image }: AIImageCardProps) {
               <div>
                 <h3 className="text-lg font-semibold mb-2">Prompt</h3>
                 <div className="relative border rounded-lg p-4 bg-muted/50">
-                <p className="pr-12 whitespace-pre-wrap text-muted-foreground">
+                  <p className="pr-12 whitespace-pre-wrap text-muted-foreground">
                     {image.prompt}
                   </p>
                   <button
