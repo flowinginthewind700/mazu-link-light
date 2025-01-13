@@ -142,7 +142,6 @@ const syncAllAgitoolsToWeaviate = async () => {
   }
 };
 
-// 同步 Agitool 到 Weaviate
 const syncToWeaviate = async (data) => {
   try {
     let id;
@@ -154,9 +153,8 @@ const syncToWeaviate = async (data) => {
 
     const payload = {
       class: WEAVIATE_CLASS_NAME,
-      id: id,
       properties: {
-        strapiId: data.id.toString(), // 保存 Strapi 的 id 作为一个字符串
+        strapiId: data.id.toString(),
         name: data.name,
         description: data.Description,
         price: data.price,
@@ -171,27 +169,40 @@ const syncToWeaviate = async (data) => {
         content: data.content,
         screenshotUrl: data.screenshot ? data.screenshot.url : null,
         imageLargeUrl: data.imagelarge ? data.imagelarge.url : null,
-        iconimageUrl: data.iconimage ? data.iconimage.url : null, // 新增 iconimage 字段
+        iconimageUrl: data.iconimage ? data.iconimage.url : null,
         tags: data.agitooltags ? data.agitooltags.map(tag => tag.tagname) : []
       },
     };
 
-    // 使用 PUT 方法创建或更新对象
-    const response = await axios.put(`${WEAVIATE_URL}/${WEAVIATE_CLASS_NAME}/${id}`, payload, {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (response.status === 200 || response.status === 201) {
-      console.log(`Synced tool ${data.name} in Weaviate:`, response.data);
-    } else {
-      console.error(`Unexpected status code: ${response.status}`);
+    // 首先尝试获取对象
+    try {
+      await axios.get(`${WEAVIATE_URL}/${WEAVIATE_CLASS_NAME}/${id}`);
+      // 如果对象存在，使用 PATCH 方法更新
+      const response = await axios.patch(`${WEAVIATE_URL}/${WEAVIATE_CLASS_NAME}/${id}`, payload, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      console.log(`Updated tool ${data.name} in Weaviate:`, response.data);
+    } catch (error) {
+      if (error.response && error.response.status === 404) {
+        // 如果对象不存在，使用 POST 方法创建新对象
+        const createPayload = { ...payload, id };
+        const response = await axios.post(WEAVIATE_URL, createPayload, {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        console.log(`Created new tool ${data.name} in Weaviate:`, response.data);
+      } else {
+        throw error;
+      }
     }
   } catch (error) {
     console.error('Error syncing to Weaviate:', error.response?.data || error.message);
   }
 };
+
 
 // 显示帮助信息
 const showHelp = () => {
