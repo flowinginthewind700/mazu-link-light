@@ -1,0 +1,1 @@
+sudo docker exec -it mazu-link-light-mazu_link_light_frontend-1 node /app/src/scripts/generate-sitemap.js
