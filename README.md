@@ -12,6 +12,8 @@ AI Tools Directory is a comprehensive platform showcasing the latest AI tools an
 - **AI Image Gallery**: Explore AI-generated images and learn about image generation tools.
 - **Responsive Design**: Enjoy a seamless experience across desktop and mobile devices.
 - **Dark Mode**: Switch between light and dark themes for comfortable viewing.
+- **Self host search**: Self host multi-lingual semantic search with weaviate.
+- **Dynamic OG**: dynamic twitter card, og card, social share integration.
 
 ## Tech Stack
 
