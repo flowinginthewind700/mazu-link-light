@@ -52,8 +52,6 @@ export default function BlogPage() {
   const handleSearch = async (query: string) => {
     setSearchQuery(query)
     if (query) {
-      // Implement your search logic here
-      // This is a placeholder, replace with actual Weaviate search
       const results = await searchBlogPosts(query)
       setSearchResults(results)
     } else {
@@ -62,8 +60,8 @@ export default function BlogPage() {
   }
 
   const clearSearchResults = () => {
-    setSearchQuery('')
-    setSearchResults([])
+    setSearchQuery('') // 清空搜索查询
+    setSearchResults([]) // 清空搜索结果
   }
 
   return (
@@ -80,6 +78,7 @@ export default function BlogPage() {
           <SearchBar 
             onSearch={handleSearch} 
             onClearSearch={clearSearchResults} 
+            searchQuery={searchQuery} // 将 searchQuery 传递给 SearchBar
           />
           <div className="lg:flex lg:gap-8">
             <CategorySelect

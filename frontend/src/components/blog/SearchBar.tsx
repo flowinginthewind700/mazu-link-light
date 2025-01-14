@@ -1,23 +1,29 @@
 // components/SearchBar.tsx
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Search } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 
 interface SearchBarProps {
   onSearch: (query: string) => void
   onClearSearch: () => void
+  searchQuery: string // 接收父组件的 searchQuery
 }
 
-export const SearchBar: React.FC<SearchBarProps> = ({ onSearch, onClearSearch }) => {
-  const [query, setQuery] = useState('')
+export const SearchBar: React.FC<SearchBarProps> = ({ onSearch, onClearSearch, searchQuery }) => {
+  const [query, setQuery] = useState(searchQuery) // 初始化 query 为 searchQuery
+
+  // 当父组件的 searchQuery 变化时，同步更新 query
+  useEffect(() => {
+    setQuery(searchQuery)
+  }, [searchQuery])
 
   const handleSearch = () => {
     onSearch(query)
   }
 
   const handleClearSearch = () => {
-    setQuery('')
-    onClearSearch()
+    setQuery('') // 清空输入框
+    onClearSearch() // 调用父组件的清除逻辑
   }
 
   return (
