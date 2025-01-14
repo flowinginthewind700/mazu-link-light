@@ -170,7 +170,7 @@
   color: hsl(var(--foreground)); /* 使用 Tailwind 变量 */
   font-size: 1rem;
   line-height: 1.75;
-  max-width: 65ch;
+  /* max-width: 65ch; */
   margin: 0 auto;
   padding: 1rem;
 }
@@ -186,7 +186,7 @@
 .prose h4,
 .prose h5,
 .prose h6 {
-  margin-top: 2em;
+  margin-top: 1em;
   margin-bottom: 1em;
   font-weight: 600;
   line-height: 1.3;
@@ -194,19 +194,19 @@
 }
 
 .prose h1 {
-  font-size: 2.25rem;
+  font-size: 1.9rem;
 }
 
 .prose h2 {
-  font-size: 1.875rem;
+  font-size: 1.6rem;
 }
 
 .prose h3 {
-  font-size: 1.5rem;
+  font-size: 1.3rem;
 }
 
 .prose h4 {
-  font-size: 1.25rem;
+  font-size: 1.2rem;
 }
 
 .prose h5 {
