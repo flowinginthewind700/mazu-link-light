@@ -204,7 +204,7 @@ const PostDetail: React.FC<{ postId: string }> = ({ postId }) => {
         </div>
 
         <ReactMarkdown
-          className="post-markdown-blog text-left dark:text-gray-300"
+          className="prose dark:prose-invert text-left dark:text-gray-300"
           rehypePlugins={[rehypeRaw]}
           remarkPlugins={[remarkGfm]}
           components={components}
