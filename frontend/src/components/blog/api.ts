@@ -150,7 +150,7 @@ export const searchBlogPosts = async (query: string): Promise<BlogPost[]> => {
   `;
 
   try {
-    const response = await axios.post(`${WEAVIATE_URL}/graphql`, { query: weaviateQuery });
+    const response = await axios.post(`${WEAVIATE_URL}`, { query: weaviateQuery });
     const results = response.data.data.Get[WEAVIATE_CLASS_NAME];
 
     const mappedResults: BlogPost[] = results.map((post: any) => ({
