@@ -9,7 +9,7 @@ import { BlogList } from '@/components/blog/BlogList'
 import { Pagination } from '@/components/blog/Pagination'
 import { SearchBar } from '@/components/blog/SearchBar'
 import { fetchCategories, fetchBlogPosts } from '@/components/blog/api'
-import { Category, BlogPost } from '@/types'
+import { Category, BlogPost } from '@/components/blog/types'
 
 const POSTS_PER_PAGE = 9
 const EXCLUDED_CATEGORY_IDS = ["1", "4"]
