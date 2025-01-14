@@ -5,13 +5,19 @@ import { Input } from '@/components/ui/input'
 
 interface SearchBarProps {
   onSearch: (query: string) => void
+  onClearSearch: () => void
 }
 
-export const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
+export const SearchBar: React.FC<SearchBarProps> = ({ onSearch, onClearSearch }) => {
   const [query, setQuery] = useState('')
 
   const handleSearch = () => {
     onSearch(query)
+  }
+
+  const handleClearSearch = () => {
+    setQuery('')
+    onClearSearch()
   }
 
   return (
@@ -28,6 +34,14 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
         className="absolute right-4 top-1/2 transform -translate-y-1/2 text-muted-foreground cursor-pointer"
         onClick={handleSearch}
       />
+      {query && (
+        <button
+          onClick={handleClearSearch}
+          className="absolute right-12 top-1/2 transform -translate-y-1/2 text-muted-foreground cursor-pointer"
+        >
+          ×
+        </button>
+      )}
     </div>
   )
 }

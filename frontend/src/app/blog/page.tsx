@@ -77,7 +77,10 @@ export default function BlogPage() {
       />
       <div className="min-h-screen bg-background">
         <div className="container mx-auto px-4 py-8">
-          <SearchBar onSearch={handleSearch} />
+          <SearchBar 
+            onSearch={handleSearch} 
+            onClearSearch={clearSearchResults} 
+          />
           <div className="lg:flex lg:gap-8">
             <CategorySelect
               categories={categories}
