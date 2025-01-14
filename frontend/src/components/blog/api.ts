@@ -1,10 +1,11 @@
-// lib/api.ts
+// components/blog/api.ts
 
 import axios from 'axios';
 import { Category, BlogPost, BlogPostsResponse } from '@/components/blog/types';
 
 const apiUrl = process.env.NEXT_PUBLIC_CMS_API_BASE_URL || '';
 const EXCLUDED_CATEGORY_IDS = ["1", "4"];
+const WEAVIATE_CLASS_NAME = 'BlogPost';
 
 export const fetchCategories = async (): Promise<Category[]> => {
   const query = `
@@ -118,10 +119,61 @@ export const fetchBlogPosts = async (
   }
 };
 
-// You can add a search function here if you're implementing search functionality
 export const searchBlogPosts = async (query: string): Promise<BlogPost[]> => {
-  // Implement your search logic here
-  // This could involve making a request to your Weaviate instance
-  // For now, we'll return an empty array
-  return [];
+  const lowercaseQuery = query.toLowerCase();
+
+  const weaviateQuery = `
+    {
+      Get {
+        ${WEAVIATE_CLASS_NAME}(
+          bm25: {
+            query: "${lowercaseQuery}"
+            properties: ["title", "description", "content"]
+          }
+        ) {
+          strapiId
+          title
+          description
+          content
+          slug
+          date
+          category {
+            id
+            name
+            slug
+          }
+          coverUrl
+        }
+      }
+    }
+  `;
+
+  try {
+    const response = await axios.post(`${WEAVIATE_URL}/graphql`, { query: weaviateQuery });
+    const results = response.data.data.Get[WEAVIATE_CLASS_NAME];
+
+    const mappedResults: BlogPost[] = results.map((post: any) => ({
+      id: parseInt(post.strapiId),
+      title: post.title,
+      description: post.description,
+      content: post.content,
+      slug: post.slug,
+      date: post.date,
+      category: post.category,
+      cover: [
+        {
+          formats: {
+            small: {
+              url: post.coverUrl
+            }
+          }
+        }
+      ]
+    }));
+
+    return mappedResults;
+  } catch (error) {
+    console.error('Error searching blog posts:', error);
+    return [];
+  }
 };

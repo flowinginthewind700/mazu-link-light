@@ -8,7 +8,7 @@ import { CategorySelect } from '@/components/blog/CategorySelect'
 import { BlogList } from '@/components/blog/BlogList'
 import { Pagination } from '@/components/blog/Pagination'
 import { SearchBar } from '@/components/blog/SearchBar'
-import { fetchCategories, fetchBlogPosts } from '@/components/blog/api'
+import { fetchCategories, fetchBlogPosts, searchBlogPosts } from '@/components/blog/api'
 import { Category, BlogPost } from '@/components/blog/types'
 
 const POSTS_PER_PAGE = 9
