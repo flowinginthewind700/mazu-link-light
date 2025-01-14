@@ -6,6 +6,7 @@ import { Category, BlogPost, BlogPostsResponse } from '@/components/blog/types';
 const apiUrl = process.env.NEXT_PUBLIC_CMS_API_BASE_URL || '';
 const EXCLUDED_CATEGORY_IDS = ["1", "4"];
 const WEAVIATE_CLASS_NAME = 'BlogPost';
+const WEAVIATE_URL = '/api/weaviate';
 
 export const fetchCategories = async (): Promise<Category[]> => {
   const query = `
