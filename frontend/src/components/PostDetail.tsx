@@ -151,7 +151,9 @@ const PostDetail: React.FC<{ postId: string }> = ({ postId }) => {
       <img
         {...props}
         className="cursor-zoom-in"
-        onClick={() => handleImageClick(props.src)}
+        onClick={() => handleImageClick(props.src)
+        loading="lazy"
+        }
       />
     ),
   };
@@ -173,7 +175,8 @@ const PostDetail: React.FC<{ postId: string }> = ({ postId }) => {
               alt={post.title}
               fill
               className="object-cover cursor-zoom-in"
-              onClick={() => handleImageClick(`${apiUrl}${post.cover[0].url}`)}
+              onClick={() => handleImageClick(`${apiUrl}${post.cover[0].url}`)
+              loading="lazy"}
             />
           </div>
         )}

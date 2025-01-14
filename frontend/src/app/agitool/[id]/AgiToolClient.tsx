@@ -224,7 +224,9 @@ export default function AgiToolClient() {
                   alt={tool.name}
                   fill
                   className="object-cover cursor-zoom-in"
-                  onClick={() => handleImageClick(`${apiUrl}${tool.screenshot?.url || tool.imagelarge?.url}`)}
+                  onClick={() => handleImageClick(`${apiUrl}${tool.screenshot?.url || tool.imagelarge?.url}`)
+                  loading="lazy"
+                }
                 />
               </div>
               <div className="flex flex-wrap gap-2">
