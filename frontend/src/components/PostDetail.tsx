@@ -152,7 +152,6 @@ const PostDetail: React.FC<{ postId: string }> = ({ postId }) => {
         {...props}
         className="cursor-zoom-in"
         onClick={() => handleImageClick(props.src)
-        loading="lazy"
         }
       />
     ),
