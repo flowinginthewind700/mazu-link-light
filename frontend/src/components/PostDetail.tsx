@@ -74,7 +74,12 @@ const ImageZoomDialog: React.FC<{ isOpen: boolean; onClose: () => void; imageUrl
         >
           <TransformWrapper>
             <TransformComponent>
-              <img src={imageUrl} alt="Zoomed image" className="w-full h-full object-contain rounded-lg shadow-xl" />
+              <img
+                src={imageUrl}
+                alt="Zoomed image"
+                className="w-full h-full object-contain rounded-lg shadow-xl"
+                loading="lazy" // 添加懒加载
+              />
             </TransformComponent>
           </TransformWrapper>
           <Dialog.Close asChild>
@@ -151,8 +156,8 @@ const PostDetail: React.FC<{ postId: string }> = ({ postId }) => {
       <img
         {...props}
         className="cursor-zoom-in"
-        onClick={() => handleImageClick(props.src)
-        }
+        onClick={() => handleImageClick(props.src)}
+        loading="lazy" // 添加懒加载
       />
     ),
   };
@@ -174,8 +179,8 @@ const PostDetail: React.FC<{ postId: string }> = ({ postId }) => {
               alt={post.title}
               fill
               className="object-cover cursor-zoom-in"
-              onClick={() => handleImageClick(`${apiUrl}${post.cover[0].url}`)
-              loading="lazy"}
+              onClick={() => handleImageClick(`${apiUrl}${post.cover[0].url}`)}
+              loading="lazy" // 添加懒加载
             />
           </div>
         )}

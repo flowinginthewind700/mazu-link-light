@@ -1,5 +1,5 @@
-import Link from 'next/link'
-import { Github, Twitter } from 'lucide-react'
+import Link from 'next/link';
+import { Github, Twitter } from 'lucide-react';
 
 export function Footer() {
   return (
@@ -15,9 +15,21 @@ export function Footer() {
           <div>
             <h4 className="text-base font-semibold mb-4">Quick Links</h4>
             <ul className="space-y-2">
-              <li><Link href="/about" className="text-sm text-muted-foreground hover:text-primary">About</Link></li>
-              <li><Link href="/privacy" className="text-sm text-muted-foreground hover:text-primary">Privacy Policy</Link></li>
-              <li><Link href="/terms" className="text-sm text-muted-foreground hover:text-primary">Terms of Service</Link></li>
+              <li>
+                <Link href="/about" prefetch={false} className="text-sm text-muted-foreground hover:text-primary">
+                  About
+                </Link>
+              </li>
+              <li>
+                <Link href="/privacy" prefetch={false} className="text-sm text-muted-foreground hover:text-primary">
+                  Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <Link href="/terms" prefetch={false} className="text-sm text-muted-foreground hover:text-primary">
+                  Terms of Service
+                </Link>
+              </li>
               <li>
                 <a href="mailto:yongtaofu@gmail.com" className="text-sm text-muted-foreground hover:text-primary">
                   Contact
@@ -29,13 +41,23 @@ export function Footer() {
             <h4 className="text-base font-semibold mb-4">Resources</h4>
             <ul className="space-y-2">
               <li>
-                <a href="https://github.com/flowinginthewind700/mazu-link-light" target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-primary flex items-center">
+                <a
+                  href="https://github.com/flowinginthewind700/mazu-link-light"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-muted-foreground hover:text-primary flex items-center"
+                >
                   <Github className="w-4 h-4 mr-2" />
                   GitHub Repository
                 </a>
               </li>
               <li>
-                <a href="https://x.com/intent/follow?screen_name=McQueenFu" target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-primary flex items-center">
+                <a
+                  href="https://x.com/intent/follow?screen_name=McQueenFu"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-muted-foreground hover:text-primary flex items-center"
+                >
                   <Twitter className="w-4 h-4 mr-2" />
                   Author's Twitter
                 </a>
@@ -46,7 +68,12 @@ export function Footer() {
             <h4 className="text-base font-semibold mb-4">Partners</h4>
             <ul className="space-y-2">
               <li>
-                <a href="https://llmstock.com" target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-primary">
+                <a
+                  href="https://llmstock.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-muted-foreground hover:text-primary"
+                >
                   LLMStock
                 </a>
               </li>
@@ -58,6 +85,5 @@ export function Footer() {
         </div>
       </div>
     </footer>
-  )
+  );
 }
-
