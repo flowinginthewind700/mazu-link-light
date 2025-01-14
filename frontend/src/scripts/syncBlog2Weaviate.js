@@ -23,6 +23,7 @@ const fetchBlogPostById = async (id) => {
         description
         slug
         date
+        content
         category {
           id
           name
@@ -61,6 +62,7 @@ const fetchBlogPosts = async (start = 0, limit = POSTS_PER_PAGE) => {
         description
         slug
         date
+        content
         category {
           id
           name
@@ -105,6 +107,7 @@ const syncToWeaviate = async (post) => {
         description: post.description,
         slug: post.slug,
         date: post.date,
+        content: post.content,
         category: {
           id: post.category.id,
           name: post.category.name,
