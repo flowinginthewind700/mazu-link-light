@@ -45,7 +45,7 @@ export const fetchBlogPosts = async (
           where: { category: { id_nin: ${JSON.stringify(excludedCategoryIds)} } }
           start: $start
           limit: $limit
-          sort: "date:DESC"
+          sort: "id:DESC"
         ) {
           id
           title
