@@ -4,7 +4,7 @@ import axios from 'axios';
 import { Category, BlogPost, BlogPostsResponse } from '@/components/blog/types'';
 
 const apiUrl = process.env.NEXT_PUBLIC_CMS_API_BASE_URL || '';
-const EXCLUDED_CATEGORY_IDS = ["1", "4"]
+const EXCLUDED_CATEGORY_IDS = ["1", "4"];
 
 export const fetchCategories = async (): Promise<Category[]> => {
   const query = `
