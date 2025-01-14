@@ -288,7 +288,7 @@ export default function AgiToolClient() {
         </Card>
 
         <Card className="dark:bg-gray-800 dark:border-gray-700">
-          <CardContent className="prose dark:prose-invert max-w-none p-6">
+          <CardContent className="prose dark:prose-invert max-w-none p-4">
             <ReactMarkdown
               rehypePlugins={[rehypeRaw]}
               remarkPlugins={[remarkGfm]}

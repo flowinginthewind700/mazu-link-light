@@ -10,6 +10,7 @@ import remarkGfm from 'remark-gfm';
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import * as Dialog from '@radix-ui/react-dialog';
 import { X, Facebook, Twitter, Linkedin, Share2 } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 // Sub-components
 import { BilibiliEmbed, YouTubeEmbed, VideoEmbed } from './EmbedComponents';
@@ -156,8 +157,8 @@ const PostDetail: React.FC<{ postId: string }> = ({ postId }) => {
   };
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 md:px-8 lg:px-10" style={{ overflowX: 'auto' }}>
-      <div className="max-w-3xl mx-auto">
+    <div className="container mx-auto px-4 sm:px-6 md:px-8 lg:px-10">
+      <div className="max-w-5xl mx-auto">
         <button
           onClick={() => router.back()}
           className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 mr-2 flex items-center button-uniform mb-4"
@@ -166,26 +167,26 @@ const PostDetail: React.FC<{ postId: string }> = ({ postId }) => {
         </button>
 
         {post.cover && post.cover.length > 0 && (
-          <div className="mb-4 overflow-hidden rounded-lg" style={{ maxHeight: '400px' }}>
+          <div className="mb-8 overflow-hidden rounded-lg aspect-video relative">
             <Image
               src={`${apiUrl}${post.cover[0].url}`}
               alt={post.title}
-              width={800}
-              height={400}
-              layout="responsive"
-              objectFit="cover"
-              className="cursor-zoom-in"
+              fill
+              className="object-cover cursor-zoom-in"
               onClick={() => handleImageClick(`${apiUrl}${post.cover[0].url}`)}
             />
           </div>
         )}
 
-        <h1 className="text-3xl font-bold mb-4 break-words text-left dark:text-white">{post.title}</h1>
-
-        <div className="mb-8 p-6 bg-white bg-opacity-30 backdrop-filter backdrop-blur-lg rounded-lg shadow-lg dark:bg-gray-800 dark:bg-opacity-50 dark:text-gray-200">
-          <p className="text-lg font-semibold text-gray-800 mb-2 dark:text-gray-200">Summary:</p>
-          <p className="text-gray-700 break-words leading-6 dark:text-gray-300">{post.description}</p>
-        </div>
+        <Card className="mb-8 dark:bg-gray-800 dark:border-gray-700">
+          <CardHeader>
+            <CardTitle className="text-3xl dark:text-white">{post.title}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-lg font-semibold text-gray-800 mb-2 dark:text-gray-200">Summary:</p>
+            <p className="text-gray-700 break-words leading-6 dark:text-gray-300">{post.description}</p>
+          </CardContent>
+        </Card>
 
         {/* Social Share Buttons */}
         <div className="flex gap-4 mb-6">
@@ -203,14 +204,17 @@ const PostDetail: React.FC<{ postId: string }> = ({ postId }) => {
           </button>
         </div>
 
-        <ReactMarkdown
-          className="prose dark:prose-invert text-left dark:text-gray-300"
-          rehypePlugins={[rehypeRaw]}
-          remarkPlugins={[remarkGfm]}
-          components={components}
-        >
-          {post.content}
-        </ReactMarkdown>
+        <Card className="dark:bg-gray-800 dark:border-gray-700">
+          <CardContent className="prose dark:prose-invert max-w-none p-4">
+            <ReactMarkdown
+              rehypePlugins={[rehypeRaw]}
+              remarkPlugins={[remarkGfm]}
+              components={components}
+            >
+              {post.content}
+            </ReactMarkdown>
+          </CardContent>
+        </Card>
 
         <AuthorInfo author={post.author} createdAt={post.created_at} />
 
