@@ -73,7 +73,7 @@ export const CardSpotlight: React.FC<CardSpotlightProps> = ({
           ]}
           dotSize={3}
           opacities={[0.1, 0.2, 0.3, 0.4]} // 调整透明度以适应卡片背景
-          showGradient={false} // 不显示渐变，以保持卡片背景
+          showGradient={true} // 不显示渐变，以保持卡片背景
         />
       )}
 

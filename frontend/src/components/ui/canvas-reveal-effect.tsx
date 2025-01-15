@@ -46,6 +46,7 @@ const MotionDotMatrix: React.FC<MotionDotMatrixProps> = ({
   showGradient
 }) => {
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     const updateDimensions = () => {
@@ -60,6 +61,10 @@ const MotionDotMatrix: React.FC<MotionDotMatrixProps> = ({
 
     return () => window.removeEventListener('resize', updateDimensions);
   }, []);
+
+  const handleMouseMove = (event: React.MouseEvent) => {
+    setMousePosition({ x: event.clientX, y: event.clientY });
+  };
 
   const dots = useMemo(() => {
     const dotsArray = [];
@@ -82,31 +87,41 @@ const MotionDotMatrix: React.FC<MotionDotMatrixProps> = ({
   }, [dimensions, colors, opacities]);
 
   return (
-    <div className={cn("h-full relative bg-white dark:bg-neutral-900 w-full", containerClassName)}>
-      {dots.map((dot, index) => (
-        <motion.div
-          key={index}
-          style={{
-            position: 'absolute',
-            left: dot.x,
-            top: dot.y,
-            width: dotSize,
-            height: dotSize,
-            borderRadius: '50%',
-            backgroundColor: `rgb(${dot.color[0]}, ${dot.color[1]}, ${dot.color[2]})`,
-            opacity: dot.opacity
-          }}
-          animate={{
-            opacity: [dot.opacity, dot.opacity * 0.5, dot.opacity],
-            scale: [1, 1.2, 1]
-          }}
-          transition={{
-            duration: 2 + Math.random() * 2,
-            repeat: Infinity,
-            repeatType: 'reverse'
-          }}
-        />
-      ))}
+    <div 
+      className={cn("h-full relative bg-white dark:bg-neutral-900 w-full", containerClassName)}
+      onMouseMove={handleMouseMove}
+    >
+      {dots.map((dot, index) => {
+        const distance = Math.sqrt(
+          Math.pow(dot.x - mousePosition.x, 2) + Math.pow(dot.y - mousePosition.y, 2)
+        );
+        const maxDistance = Math.sqrt(Math.pow(dimensions.width, 2) + Math.pow(dimensions.height, 2));
+        const intensityFactor = 1 - Math.min(distance / maxDistance, 1);
+
+        return (
+          <motion.div
+            key={index}
+            style={{
+              position: 'absolute',
+              left: dot.x,
+              top: dot.y,
+              width: dotSize,
+              height: dotSize,
+              borderRadius: '50%',
+              backgroundColor: `rgb(${dot.color[0]}, ${dot.color[1]}, ${dot.color[2]})`,
+              opacity: dot.opacity * intensityFactor
+            }}
+            animate={{
+              scale: [1, 1 + 0.2 * intensityFactor, 1]
+            }}
+            transition={{
+              duration: 1 + Math.random(),
+              repeat: Infinity,
+              repeatType: 'reverse'
+            }}
+          />
+        );
+      })}
       {showGradient && (
         <div className="absolute inset-0 bg-gradient-to-t from-gray-950 to-[84%] dark:from-gray-900 dark:to-[84%]" />
       )}
