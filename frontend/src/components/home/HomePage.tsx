@@ -105,44 +105,31 @@ export default function HomePage() {
     fetchCategoriesAndTools();
   }, [fetchCategoriesAndTools]);
 
+  // 初始化 sectionRefs
+  useEffect(() => {
+    if (categories.length > 0) {
+      sectionRefs.current = categories.reduce((acc, category) => {
+        acc[category.id] = React.createRef();
+        return acc;
+      }, {} as Record<string, React.RefObject<HTMLDivElement>>);
+    }
+  }, [categories]);
+
   const handleCategorySelect = useCallback((categoryId: string) => {
     scrollToSection(categoryId);
   }, []);
 
   const scrollToSection = useCallback((sectionId: string) => {
-    sectionRefs.current[sectionId]?.current?.scrollIntoView({
-      behavior: 'smooth',
-      block: 'start',
-    });
-    setAnimatingSection(sectionId);
-    setTimeout(() => setAnimatingSection(''), 1000);
+    const sectionRef = sectionRefs.current[sectionId]?.current;
+    if (sectionRef) {
+      sectionRef.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+      setAnimatingSection(sectionId);
+      setTimeout(() => setAnimatingSection(''), 1000);
+    }
   }, []);
-
-  // 使用 IntersectionObserver 实现懒加载
-  useEffect(() => {
-    const observers = categories.map(category => {
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              setActiveSection(category.id);
-            }
-          });
-        },
-        { threshold: 0.5 }
-      );
-
-      if (sectionRefs.current[category.id]?.current) {
-        observer.observe(sectionRefs.current[category.id].current!);
-      }
-
-      return observer;
-    });
-
-    return () => {
-      observers.forEach(observer => observer.disconnect());
-    };
-  }, [categories]);
 
   return (
     <>
