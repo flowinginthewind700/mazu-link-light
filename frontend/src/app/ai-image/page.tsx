@@ -40,6 +40,7 @@ interface ImageData {
   id: string;
   prompt: string;
   url: string;
+  negativePrompt?: string;
 }
 
 export default function AIImagePage() {
@@ -83,6 +84,7 @@ export default function AIImagePage() {
               img {
                 url
               }
+              negativePrompt
             }
             t2IexamplesConnection {
               aggregate {
@@ -109,6 +111,7 @@ export default function AIImagePage() {
               img {
                 url
               }
+              negativePrompt
             }
             t2IexamplesConnection(where: { imagecategory: { id: $category } }) {
               aggregate {
@@ -129,6 +132,7 @@ export default function AIImagePage() {
         id: example.id,
         prompt: example.prompt,
         url: `${apiUrl}${example.img[0].url}`,
+        negativePrompt: example.negativePrompt
       }));
       setExampleData(fetchedData);
       const totalCount = response.data.data.t2IexamplesConnection.aggregate.count;
@@ -304,20 +308,16 @@ const ImagePlaceholder = () => (
 const LazyLoadImageCard = React.memo(({ image }: { image: ImageData }) => {
   const [isLoaded, setIsLoaded] = useState(false);
 
+  useEffect(() => {
+    const img = new Image();
+    img.src = image.url;
+    img.onload = () => setIsLoaded(true);
+  }, [image.url]);
+
   return (
     <motion.div variants={item} className="w-full">
       {!isLoaded && <ImagePlaceholder />}
-      <div style={{ display: isLoaded ? 'block' : 'none' }}>
-        <AIImageCard image={image} />
-      </div>
-      <Image
-        src={image.url}
-        alt={image.prompt}
-        width={400}
-        height={400}
-        onLoad={() => setIsLoaded(true)}
-        style={{ display: 'none' }}
-      />
+      {isLoaded && <AIImageCard image={image} />}
     </motion.div>
   );
 });
