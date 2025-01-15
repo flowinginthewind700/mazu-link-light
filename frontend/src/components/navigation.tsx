@@ -22,7 +22,13 @@ interface NavigationProps {
   showMobileMenu?: boolean;
 }
 
-const NavLink = React.memo(({ href, isActive, children }) => (
+interface NavLinkProps {
+  href: string;
+  isActive: boolean;
+  children: React.ReactNode;
+}
+
+const NavLink = React.memo(({ href, isActive, children }: NavLinkProps) => (
   <Link
     href={href}
     className={cn(
