@@ -41,15 +41,25 @@ export const WavyBackground: React.FC<WavyBackgroundProps> = ({
     return () => darkModeMediaQuery.removeEventListener("change", handleChange);
   }, []);
 
-  const waveColors = colors ?? [
-    "#00ccb1",
-    "#1ca0fb",
-    "#7b61ff",
-    "#ffc414",
-    "#f472b6"
+  const darkModeColors = [
+    "#004d40", // 深绿
+    "#01579b", // 深蓝
+    "#4a148c", // 深紫
+    "#e65100", // 深橙
+    "#880e4f", // 深粉
   ];
 
-  const fillColor = backgroundFill || (isDarkMode ? "rgba(17, 24, 39, 0.7)" : "rgba(255, 255, 255, 0.7)");
+  const lightModeColors = [
+    "#e0f2f1", // 非常淡的绿
+    "#e1f5fe", // 非常淡的蓝
+    "#f3e5f5", // 非常淡的紫
+    "#fff3e0", // 非常淡的橙
+    "#fce4ec", // 非常淡的粉
+  ];
+
+  const waveColors = colors ?? (isDarkMode ? darkModeColors : lightModeColors);
+
+  const fillColor = backgroundFill || (isDarkMode ? "rgba(10, 15, 24, 0.7)" : "rgba(255, 255, 255, 0.5)");
 
   const variants = {
     initial: {
@@ -86,7 +96,9 @@ export const WavyBackground: React.FC<WavyBackgroundProps> = ({
         }}
         className={cn(
           "absolute inset-0 z-0 opacity-60 group-hover:opacity-100 blur-xl transition duration-500",
-          "bg-[radial-gradient(circle_farthest-side_at_0_100%,#00ccb1,transparent),radial-gradient(circle_farthest-side_at_100%_0,#7b61ff,transparent),radial-gradient(circle_farthest-side_at_100%_100%,#ffc414,transparent),radial-gradient(circle_farthest-side_at_0_0,#1ca0fb,#141316)]"
+          isDarkMode
+            ? "bg-[radial-gradient(circle_farthest-side_at_0_100%,#004d40,transparent),radial-gradient(circle_farthest-side_at_100%_0,#4a148c,transparent),radial-gradient(circle_farthest-side_at_100%_100%,#e65100,transparent),radial-gradient(circle_farthest-side_at_0_0,#01579b,#0a0f18)]"
+            : "bg-[radial-gradient(circle_farthest-side_at_0_100%,#e0f2f1,transparent),radial-gradient(circle_farthest-side_at_100%_0,#f3e5f5,transparent),radial-gradient(circle_farthest-side_at_100%_100%,#fff3e0,transparent),radial-gradient(circle_farthest-side_at_0_0,#e1f5fe,#ffffff)]"
         )}
       />
       <motion.div
@@ -107,7 +119,9 @@ export const WavyBackground: React.FC<WavyBackgroundProps> = ({
         }}
         className={cn(
           "absolute inset-0 z-[1]",
-          "bg-[radial-gradient(circle_farthest-side_at_0_100%,#00ccb1,transparent),radial-gradient(circle_farthest-side_at_100%_0,#7b61ff,transparent),radial-gradient(circle_farthest-side_at_100%_100%,#ffc414,transparent),radial-gradient(circle_farthest-side_at_0_0,#1ca0fb,#141316)]"
+          isDarkMode
+            ? "bg-[radial-gradient(circle_farthest-side_at_0_100%,#004d40,transparent),radial-gradient(circle_farthest-side_at_100%_0,#4a148c,transparent),radial-gradient(circle_farthest-side_at_100%_100%,#e65100,transparent),radial-gradient(circle_farthest-side_at_0_0,#01579b,#0a0f18)]"
+            : "bg-[radial-gradient(circle_farthest-side_at_0_100%,#e0f2f1,transparent),radial-gradient(circle_farthest-side_at_100%_0,#f3e5f5,transparent),radial-gradient(circle_farthest-side_at_100%_100%,#fff3e0,transparent),radial-gradient(circle_farthest-side_at_0_0,#e1f5fe,#ffffff)]"
         )}
       />
       {waveColors.map((color, index) => (
@@ -116,7 +130,7 @@ export const WavyBackground: React.FC<WavyBackgroundProps> = ({
           className="absolute inset-0 z-0"
           style={{
             backgroundColor: color,
-            opacity: waveOpacity * 0.2,
+            opacity: isDarkMode ? waveOpacity * 0.3 : waveOpacity * 0.2,
           }}
           animate={{
             y: ["0%", "100%", "0%"],
@@ -133,7 +147,7 @@ export const WavyBackground: React.FC<WavyBackgroundProps> = ({
         className="absolute inset-0 z-10"
         style={{ backgroundColor: fillColor }}
         initial={{ opacity: 0 }}
-        animate={{ opacity: waveOpacity }}
+        animate={{ opacity: isDarkMode ? waveOpacity * 0.8 : waveOpacity * 0.5 }}
         transition={{ duration: 1 }}
       />
       <motion.div
