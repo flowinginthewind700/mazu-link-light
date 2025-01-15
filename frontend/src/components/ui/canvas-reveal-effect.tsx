@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
-import { motion } from "framer-motion";
 import { cn } from "@/components/lib/utils";
 
 interface CanvasRevealEffectProps {
@@ -20,7 +19,7 @@ export const CanvasRevealEffect: React.FC<CanvasRevealEffectProps> = ({
   showGradient = true,
 }) => {
   return (
-    <MotionDotMatrix
+    <DotMatrix
       colors={colors}
       dotSize={dotSize}
       opacities={opacities}
@@ -30,7 +29,7 @@ export const CanvasRevealEffect: React.FC<CanvasRevealEffectProps> = ({
   );
 };
 
-interface MotionDotMatrixProps {
+interface DotMatrixProps {
   colors: number[][];
   dotSize: number;
   opacities: number[];
@@ -38,33 +37,29 @@ interface MotionDotMatrixProps {
   showGradient?: boolean;
 }
 
-const MotionDotMatrix: React.FC<MotionDotMatrixProps> = ({
+const DotMatrix: React.FC<DotMatrixProps> = ({
   colors,
   dotSize,
   opacities,
   containerClassName,
-  showGradient
+  showGradient,
 }) => {
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
     const updateDimensions = () => {
       setDimensions({
         width: window.innerWidth,
-        height: window.innerHeight
+        height: window.innerHeight,
       });
     };
 
     updateDimensions();
-    window.addEventListener('resize', updateDimensions);
+    window.addEventListener("resize", updateDimensions);
 
-    return () => window.removeEventListener('resize', updateDimensions);
+    return () => window.removeEventListener("resize", updateDimensions);
   }, []);
-
-  const handleMouseMove = (event: React.MouseEvent) => {
-    setMousePosition({ x: event.clientX, y: event.clientY });
-  };
 
   const dots = useMemo(() => {
     const dotsArray = [];
@@ -78,7 +73,7 @@ const MotionDotMatrix: React.FC<MotionDotMatrixProps> = ({
           x: x * totalSize,
           y: y * totalSize,
           color: colors[Math.floor(Math.random() * colors.length)],
-          opacity: opacities[Math.floor(Math.random() * opacities.length)]
+          opacity: opacities[Math.floor(Math.random() * opacities.length)],
         });
       }
     }
@@ -87,41 +82,30 @@ const MotionDotMatrix: React.FC<MotionDotMatrixProps> = ({
   }, [dimensions, colors, opacities]);
 
   return (
-    <div 
-      className={cn("h-full relative bg-white dark:bg-neutral-900 w-full", containerClassName)}
-      onMouseMove={handleMouseMove}
+    <div
+      className={cn(
+        "h-full relative bg-white dark:bg-neutral-900 w-full",
+        containerClassName
+      )}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
-      {dots.map((dot, index) => {
-        const distance = Math.sqrt(
-          Math.pow(dot.x - mousePosition.x, 2) + Math.pow(dot.y - mousePosition.y, 2)
-        );
-        const maxDistance = Math.sqrt(Math.pow(dimensions.width, 2) + Math.pow(dimensions.height, 2));
-        const intensityFactor = 1 - Math.min(distance / maxDistance, 1);
-
-        return (
-          <motion.div
-            key={index}
-            style={{
-              position: 'absolute',
-              left: dot.x,
-              top: dot.y,
-              width: dotSize,
-              height: dotSize,
-              borderRadius: '50%',
-              backgroundColor: `rgb(${dot.color[0]}, ${dot.color[1]}, ${dot.color[2]})`,
-              opacity: dot.opacity * intensityFactor
-            }}
-            animate={{
-              scale: [1, 1 + 0.2 * intensityFactor, 1]
-            }}
-            transition={{
-              duration: 1 + Math.random(),
-              repeat: Infinity,
-              repeatType: 'reverse'
-            }}
-          />
-        );
-      })}
+      {dots.map((dot, index) => (
+        <div
+          key={index}
+          style={{
+            position: "absolute",
+            left: dot.x,
+            top: dot.y,
+            width: dotSize,
+            height: dotSize,
+            borderRadius: "50%",
+            backgroundColor: `rgb(${dot.color[0]}, ${dot.color[1]}, ${dot.color[2]})`,
+            opacity: isHovered ? dot.opacity : 0, // 鼠标悬停时显示，离开时隐藏
+            transition: "opacity 0.1s ease", // 添加平滑过渡效果
+          }}
+        />
+      ))}
       {showGradient && (
         <div className="absolute inset-0 bg-gradient-to-t from-gray-950 to-[84%] dark:from-gray-900 dark:to-[84%]" />
       )}
