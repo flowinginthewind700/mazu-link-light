@@ -29,7 +29,7 @@ export const ToolCard: React.FC<ToolCardProps> = ({ tool, apiUrl, loading }) => 
       >
         <div className="flex items-center gap-4">
           <div className="relative space-y-5 overflow-hidden rounded-2xl bg-white/5 p-4 shadow-xl shadow-black/5 before:absolute before:inset-0 before:-translate-x-full before:-skew-x-12 before:animate-[shimmer_2s_infinite] before:border-t before:border-white/10 before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent">
-            <div className="h-12 w-12 rounded-lg bg-white/5"></div>
+            <div className="h-16 w-16 rounded-lg bg-white/5"></div>
           </div>
           <div className="flex-1 space-y-3">
             <div className="h-4 w-3/5 rounded-lg bg-white/5"></div>
@@ -49,21 +49,25 @@ export const ToolCard: React.FC<ToolCardProps> = ({ tool, apiUrl, loading }) => 
     >
       <Link href={`/agitool/${tool.id}`} passHref>
         <div className="flex items-center gap-4 cursor-pointer">
-          <motion.div whileHover={{ rotate: 360 }} transition={{ duration: 0.5 }}>
+          <motion.div 
+            whileHover={{ rotate: 360 }} 
+            transition={{ duration: 0.5 }}
+            className="relative w-16 h-16 rounded-lg overflow-hidden shadow-md"
+          >
             <Image
               src={`${apiUrl}${tool.iconimage.formats?.thumbnail?.url || tool.iconimage.url}`}
               alt={tool.name}
-              width={48}
-              height={48}
-              className="rounded-lg"
+              layout="fill"
+              objectFit="cover"
+              className="rounded-lg transition-transform duration-300 group-hover:scale-110"
               loading="lazy"
             />
           </motion.div>
-          <div>
-            <h3 className="font-medium text-foreground group-hover:text-gray-900 dark:group-hover:text-gray-100">
+          <div className="flex-1 min-w-0">
+            <h3 className="font-medium text-foreground group-hover:text-gray-900 dark:group-hover:text-gray-100 truncate">
               {tool.name}
             </h3>
-            <p className="text-sm text-muted-foreground group-hover:text-gray-700 dark:group-hover:text-gray-300">
+            <p className="text-sm text-muted-foreground group-hover:text-gray-700 dark:group-hover:text-gray-300 line-clamp-2">
               {tool.Description}
             </p>
           </div>
