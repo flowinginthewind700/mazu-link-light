@@ -89,7 +89,7 @@ export default function AIImagePage() {
               img {
                 url
               }
-              negativePrompt
+              negativeprompt
             }
             t2IexamplesConnection {
               aggregate {
@@ -116,7 +116,7 @@ export default function AIImagePage() {
               img {
                 url
               }
-              negativePrompt
+              negativeprompt
             }
             t2IexamplesConnection(where: { imagecategory: { id: $category } }) {
               aggregate {
@@ -137,7 +137,7 @@ export default function AIImagePage() {
         id: example.id,
         prompt: example.prompt,
         url: `${apiUrl}${example.img[0].url}`,
-        negativePrompt: example.negativePrompt
+        negativePrompt: example.negativeprompt
       }));
       setExampleData(fetchedData);
       const totalCount = response.data.data.t2IexamplesConnection.aggregate.count;
