@@ -309,7 +309,7 @@ const LazyLoadImageCard = React.memo(({ image }: { image: ImageData }) => {
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    const img = new Image();
+    const img = document.createElement('img') as HTMLImageElement;
     img.src = image.url;
     img.onload = () => setIsLoaded(true);
   }, [image.url]);
@@ -321,6 +321,7 @@ const LazyLoadImageCard = React.memo(({ image }: { image: ImageData }) => {
     </motion.div>
   );
 });
+
 
 const Pagination = React.memo(({ pageNumbersToShow, currentPage, onPageChange }: {
   pageNumbersToShow: (number | string)[];
