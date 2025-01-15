@@ -9,8 +9,7 @@ import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import * as Dialog from '@radix-ui/react-dialog';
-import { X, Facebook, Twitter, Linkedin, Share2 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { X, Facebook, Twitter, Linkedin, Share2, ArrowLeft } from 'lucide-react';
 
 // Sub-components
 import { BilibiliEmbed, YouTubeEmbed, VideoEmbed } from './EmbedComponents';
@@ -78,7 +77,7 @@ const ImageZoomDialog: React.FC<{ isOpen: boolean; onClose: () => void; imageUrl
                 src={imageUrl}
                 alt="Zoomed image"
                 className="w-full h-full object-contain rounded-lg shadow-xl"
-                loading="lazy" // 添加懒加载
+                loading="lazy"
               />
             </TransformComponent>
           </TransformWrapper>
@@ -118,7 +117,7 @@ const PostDetail: React.FC<{ postId: string }> = ({ postId }) => {
   }, [postId, apiUrl]);
 
   if (!post) {
-    return <div>Loading...</div>;
+    return <div className="flex items-center justify-center h-screen">Loading...</div>;
   }
 
   const handleImageClick = (imageUrl: string) => {
@@ -155,73 +154,65 @@ const PostDetail: React.FC<{ postId: string }> = ({ postId }) => {
     img: ({ node, ...props }: any) => (
       <img
         {...props}
-        className="cursor-zoom-in"
+        className="cursor-zoom-in rounded-lg shadow-md my-4"
         onClick={() => handleImageClick(props.src)}
-        loading="lazy" // 添加懒加载
+        loading="lazy"
       />
     ),
   };
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 md:px-8 lg:px-10">
-      <div className="max-w-5xl mx-auto">
+    <div className="bg-background text-foreground min-h-screen">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <button
           onClick={() => router.back()}
-          className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 mr-2 flex items-center button-uniform mb-4"
+          className="mb-6 flex items-center text-primary hover:underline"
         >
-          Back
+          <ArrowLeft className="mr-2" size={20} /> Back
         </button>
 
         {post.cover && post.cover.length > 0 && (
-          <div className="mb-8 overflow-hidden rounded-lg aspect-video relative">
+          <div className="mb-8 rounded-lg overflow-hidden shadow-lg">
             <Image
               src={`${apiUrl}${post.cover[0].url}`}
               alt={post.title}
-              fill
-              className="object-cover cursor-zoom-in"
+              width={1200}
+              height={630}
+              className="w-full h-auto object-cover cursor-zoom-in"
               onClick={() => handleImageClick(`${apiUrl}${post.cover[0].url}`)}
-              loading="lazy" // 添加懒加载
+              loading="lazy"
             />
           </div>
         )}
 
-        <Card className="mb-8 dark:bg-gray-800 dark:border-gray-700">
-          <CardHeader>
-            <CardTitle className="text-3xl dark:text-white">{post.title}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-lg font-semibold text-gray-800 mb-2 dark:text-gray-200">Summary:</p>
-            <p className="text-gray-700 break-words leading-6 dark:text-gray-300">{post.description}</p>
-          </CardContent>
-        </Card>
+        <h1 className="text-3xl sm:text-4xl font-bold mb-4">{post.title}</h1>
 
-        {/* Social Share Buttons */}
-        <div className="flex gap-4 mb-6">
-          <button onClick={() => handleShare('facebook')} className="p-2 rounded-full bg-[#1877f2] text-white hover:bg-[#1877f2]/90">
-            <Facebook className="w-5 h-5" />
-          </button>
-          <button onClick={() => handleShare('twitter')} className="p-2 rounded-full bg-[#1da1f2] text-white hover:bg-[#1da1f2]/90">
-            <Twitter className="w-5 h-5" />
-          </button>
-          <button onClick={() => handleShare('linkedin')} className="p-2 rounded-full bg-[#0a66c2] text-white hover:bg-[#0a66c2]/90">
-            <Linkedin className="w-5 h-5" />
-          </button>
-          <button onClick={() => handleShare('copy')} className="p-2 rounded-full bg-[#ff4500] text-white hover:bg-[#ff4500]/90">
-            <Share2 className="w-5 h-5" />
-          </button>
+        <div className="mb-6 text-lg text-muted-foreground">{post.description}</div>
+
+        <div className="flex flex-wrap gap-4 mb-8">
+          {['facebook', 'twitter', 'linkedin', 'copy'].map((platform) => (
+            <button
+              key={platform}
+              onClick={() => handleShare(platform)}
+              className="p-2 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+            >
+              {platform === 'facebook' && <Facebook size={20} />}
+              {platform === 'twitter' && <Twitter size={20} />}
+              {platform === 'linkedin' && <Linkedin size={20} />}
+              {platform === 'copy' && <Share2 size={20} />}
+            </button>
+          ))}
         </div>
 
-        <Card className="dark:bg-gray-800 dark:border-gray-700">
-          <CardContent className="prose dark:prose-invert max-w-none p-4">
-            <ReactMarkdown
-              rehypePlugins={[rehypeRaw]}
-              remarkPlugins={[remarkGfm]}
-              components={components}
-            >
-              {post.content}
-            </ReactMarkdown>
-          </CardContent>
-        </Card>
+        <div className="prose dark:prose-invert max-w-none">
+          <ReactMarkdown
+            rehypePlugins={[rehypeRaw]}
+            remarkPlugins={[remarkGfm]}
+            components={components}
+          >
+            {post.content}
+          </ReactMarkdown>
+        </div>
 
         <AuthorInfo author={post.author} createdAt={post.created_at} />
 
