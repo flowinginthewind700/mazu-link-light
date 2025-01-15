@@ -115,29 +115,38 @@ export const FeaturedSection: React.FC<FeaturedSectionProps> = ({
     }
   }, []);
 
+  const updateContentHeight = useCallback(() => {
+    if (scrollAreaRef.current) {
+      const contentElement = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
+      if (contentElement) {
+        const items = contentElement.querySelectorAll('.featured-tool-card');
+        if (items.length === 0) return;
+
+        const itemHeight = items[0].getBoundingClientRect().height;
+        const gap = 16; // 假设间隔是 16px，根据实际情况调整
+
+        let columns = 2; // 默认为移动端的 2 列
+        if (window.innerWidth >= 640) columns = 3; // sm 断点
+        if (window.innerWidth >= 768) columns = 4; // md 断点
+
+        const rows = Math.ceil(items.length / columns);
+        const calculatedHeight = rows * (itemHeight + gap) - gap;
+        const maxHeight = window.innerHeight * 0.6;
+
+        setContentHeight(Math.min(calculatedHeight, maxHeight));
+      }
+    }
+  }, []);
+
   useEffect(() => {
     fetchCategoriesAndTools();
   }, [fetchCategoriesAndTools]);
 
   useEffect(() => {
-    const updateContentHeight = () => {
-      if (scrollAreaRef.current) {
-        const contentElement = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
-        if (contentElement) {
-          const contentHeight = contentElement.scrollHeight;
-          const maxHeight = Math.min(contentHeight, window.innerHeight * 0.6);
-          setContentHeight(maxHeight);
-        }
-      }
-    };
-
-    // 初始更新
     updateContentHeight();
 
-    // 监听窗口大小变化
     window.addEventListener('resize', updateContentHeight);
 
-    // 在内容变化时更新（比如切换分类）
     const observer = new MutationObserver(updateContentHeight);
     if (scrollAreaRef.current) {
       observer.observe(scrollAreaRef.current, { childList: true, subtree: true });
@@ -147,7 +156,7 @@ export const FeaturedSection: React.FC<FeaturedSectionProps> = ({
       window.removeEventListener('resize', updateContentHeight);
       observer.disconnect();
     };
-  }, [selectedFeatureTab]);
+  }, [selectedFeatureTab, updateContentHeight]);
 
   const renderSkeleton = () => {
     return (
@@ -214,7 +223,7 @@ export const FeaturedSection: React.FC<FeaturedSectionProps> = ({
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4 p-2">
                 {featuredTools[selectedFeatureTab]?.map((item) => (
-                  <FeaturedToolCard key={item.id} tool={item} />
+                  <FeaturedToolCard key={item.id} tool={item} className="featured-tool-card" />
                 ))}
               </div>
             )}
@@ -224,3 +233,5 @@ export const FeaturedSection: React.FC<FeaturedSectionProps> = ({
     </WavyBackground>
   );
 };
+
+export default FeaturedSection;
