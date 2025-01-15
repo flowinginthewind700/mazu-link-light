@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 import { cn } from '@/lib/utils';
 import { BottomNavbar } from '@/components/bottom-navbar';
@@ -9,7 +9,7 @@ import { AIImageCard } from '@/components/ai-image-card';
 import dynamic from 'next/dynamic';
 import { Navigation } from '@/components/navigation';
 import Image from 'next/image';
-import throttle from 'lodash/throttle';
+import debounce from 'lodash/debounce';
 
 const PageViewTracker = dynamic(() => import('@/components/ga/PageViewTracker'), { ssr: false });
 
@@ -17,20 +17,18 @@ const apiUrl = process.env.NEXT_PUBLIC_CMS_API_BASE_URL || '';
 const IMAGES_PER_PAGE = 12;
 
 const container = {
-  hidden: { opacity: 1, scale: 0 },
-  visible: {
+  hidden: { opacity: 0 },
+  show: {
     opacity: 1,
-    scale: 1,
     transition: {
-      delayChildren: 0.3,
-      staggerChildren: 0.2,
-    },
-  },
+      staggerChildren: 0.1
+    }
+  }
 };
 
 const item = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1 },
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0 }
 };
 
 interface Category {
@@ -217,12 +215,7 @@ export default function AIImagePage() {
               />
             </aside>
 
-            <motion.main
-              className="flex-1"
-              variants={container}
-              initial="hidden"
-              animate="visible"
-            >
+            <main className="flex-1">
               <ImageGrid
                 loading={loading}
                 exampleData={exampleData}
@@ -233,7 +226,7 @@ export default function AIImagePage() {
                 currentPage={currentPage}
                 onPageChange={handlePageChange}
               />
-            </motion.main>
+            </main>
           </div>
         </div>
       </div>
@@ -270,15 +263,22 @@ const ImageGrid = React.memo(({ loading, exampleData }: {
   loading: boolean;
   exampleData: ImageData[];
 }) => (
-  <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-    {loading
-      ? Array.from({ length: IMAGES_PER_PAGE }).map((_, index) => (
-          <ImagePlaceholder key={index} />
-        ))
-      : exampleData.map((image) => (
-          <LazyLoadImageCard key={image.id} image={image} />
-        ))}
-  </div>
+  <motion.div
+    className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+    variants={container}
+    initial="hidden"
+    animate="show"
+  >
+    <AnimatePresence>
+      {loading
+        ? Array.from({ length: IMAGES_PER_PAGE }).map((_, index) => (
+            <ImagePlaceholder key={index} />
+          ))
+        : exampleData.map((image) => (
+            <LazyLoadImageCard key={image.id} image={image} />
+          ))}
+    </AnimatePresence>
+  </motion.div>
 ));
 
 const ImagePlaceholder = () => (
@@ -303,33 +303,21 @@ const ImagePlaceholder = () => (
 
 const LazyLoadImageCard = React.memo(({ image }: { image: ImageData }) => {
   const [isLoaded, setIsLoaded] = useState(false);
-  const imageRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsLoaded(true);
-          observer.unobserve(entry.target);
-        }
-      },
-      { rootMargin: '200px' }
-    );
-
-    if (imageRef.current) {
-      observer.observe(imageRef.current);
-    }
-
-    return () => {
-      if (imageRef.current) {
-        observer.unobserve(imageRef.current);
-      }
-    };
-  }, []);
 
   return (
-    <motion.div ref={imageRef} variants={item} className="w-full">
-      {isLoaded ? <AIImageCard image={image} /> : <ImagePlaceholder />}
+    <motion.div variants={item} className="w-full">
+      {!isLoaded && <ImagePlaceholder />}
+      <div style={{ display: isLoaded ? 'block' : 'none' }}>
+        <AIImageCard image={image} />
+      </div>
+      <Image
+        src={image.url}
+        alt={image.prompt}
+        width={400}
+        height={400}
+        onLoad={() => setIsLoaded(true)}
+        style={{ display: 'none' }}
+      />
     </motion.div>
   );
 });
@@ -339,12 +327,7 @@ const Pagination = React.memo(({ pageNumbersToShow, currentPage, onPageChange }:
   currentPage: number;
   onPageChange: (page: number) => void;
 }) => {
-  const throttledOnPageChange = useCallback(
-    throttle((page: number) => {
-      onPageChange(page);
-    }, 300),
-    [onPageChange]
-  );
+  const debouncedOnPageChange = debounce(onPageChange, 300);
 
   return (
     <div className="mt-8 flex justify-center items-center gap-2">
@@ -356,7 +339,7 @@ const Pagination = React.memo(({ pageNumbersToShow, currentPage, onPageChange }:
         ) : (
           <motion.button
             key={page}
-            onClick={() => throttledOnPageChange(page)}
+            onClick={() => debouncedOnPageChange(page)}
             className={cn(
               'w-8 h-8 flex items-center justify-center rounded-md text-sm',
               currentPage === page
