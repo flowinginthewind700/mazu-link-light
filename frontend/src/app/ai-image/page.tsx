@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 import { cn } from '@/lib/utils';
@@ -9,12 +9,15 @@ import { AIImageCard } from '@/components/ai-image-card';
 import dynamic from 'next/dynamic';
 import { Navigation } from '@/components/navigation';
 import Image from 'next/image';
+import { useInView } from 'react-intersection-observer';
 
+// 动态导入 PageViewTracker 组件以减少初始加载时间
 const PageViewTracker = dynamic(() => import('@/components/ga/PageViewTracker'), { ssr: false });
 
 const apiUrl = process.env.NEXT_PUBLIC_CMS_API_BASE_URL || '';
 const IMAGES_PER_PAGE = 12;
 
+// 动画配置
 const container = {
   hidden: { opacity: 1, scale: 0 },
   visible: {
@@ -35,6 +38,7 @@ const item = {
   },
 };
 
+// 类型定义
 interface Category {
   id: string;
   name: string;
@@ -46,23 +50,17 @@ interface ImageData {
   url: string;
 }
 
+// 主组件
 export default function AIImagePage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [exampleData, setExampleData] = useState<ImageData[]>([]);
-  const [loading, setLoading] = useState<boolean>(true); // 新增 loading 状态
+  const [loading, setLoading] = useState<boolean>(true);
 
-  useEffect(() => {
-    fetchCategories();
-  }, []);
-
-  useEffect(() => {
-    fetchExampleData();
-  }, [selectedCategory, currentPage]);
-
-  const fetchCategories = async () => {
+  // 使用 useCallback 优化函数，避免不必要的重新创建
+  const fetchCategories = useCallback(async () => {
     try {
       const query = `
         query {
@@ -78,10 +76,10 @@ export default function AIImagePage() {
     } catch (error) {
       console.error('Error fetching categories:', error);
     }
-  };
+  }, []);
 
-  const fetchExampleData = async () => {
-    setLoading(true); // 开始加载数据
+  const fetchExampleData = useCallback(async () => {
+    setLoading(true);
     try {
       let query: string;
       let variables: Record<string, any>;
@@ -150,21 +148,30 @@ export default function AIImagePage() {
       setExampleData([]);
       setTotalPages(0);
     } finally {
-      setLoading(false); // 数据加载完成
+      setLoading(false);
     }
-  };
+  }, [selectedCategory, currentPage]);
 
-  const handleCategorySelect = (categoryId: string) => {
+  useEffect(() => {
+    fetchCategories();
+  }, [fetchCategories]);
+
+  useEffect(() => {
+    fetchExampleData();
+  }, [fetchExampleData]);
+
+  const handleCategorySelect = useCallback((categoryId: string) => {
     setSelectedCategory(categoryId);
     setCurrentPage(1);
-  };
+  }, []);
 
-  const handlePageChange = (page: number) => {
+  const handlePageChange = useCallback((page: number) => {
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  }, []);
 
-  const getPageRange = () => {
+  // 使用 useMemo 优化分页计算
+  const getPageRange = useCallback(() => {
     const range = [];
 
     if (totalPages <= 9) {
@@ -194,9 +201,9 @@ export default function AIImagePage() {
     }
 
     return range;
-  };
+  }, [totalPages, currentPage]);
 
-  const pageNumbersToShow = getPageRange();
+  const pageNumbersToShow = useMemo(() => getPageRange(), [getPageRange]);
 
   return (
     <>
@@ -212,24 +219,11 @@ export default function AIImagePage() {
         <div className="container mx-auto px-4 py-8">
           <div className="lg:flex lg:gap-8">
             <aside className="mb-6 lg:w-48 lg:flex-shrink-0">
-              <div className="flex flex-wrap gap-2 lg:flex-col">
-                {categories.map((category) => (
-                  <motion.button
-                    key={category.id}
-                    onClick={() => handleCategorySelect(category.id)}
-                    className={cn(
-                      'rounded-full px-4 py-2 text-sm font-medium transition-colors',
-                      selectedCategory === category.id
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-muted text-muted-foreground hover:bg-muted/80'
-                    )}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    {category.name}
-                  </motion.button>
-                ))}
-              </div>
+              <CategoryList
+                categories={categories}
+                selectedCategory={selectedCategory}
+                onCategorySelect={handleCategorySelect}
+              />
             </aside>
 
             <motion.main
@@ -238,58 +232,16 @@ export default function AIImagePage() {
               initial="hidden"
               animate="visible"
             >
-              <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {loading
-                  ? Array.from({ length: IMAGES_PER_PAGE }).map((_, index) => (
-                      <motion.div key={index} variants={item} className="w-full">
-                        <div className="relative space-y-5 overflow-hidden rounded-2xl bg-white/5 p-4 shadow-xl shadow-black/5 before:absolute before:inset-0 before:-translate-x-full before:-skew-x-12 before:animate-[shimmer_2s_infinite] before:border-t before:border-white/10 before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent">
-                          <div className="h-48 w-full rounded-lg bg-white/5">
-                            <Image
-                              src="/placeholder.svg"
-                              alt="Loading..."
-                              width={400}
-                              height={400}
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                          <div className="space-y-3">
-                            <div className="h-4 w-3/5 rounded-lg bg-white/5"></div>
-                            <div className="h-3 w-4/5 rounded-lg bg-white/10"></div>
-                          </div>
-                        </div>
-                      </motion.div>
-                    ))
-                  : exampleData.map((image) => (
-                      <motion.div key={image.id} variants={item} className="w-full">
-                        <AIImageCard image={image} />
-                      </motion.div>
-                    ))}
-              </div>
+              <ImageGrid
+                loading={loading}
+                exampleData={exampleData}
+              />
 
-              <div className="mt-8 flex justify-center items-center gap-2">
-                {pageNumbersToShow.map((page) =>
-                  typeof page === 'string' ? (
-                    <span key={page} className="w-8 h-8 flex items-center justify-center">
-                      ...
-                    </span>
-                  ) : (
-                    <motion.button
-                      key={page}
-                      onClick={() => handlePageChange(page)}
-                      className={cn(
-                        'w-8 h-8 flex items-center justify-center rounded-md text-sm',
-                        currentPage === page
-                          ? 'bg-primary text-primary-foreground font-bold'
-                          : 'bg-muted hover:bg-muted/80'
-                      )}
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                    >
-                      {page}
-                    </motion.button>
-                  )
-                )}
-              </div>
+              <Pagination
+                pageNumbersToShow={pageNumbersToShow}
+                currentPage={currentPage}
+                onPageChange={handlePageChange}
+              />
             </motion.main>
           </div>
         </div>
@@ -297,3 +249,121 @@ export default function AIImagePage() {
     </>
   );
 }
+
+// 分类列表组件
+const CategoryList = React.memo(({ categories, selectedCategory, onCategorySelect }: {
+  categories: Category[];
+  selectedCategory: string;
+  onCategorySelect: (categoryId: string) => void;
+}) => (
+  <div className="flex flex-wrap gap-2 lg:flex-col">
+    {categories.map((category) => (
+      <motion.button
+        key={category.id}
+        onClick={() => onCategorySelect(category.id)}
+        className={cn(
+          'rounded-full px-4 py-2 text-sm font-medium transition-colors',
+          selectedCategory === category.id
+            ? 'bg-primary text-primary-foreground'
+            : 'bg-muted text-muted-foreground hover:bg-muted/80'
+        )}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+      >
+        {category.name}
+      </motion.button>
+    ))}
+  </div>
+));
+
+// 图片网格组件
+const ImageGrid = React.memo(({ loading, exampleData }: {
+  loading: boolean;
+  exampleData: ImageData[];
+}) => (
+  <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+    {loading
+      ? Array.from({ length: IMAGES_PER_PAGE }).map((_, index) => (
+          <ImagePlaceholder key={index} />
+        ))
+      : exampleData.map((image) => (
+          <LazyLoadImageCard key={image.id} image={image} />
+        ))}
+  </div>
+));
+
+// 图片占位符组件
+const ImagePlaceholder = () => (
+  <motion.div variants={item} className="w-full">
+    <div className="relative space-y-5 overflow-hidden rounded-2xl bg-white/5 p-4 shadow-xl shadow-black/5 before:absolute before:inset-0 before:-translate-x-full before:-skew-x-12 before:animate-[shimmer_2s_infinite] before:border-t before:border-white/10 before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent">
+      <div className="h-48 w-full rounded-lg bg-white/5">
+        <Image
+          src="/placeholder.svg"
+          alt="Loading..."
+          width={400}
+          height={400}
+          className="w-full h-full object-cover"
+        />
+      </div>
+      <div className="space-y-3">
+        <div className="h-4 w-3/5 rounded-lg bg-white/5"></div>
+        <div className="h-3 w-4/5 rounded-lg bg-white/10"></div>
+      </div>
+    </div>
+  </motion.div>
+);
+
+// 懒加载图片卡片组件
+const LazyLoadImageCard = ({ image }: { image: ImageData }) => {
+  const { ref, inView } = useInView({
+    triggerOnce: true,
+    rootMargin: '200px 0px',
+  });
+
+  return (
+    <motion.div ref={ref} variants={item} className="w-full">
+      {inView ? (
+        <AIImageCard image={image} />
+      ) : (
+        <ImagePlaceholder />
+      )}
+    </motion.div>
+  );
+};
+
+// 分页组件
+const Pagination = React.memo(({ pageNumbersToShow, currentPage, onPageChange }: {
+  pageNumbersToShow: (number | string)[];
+  currentPage: number;
+  onPageChange: (page: number) => void;
+}) => (
+  <div className="mt-8 flex justify-center items-center gap-2">
+    {pageNumbersToShow.map((page, index) =>
+      typeof page === 'string' ? (
+        <span key={`ellipsis-${index}`} className="w-8 h-8 flex items-center justify-center">
+          ...
+        </span>
+      ) : (
+        <motion.button
+          key={page}
+          onClick={() => onPageChange(page)}
+          className={cn(
+            'w-8 h-8 flex items-center justify-center rounded-md text-sm',
+            currentPage === page
+              ? 'bg-primary text-primary-foreground font-bold'
+              : 'bg-muted hover:bg-muted/80'
+          )}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+        >
+          {page}
+        </motion.button>
+      )
+    )}
+  </div>
+));
+
+// 确保所有组件都使用 React.memo 来避免不必要的重渲染
+CategoryList.displayName = 'CategoryList';
+ImageGrid.displayName = 'ImageGrid';
+Pagination.displayName = 'Pagination';
