@@ -5,13 +5,13 @@ import Head from 'next/head';
 import Script from 'next/script';
 import axios from 'axios';
 import { Category, Tool } from './types';
-import HeroSearch from './HeroSearch'; // 直接导入 HeroSearch
-import FeaturedSection from './FeaturedSection'; // 直接导入 FeaturedSection
-import ToolCard from './ToolCard'; // 直接导入 ToolCard
-import AnimatedSectionTitle from '@/components/animated-section-title'; // 直接导入 AnimatedSectionTitle
-import BottomNavbar from '@/components/bottom-navbar'; // 直接导入 BottomNavbar
-import Navigation from '@/components/navigation'; // 直接导入 Navigation
-import WavyBackground from '@/components/ui/wavy-background'; // 直接导入 WavyBackground
+import {HeroSearch} from './HeroSearch'; // 直接导入 HeroSearch
+import {FeaturedSection} from './FeaturedSection'; // 直接导入 FeaturedSection
+import {ToolCard} from './ToolCard'; // 直接导入 ToolCard
+import {AnimatedSectionTitle} from '@/components/animated-section-title'; // 直接导入 AnimatedSectionTitle
+import {BottomNavbar} from '@/components/bottom-navbar'; // 直接导入 BottomNavbar
+import {Navigation} from '@/components/navigation'; // 直接导入 Navigation
+import {WavyBackground} from '@/components/ui/wavy-background'; // 直接导入 WavyBackground
 
 const apiUrl = process.env.NEXT_PUBLIC_CMS_API_BASE_URL;
 const TOOLS_PER_CATEGORY = 24;
