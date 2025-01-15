@@ -179,10 +179,10 @@ export const FeaturedSection: React.FC<FeaturedSectionProps> = ({
 
   return (
     <WavyBackground
-      height={sectionHeight} // 动态设置高度
-      className="rounded-lg overflow-hidden" // 添加圆角和溢出隐藏
-      backgroundFill="rgba(255, 255, 255, 0.5)" // 浅色模式背景
-      waveOpacity={0.3} // 波浪透明度
+      colors={['#38bdf8', '#818cf8', '#c084fc', '#e879f9', '#22d3ee']}
+      waveOpacity={0.5}
+      height="400px"
+      animate={true}
     >
       <Card className="p-4 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-lg overflow-hidden">
         <div className="flex flex-col sm:flex-row gap-4">
@@ -195,11 +195,10 @@ export const FeaturedSection: React.FC<FeaturedSectionProps> = ({
                 onClick={() => {
                   setSelectedFeatureTab(category.name);
                 }}
-                className={`h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0 transition-all duration-200 ${
-                  selectedFeatureTab === category.name
+                className={`h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0 transition-all duration-200 ${selectedFeatureTab === category.name
                     ? "bg-blue-100/50 dark:bg-blue-900/50 backdrop-blur-sm text-blue-600 dark:text-blue-300"
                     : "hover:bg-gray-100/50 dark:hover:bg-gray-700/50"
-                }`}
+                  }`}
               >
                 {category.icon && category.icon.url && (
                   <Image

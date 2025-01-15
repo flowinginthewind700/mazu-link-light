@@ -16,7 +16,7 @@ interface CardSpotlightProps {
 export const CardSpotlight: React.FC<CardSpotlightProps> = ({
   children,
   radius = 350,
-  color = "rgba(120, 120, 120, 0.1)", // 半透明颜色，兼容深色和浅色模式
+  color = "rgba(120, 120, 120, 0.1)",
   className,
   ...props
 }) => {
@@ -40,7 +40,7 @@ export const CardSpotlight: React.FC<CardSpotlightProps> = ({
   return (
     <div
       className={cn(
-        "group/spotlight relative rounded-lg border bg-background dark:bg-neutral-900 overflow-hidden", // 兼容深色和浅色模式
+        "group/spotlight relative rounded-lg border bg-background dark:bg-neutral-900 overflow-hidden",
         className
       )}
       onMouseMove={handleMouseMove}
@@ -66,18 +66,19 @@ export const CardSpotlight: React.FC<CardSpotlightProps> = ({
       {/* CanvasRevealEffect 动画 */}
       {isHovering && (
         <CanvasRevealEffect
-          animationSpeed={5}
           containerClassName="bg-transparent absolute inset-0 pointer-events-none"
           colors={[
             [59, 130, 246], // 蓝色
             [139, 92, 246], // 紫色
           ]}
           dotSize={3}
+          opacities={[0.1, 0.2, 0.3, 0.4]} // 调整透明度以适应卡片背景
+          showGradient={false} // 不显示渐变，以保持卡片背景
         />
       )}
 
       {/* 卡片内容 */}
-      <div className="relative z-10 p-4">{children}</div> {/* 缩小 padding */}
+      <div className="relative z-10 p-4">{children}</div>
     </div>
   );
 };
