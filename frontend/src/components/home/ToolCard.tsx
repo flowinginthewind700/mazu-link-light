@@ -14,7 +14,7 @@ interface ToolCardProps {
 export const ToolCard: React.FC<ToolCardProps> = ({ tool, apiUrl, loading }) => {
   const handleExternalClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    e.stopPropagation();
+    e.stopPropagation(); // 阻止事件冒泡，避免触发 Link 的导航
     window.open(tool.accessLink, '_blank', 'noopener,noreferrer');
   };
 
@@ -41,6 +41,7 @@ export const ToolCard: React.FC<ToolCardProps> = ({ tool, apiUrl, loading }) => 
   // 正常渲染工具卡片
   return (
     <div className="relative overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 hover:shadow-lg transition-shadow group">
+      {/* Link 包裹卡片的主体内容 */}
       <Link href={`/agitool/${tool.id}`} className="block">
         <div className="flex items-center gap-4">
           <Image
@@ -61,10 +62,11 @@ export const ToolCard: React.FC<ToolCardProps> = ({ tool, apiUrl, loading }) => 
           </div>
         </div>
       </Link>
+      {/* 右上角的直达链接按钮 */}
       {tool.accessLink && !tool.internalPath && (
         <TooltipProvider>
           <Tooltip>
-            <TooltipTrigger asChild>
+            <TooltipTrigger>
               <button
                 onClick={handleExternalClick}
                 className="absolute top-4 right-4 p-1 rounded-full bg-background/80 hover:bg-background transition-colors"
