@@ -17,18 +17,23 @@ const apiUrl = process.env.NEXT_PUBLIC_CMS_API_BASE_URL || '';
 const IMAGES_PER_PAGE = 12;
 
 const container = {
-  hidden: { opacity: 0 },
-  show: {
+  hidden: { opacity: 1, scale: 0 },
+  visible: {
     opacity: 1,
+    scale: 1,
     transition: {
-      staggerChildren: 0.1
-    }
-  }
+      delayChildren: 0.3,
+      staggerChildren: 0.2,
+    },
+  },
 };
 
 const item = {
-  hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0 }
+  hidden: { y: 20, opacity: 0 },
+  visible: {
+    y: 0,
+    opacity: 1,
+  },
 };
 
 interface Category {
@@ -61,7 +66,7 @@ export default function AIImagePage() {
           }
         }
       `;
-      const response = await axios.post(`${apiUrl}`, { query });
+      const response = await axios.post(`${apiUrl}/graphql`, { query });
       const fetchedCategories: Category[] = response.data.data.imagecategories;
       setCategories([{ id: 'all', name: 'All' }, ...fetchedCategories]);
     } catch (error) {
@@ -127,7 +132,7 @@ export default function AIImagePage() {
         };
       }
 
-      const response = await axios.post(`${apiUrl}`, { query, variables });
+      const response = await axios.post(`${apiUrl}/graphql`, { query, variables });
       const fetchedData: ImageData[] = response.data.data.t2Iexamples.map((example: any) => ({
         id: example.id,
         prompt: example.prompt,
@@ -219,7 +224,12 @@ export default function AIImagePage() {
               />
             </aside>
 
-            <main className="flex-1">
+            <motion.main
+              className="flex-1"
+              variants={container}
+              initial="hidden"
+              animate="visible"
+            >
               <ImageGrid
                 loading={loading}
                 exampleData={exampleData}
@@ -230,7 +240,7 @@ export default function AIImagePage() {
                 currentPage={currentPage}
                 onPageChange={handlePageChange}
               />
-            </main>
+            </motion.main>
           </div>
         </div>
       </div>
@@ -267,22 +277,19 @@ const ImageGrid = React.memo(({ loading, exampleData }: {
   loading: boolean;
   exampleData: ImageData[];
 }) => (
-  <motion.div
-    className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-    variants={container}
-    initial="hidden"
-    animate="show"
-  >
+  <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
     <AnimatePresence>
       {loading
         ? Array.from({ length: IMAGES_PER_PAGE }).map((_, index) => (
             <ImagePlaceholder key={index} />
           ))
         : exampleData.map((image) => (
-            <LazyLoadImageCard key={image.id} image={image} />
+            <motion.div key={image.id} variants={item} className="w-full">
+              <AIImageCard image={image} />
+            </motion.div>
           ))}
     </AnimatePresence>
-  </motion.div>
+  </div>
 ));
 
 const ImagePlaceholder = () => (
@@ -304,24 +311,6 @@ const ImagePlaceholder = () => (
     </div>
   </motion.div>
 );
-
-const LazyLoadImageCard = React.memo(({ image }: { image: ImageData }) => {
-  const [isLoaded, setIsLoaded] = useState(false);
-
-  useEffect(() => {
-    const img = document.createElement('img') as HTMLImageElement;
-    img.src = image.url;
-    img.onload = () => setIsLoaded(true);
-  }, [image.url]);
-
-  return (
-    <motion.div variants={item} className="w-full">
-      {!isLoaded && <ImagePlaceholder />}
-      {isLoaded && <AIImageCard image={image} />}
-    </motion.div>
-  );
-});
-
 
 const Pagination = React.memo(({ pageNumbersToShow, currentPage, onPageChange }: {
   pageNumbersToShow: (number | string)[];
@@ -361,4 +350,3 @@ const Pagination = React.memo(({ pageNumbersToShow, currentPage, onPageChange }:
 CategoryList.displayName = 'CategoryList';
 ImageGrid.displayName = 'ImageGrid';
 Pagination.displayName = 'Pagination';
-LazyLoadImageCard.displayName = 'LazyLoadImageCard';
