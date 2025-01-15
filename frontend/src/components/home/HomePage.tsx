@@ -15,6 +15,7 @@ import { WavyBackground } from '@/components/ui/wavy-background'; // 直接导�
 
 const apiUrl = process.env.NEXT_PUBLIC_CMS_API_BASE_URL;
 const TOOLS_PER_CATEGORY = 24;
+const CACHE_EXPIRY_TIME = 30 * 1000; // 30 秒
 
 export default function HomePage() {
   const [selectedTopTab, setSelectedTopTab] = useState('default');
@@ -28,14 +29,34 @@ export default function HomePage() {
 
   const sectionRefs = useRef<Record<string, React.RefObject<HTMLDivElement>>>({});
 
-  // 一次性获取所有分类及其工具数据
-  const fetchCategoriesAndTools = useCallback(async () => {
+  // 从 localStorage 加载缓存数据
+  const loadFromCache = () => {
     const cachedData = localStorage.getItem('categoriesAndTools');
     if (cachedData) {
-      const { categories, toolsByCategory } = JSON.parse(cachedData);
-      setCategories(categories);
-      setToolsByCategory(toolsByCategory);
-      setLoading(false);
+      const { data, timestamp } = JSON.parse(cachedData);
+      const now = Date.now();
+      if (now - timestamp < CACHE_EXPIRY_TIME) {
+        setCategories(data.categories);
+        setToolsByCategory(data.toolsByCategory);
+        setLoading(false);
+        return true; // 缓存有效
+      }
+    }
+    return false; // 缓存无效或不存在
+  };
+
+  // 保存数据到 localStorage
+  const saveToCache = (data: { categories: Category[]; toolsByCategory: Record<string, Tool[]> }) => {
+    localStorage.setItem(
+      'categoriesAndTools',
+      JSON.stringify({ data, timestamp: Date.now() })
+    );
+  };
+
+  // 一次性获取所有分类及其工具数据
+  const fetchCategoriesAndTools = useCallback(async () => {
+    // 先尝试从缓存加载
+    if (loadFromCache()) {
       return;
     }
 
@@ -62,16 +83,17 @@ export default function HomePage() {
       const response = await axios.post(`${apiUrl}/graphql`, { query });
       const categoriesWithTools = response.data.data.agitoolcategories;
 
-      setCategories(categoriesWithTools);
-
       const toolsByCategory = categoriesWithTools.reduce((acc: Record<string, Tool[]>, category: Category) => {
         acc[category.id] = category.agitools;
         return acc;
       }, {} as Record<string, Tool[]>);
 
+      // 更新状态
+      setCategories(categoriesWithTools);
       setToolsByCategory(toolsByCategory);
 
-      localStorage.setItem('categoriesAndTools', JSON.stringify({ categories: categoriesWithTools, toolsByCategory }));
+      // 保存到缓存
+      saveToCache({ categories: categoriesWithTools, toolsByCategory });
     } catch (error) {
       console.error('Error fetching categories and tools:', error);
     } finally {

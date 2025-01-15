@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -35,6 +35,7 @@ interface FeaturedSectionProps {
 }
 
 const apiUrl = process.env.NEXT_PUBLIC_CMS_API_BASE_URL;
+const CACHE_EXPIRY_TIME = 30 * 1000; // 30 秒
 
 export const FeaturedSection: React.FC<FeaturedSectionProps> = ({
   selectedFeatureTab,
@@ -46,16 +47,86 @@ export const FeaturedSection: React.FC<FeaturedSectionProps> = ({
   const [featuredTools, setFeaturedTools] = useState<Record<string, FeatureTool[]>>({});
   const [loading, setLoading] = useState<boolean>(true);
 
-  useEffect(() => {
-    fetchCategories();
+  // 从 localStorage 加载缓存数据
+  const loadFromCache = () => {
+    const cachedData = localStorage.getItem("featuredData");
+    if (cachedData) {
+      const { data, timestamp } = JSON.parse(cachedData);
+      const now = Date.now();
+      if (now - timestamp < CACHE_EXPIRY_TIME) {
+        setCategories(data.categories);
+        setFeaturedTools(data.featuredTools);
+        setLoading(false);
+        return true; // 缓存有效
+      }
+    }
+    return false; // 缓存无效或不存在
+  };
+
+  // 保存数据到 localStorage
+  const saveToCache = (data: { categories: FeaturedCategory[]; featuredTools: Record<string, FeatureTool[]> }) => {
+    localStorage.setItem(
+      "featuredData",
+      JSON.stringify({ data, timestamp: Date.now() })
+    );
+  };
+
+  // 一次性获取所有分类及其工具数据
+  const fetchCategoriesAndTools = useCallback(async () => {
+    // 先尝试从缓存加载
+    if (loadFromCache()) {
+      return;
+    }
+
+    try {
+      const query = `
+        query {
+          agifeaturetoolcategories {
+            id
+            name
+            priority
+            icon {
+              url
+            }
+            agifeaturecards {
+              id
+              title
+              description
+              linkType
+              link
+              image {
+                url
+              }
+            }
+          }
+        }
+      `;
+      const response = await axios.post(`${apiUrl}/graphql`, { query });
+      const fetchedCategories = response.data.data.agifeaturetoolcategories;
+
+      const featuredTools = fetchedCategories.reduce((acc: Record<string, FeatureTool[]>, category: FeaturedCategory & { agifeaturecards: FeatureTool[] }) => {
+        acc[category.name] = category.agifeaturecards;
+        return acc;
+      }, {} as Record<string, FeatureTool[]>);
+
+      // 更新状态
+      setCategories(fetchedCategories);
+      setFeaturedTools(featuredTools);
+
+      // 保存到缓存
+      saveToCache({ categories: fetchedCategories, featuredTools });
+    } catch (error) {
+      console.error("Error fetching featured categories and tools:", error);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
-    if (categories.length > 0) {
-      fetchFeaturedTools(categories[0].name);
-    }
-  }, [categories]);
+    fetchCategoriesAndTools();
+  }, [fetchCategoriesAndTools]);
 
+  // 动态调整高度
   useEffect(() => {
     const updateHeight = () => {
       if (gridRef.current) {
@@ -85,66 +156,7 @@ export const FeaturedSection: React.FC<FeaturedSectionProps> = ({
     window.addEventListener("resize", updateHeight);
 
     return () => window.removeEventListener("resize", updateHeight);
-  }, [selectedFeatureTab, featuredTools, loading]); // 依赖 featuredTools 和 loading，内容加载完成后更新高度
-
-  const fetchCategories = async () => {
-    try {
-      const query = `
-        query {
-          agifeaturetoolcategories {
-            id
-            name
-            priority
-            icon {
-              url
-            }
-          }
-        }
-      `;
-      const response = await axios.post(`${apiUrl}/graphql`, { query });
-      const fetchedCategories = response.data.data.agifeaturetoolcategories;
-      setCategories(fetchedCategories);
-      if (fetchedCategories.length > 0) {
-        setSelectedFeatureTab(fetchedCategories[0].name);
-      }
-    } catch (error) {
-      console.error("Error fetching featured categories:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchFeaturedTools = async (category: string) => {
-    setLoading(true);
-    try {
-      const query = `
-        query($category: String!) {
-          agifeaturecards(where: { agifeaturetoolcategory: { name: $category } }) {
-            id
-            title
-            description
-            linkType
-            link
-            image {
-              url
-            }
-          }
-        }
-      `;
-      const response = await axios.post(`${apiUrl}/graphql`, {
-        query,
-        variables: { category },
-      });
-      setFeaturedTools((prev) => ({
-        ...prev,
-        [category]: response.data.data.agifeaturecards,
-      }));
-    } catch (error) {
-      console.error("Error fetching featured tools:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [selectedFeatureTab, featuredTools, loading]);
 
   const renderSkeleton = () => {
     return (
@@ -182,9 +194,6 @@ export const FeaturedSection: React.FC<FeaturedSectionProps> = ({
                 size="icon"
                 onClick={() => {
                   setSelectedFeatureTab(category.name);
-                  if (!featuredTools[category.name]) {
-                    fetchFeaturedTools(category.name);
-                  }
                 }}
                 className={`h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0 transition-all duration-200 ${
                   selectedFeatureTab === category.name
