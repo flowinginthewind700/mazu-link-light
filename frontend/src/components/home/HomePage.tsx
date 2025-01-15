@@ -5,13 +5,13 @@ import Head from 'next/head';
 import Script from 'next/script';
 import axios from 'axios';
 import { Category, Tool } from './types';
-import { HeroSearch } from './HeroSearch'; // 直接导入 HeroSearch
-import { FeaturedSection } from './FeaturedSection'; // 直接导入 FeaturedSection
-import { ToolCard } from './ToolCard'; // 直接导入 ToolCard
-import { AnimatedSectionTitle } from '@/components/animated-section-title'; // 直接导入 AnimatedSectionTitle
-import { BottomNavbar } from '@/components/bottom-navbar'; // 直接导入 BottomNavbar
-import { Navigation } from '@/components/navigation'; // 直接导入 Navigation
-import { WavyBackground } from '@/components/ui/wavy-background'; // 直接导入 WavyBackground
+import { HeroSearch } from './HeroSearch';
+import { FeaturedSection } from './FeaturedSection';
+import { ToolCard } from './ToolCard';
+import { AnimatedSectionTitle } from '@/components/animated-section-title';
+import { BottomNavbar } from '@/components/bottom-navbar';
+import { Navigation } from '@/components/navigation';
+import { WavyBackground } from '@/components/ui/wavy-background';
 
 const apiUrl = process.env.NEXT_PUBLIC_CMS_API_BASE_URL;
 const TOOLS_PER_CATEGORY = 24;
@@ -105,19 +105,13 @@ export default function HomePage() {
     fetchCategoriesAndTools();
   }, [fetchCategoriesAndTools]);
 
-  // 初始化 sectionRefs
+  // 更新 sectionRefs
   useEffect(() => {
-    if (categories.length > 0) {
-      sectionRefs.current = categories.reduce((acc, category) => {
-        acc[category.id] = React.createRef();
-        return acc;
-      }, {} as Record<string, React.RefObject<HTMLDivElement>>);
-    }
-  }, [categories]);
-
-  const handleCategorySelect = useCallback((categoryId: string) => {
-    scrollToSection(categoryId);
-  }, []);
+    sectionRefs.current = categories.reduce((acc, category) => {
+      acc[category.id] = React.createRef();
+      return acc;
+    }, {} as Record<string, React.RefObject<HTMLDivElement>>);
+  }, [categories, toolsByCategory]);
 
   const scrollToSection = useCallback((sectionId: string) => {
     const sectionRef = sectionRefs.current[sectionId]?.current;
@@ -130,6 +124,10 @@ export default function HomePage() {
       setTimeout(() => setAnimatingSection(''), 1000);
     }
   }, []);
+
+  const handleCategorySelect = useCallback((categoryId: string) => {
+    scrollToSection(categoryId);
+  }, [scrollToSection]);
 
   return (
     <>
@@ -166,13 +164,15 @@ export default function HomePage() {
             <aside className="hidden lg:block w-48 space-y-4 sticky top-24 h-fit">
               <nav className="space-y-2">
                 {categories.map((category) => (
-                  <button
-                    key={category.id}
-                    onClick={() => scrollToSection(category.id)}
-                    className="flex w-full items-center gap-2 p-2 rounded-lg hover:bg-accent hover:text-accent-foreground text-left transition-colors duration-200 ease-in-out glow-effect"
-                  >
-                    <span className="text-sm">{category.name}</span>
-                  </button>
+                  sectionRefs.current[category.id] && (
+                    <button
+                      key={category.id}
+                      onClick={() => scrollToSection(category.id)}
+                      className="flex w-full items-center gap-2 p-2 rounded-lg hover:bg-accent hover:text-accent-foreground text-left transition-colors duration-200 ease-in-out glow-effect"
+                    >
+                      <span className="text-sm">{category.name}</span>
+                    </button>
+                  )
                 ))}
               </nav>
             </aside>
