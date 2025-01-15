@@ -63,7 +63,7 @@ export default function HomePage() {
 
       setCategories(categoriesWithTools);
 
-      const toolsByCategory = categoriesWithTools.reduce((acc: Record<string, Tool[]>, category) => {
+      const toolsByCategory = categoriesWithTools.reduce((acc: Record<string, Tool[]>, category: Category) => {
         acc[category.id] = category.agitools;
         return acc;
       }, {} as Record<string, Tool[]>);
