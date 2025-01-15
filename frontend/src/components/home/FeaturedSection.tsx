@@ -1,12 +1,12 @@
 "use client";
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { FeaturedToolCard } from "./FeaturedToolCard";
 import axios from "axios";
 import { WavyBackground } from "@/components/ui/wavy-background";
+import { motion } from "framer-motion";
 
 interface FeaturedCategory {
   id: number;
@@ -122,11 +122,11 @@ export const FeaturedSection: React.FC<FeaturedSectionProps> = ({
         if (items.length === 0) return;
 
         const itemHeight = items[0].getBoundingClientRect().height;
-        const gap = 16; // 假设间隔是 16px，根据实际情况调整
+        const gap = 16;
 
-        let columns = 2; // 默认为移动端的 2 列
-        if (window.innerWidth >= 640) columns = 3; // sm 断点
-        if (window.innerWidth >= 768) columns = 4; // md 断点
+        let columns = 2;
+        if (window.innerWidth >= 640) columns = 3;
+        if (window.innerWidth >= 768) columns = 4;
 
         const rows = Math.ceil(items.length / columns);
         const calculatedHeight = rows * (itemHeight + gap) - gap;
@@ -143,14 +143,11 @@ export const FeaturedSection: React.FC<FeaturedSectionProps> = ({
 
   useEffect(() => {
     updateContentHeight();
-
     window.addEventListener('resize', updateContentHeight);
-
     const observer = new MutationObserver(updateContentHeight);
     if (scrollAreaRef.current) {
       observer.observe(scrollAreaRef.current, { childList: true, subtree: true });
     }
-
     return () => {
       window.removeEventListener('resize', updateContentHeight);
       observer.disconnect();
@@ -162,12 +159,12 @@ export const FeaturedSection: React.FC<FeaturedSectionProps> = ({
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4 p-2">
         {Array.from({ length: 8 }).map((_, index) => (
           <div key={index} className="w-full">
-            <div className="relative space-y-5 overflow-hidden rounded-2xl bg-white/5 p-4 shadow-xl shadow-black/5 before:absolute before:inset-0 before:-translate-x-full before:-skew-x-12 before:animate-[shimmer_2s_infinite] before:border-t before:border-white/10 before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent">
-              <div className="h-24 rounded-lg bg-white/5"></div>
+            <div className="relative space-y-5 overflow-hidden rounded-2xl bg-white/10 dark:bg-gray-800/10 p-4 backdrop-blur-sm">
+              <div className="h-24 rounded-lg bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
               <div className="space-y-3">
-                <div className="h-3 w-3/5 rounded-lg bg-white/5"></div>
-                <div className="h-3 w-4/5 rounded-lg bg-white/10"></div>
-                <div className="h-3 w-2/5 rounded-lg bg-white/5"></div>
+                <div className="h-3 w-3/5 rounded-lg bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
+                <div className="h-3 w-4/5 rounded-lg bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
+                <div className="h-3 w-2/5 rounded-lg bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
               </div>
             </div>
           </div>
@@ -179,38 +176,45 @@ export const FeaturedSection: React.FC<FeaturedSectionProps> = ({
   return (
     <WavyBackground
       colors={['#38bdf8', '#818cf8', '#c084fc', '#e879f9', '#22d3ee']}
-      waveOpacity={0.5}
+      waveOpacity={0.3}
       height="auto"
       animate={true}
     >
-      <Card className="p-4 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-lg overflow-hidden">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="p-4 bg-white/30 dark:bg-gray-800/30 backdrop-blur-md rounded-lg overflow-hidden shadow-xl"
+      >
         <div className="flex flex-col sm:flex-row gap-4">
-          <div className="flex sm:flex-col gap-2 sm:border-r sm:pr-4 overflow-x-auto sm:overflow-x-visible pb-2 sm:pb-0">
-            {categories.map((category) => (
-              <Button
-                key={category.id}
-                variant={selectedFeatureTab === category.name ? "default" : "ghost"}
-                size="icon"
-                onClick={() => {
-                  setSelectedFeatureTab(category.name);
-                }}
-                className={`h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0 transition-all duration-200 ${
-                  selectedFeatureTab === category.name
-                    ? "bg-blue-100/50 dark:bg-blue-900/50 backdrop-blur-sm text-blue-600 dark:text-blue-300"
-                    : "hover:bg-gray-100/50 dark:hover:bg-gray-700/50"
-                }`}
-              >
-                {category.icon && category.icon.url && (
-                  <Image
-                    src={`${apiUrl}${category.icon.url}`}
-                    alt={category.name}
-                    width={24}
-                    height={24}
-                  />
-                )}
-              </Button>
-            ))}
-          </div>
+          <ScrollArea className="flex-shrink-0 sm:w-auto">
+            <div className="flex sm:flex-col gap-2 pb-2 sm:pb-0">
+              {categories.map((category) => (
+                <Button
+                  key={category.id}
+                  variant={selectedFeatureTab === category.name ? "default" : "ghost"}
+                  size="icon"
+                  onClick={() => {
+                    setSelectedFeatureTab(category.name);
+                  }}
+                  className={`h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0 transition-all duration-200 ${
+                    selectedFeatureTab === category.name
+                      ? "bg-blue-500/50 dark:bg-blue-500/30 text-white dark:text-blue-200 shadow-lg"
+                      : "hover:bg-gray-100/50 dark:hover:bg-gray-700/50"
+                  }`}
+                >
+                  {category.icon && category.icon.url && (
+                    <Image
+                      src={`${apiUrl}${category.icon.url}`}
+                      alt={category.name}
+                      width={24}
+                      height={24}
+                    />
+                  )}
+                </Button>
+              ))}
+            </div>
+          </ScrollArea>
 
           <ScrollArea 
             className="flex-1" 
@@ -220,15 +224,27 @@ export const FeaturedSection: React.FC<FeaturedSectionProps> = ({
             {loading ? (
               renderSkeleton()
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4 p-2">
+              <motion.div 
+                className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4 p-2"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+              >
                 {featuredTools[selectedFeatureTab]?.map((item) => (
-                  <FeaturedToolCard key={item.id} tool={item} className="featured-tool-card" />
+                  <motion.div
+                    key={item.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <FeaturedToolCard tool={item} className="featured-tool-card" />
+                  </motion.div>
                 ))}
-              </div>
+              </motion.div>
             )}
           </ScrollArea>
         </div>
-      </Card>
+      </motion.div>
     </WavyBackground>
   );
 };

@@ -42,11 +42,11 @@ export const WavyBackground: React.FC<WavyBackgroundProps> = ({
   }, []);
 
   const waveColors = colors ?? (isDarkMode
-    ? ["#38bdf8", "#818cf8", "#c084fc", "#e879f9", "#22d3ee"]
-    : ["#3b82f6", "#6366f1", "#8b5cf6", "#d946ef", "#06b6d4"]
+    ? ["#1e40af", "#3730a3", "#6d28d9", "#86198f", "#0f766e"]
+    : ["#60a5fa", "#818cf8", "#a78bfa", "#e879f9", "#34d399"]
   );
 
-  const fillColor = backgroundFill || (isDarkMode ? "rgba(31, 41, 55, 0.5)" : "rgba(255, 255, 255, 0.5)");
+  const fillColor = backgroundFill || (isDarkMode ? "rgba(17, 24, 39, 0.7)" : "rgba(255, 255, 255, 0.7)");
 
   const variants = {
     initial: {
@@ -72,7 +72,7 @@ export const WavyBackground: React.FC<WavyBackgroundProps> = ({
         transition={
           animate
             ? {
-                duration: 20,
+                duration: 30,
                 repeat: Infinity,
                 repeatType: "reverse",
               }
@@ -82,8 +82,10 @@ export const WavyBackground: React.FC<WavyBackgroundProps> = ({
           backgroundSize: animate ? "400% 400%" : undefined,
         }}
         className={cn(
-          "absolute inset-0 z-0 opacity-60 blur-xl transition duration-500",
-          "bg-[radial-gradient(circle_farthest-side_at_0_100%,#00ccb1,transparent),radial-gradient(circle_farthest-side_at_100%_0,#7b61ff,transparent),radial-gradient(circle_farthest-side_at_100%_100%,#ffc414,transparent),radial-gradient(circle_farthest-side_at_0_0,#1ca0fb,#141316)]"
+          "absolute inset-0 z-0 opacity-70 blur-2xl transition duration-1000",
+          isDarkMode
+            ? "bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-indigo-900 via-purple-900 to-pink-900"
+            : "bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-blue-400 via-purple-400 to-pink-400"
         )}
       />
       {waveColors.map((color, index) => (
@@ -92,25 +94,35 @@ export const WavyBackground: React.FC<WavyBackgroundProps> = ({
           className="absolute inset-0 z-0"
           style={{
             backgroundColor: color,
-            opacity: waveOpacity * 0.2,
+            opacity: waveOpacity * 0.15,
           }}
           animate={{
             y: ["0%", "100%", "0%"],
+            x: [`${index * 5}%`, `${(index + 1) * 10}%`, `${index * 5}%`],
           }}
           transition={{
-            duration: 10 + index * 2,
+            duration: 15 + index * 3,
             repeat: Infinity,
             ease: "easeInOut",
           }}
         />
       ))}
-      <div
+      <motion.div
         className="absolute inset-0 z-0"
-        style={{ backgroundColor: fillColor, opacity: waveOpacity }}
+        style={{ backgroundColor: fillColor }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: waveOpacity }}
+        transition={{ duration: 1 }}
       />
-      <div className={cn("relative z-10", className)} {...props}>
+      <motion.div
+        className={cn("relative z-10", className)}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, delay: 0.2 }}
+        {...props}
+      >
         {children}
-      </div>
+      </motion.div>
     </div>
   );
 };
