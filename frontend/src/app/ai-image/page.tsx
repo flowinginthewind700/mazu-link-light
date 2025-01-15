@@ -9,8 +9,6 @@ import { AIImageCard } from '@/components/ai-image-card';
 import dynamic from 'next/dynamic';
 import { Navigation } from '@/components/navigation';
 import Image from 'next/image';
-import { FixedSizeList as List } from 'react-window';
-import AutoSizer from 'react-virtualized-auto-sizer';
 import throttle from 'lodash/throttle';
 
 const PageViewTracker = dynamic(() => import('@/components/ga/PageViewTracker'), { ssr: false });
@@ -271,32 +269,17 @@ const CategoryList = React.memo(({ categories, selectedCategory, onCategorySelec
 const ImageGrid = React.memo(({ loading, exampleData }: {
   loading: boolean;
   exampleData: ImageData[];
-}) => {
-  const Row = ({ index, style }: { index: number; style: React.CSSProperties }) => (
-    <div style={style}>
-      {loading ? (
-        <ImagePlaceholder />
-      ) : (
-        <LazyLoadImageCard image={exampleData[index]} />
-      )}
-    </div>
-  );
-
-  return (
-    <AutoSizer>
-      {({ height, width }) => (
-        <List
-          height={height || 800}
-          itemCount={loading ? IMAGES_PER_PAGE : exampleData.length}
-          itemSize={300}
-          width={width || 300}
-        >
-          {Row}
-        </List>
-      )}
-    </AutoSizer>
-  );
-});
+}) => (
+  <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+    {loading
+      ? Array.from({ length: IMAGES_PER_PAGE }).map((_, index) => (
+          <ImagePlaceholder key={index} />
+        ))
+      : exampleData.map((image) => (
+          <LazyLoadImageCard key={image.id} image={image} />
+        ))}
+  </div>
+));
 
 const ImagePlaceholder = () => (
   <motion.div variants={item} className="w-full">
@@ -320,7 +303,7 @@ const ImagePlaceholder = () => (
 
 const LazyLoadImageCard = React.memo(({ image }: { image: ImageData }) => {
   const [isLoaded, setIsLoaded] = useState(false);
-  const imageRef = useRef<HTMLImageElement>(null);
+  const imageRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -345,12 +328,8 @@ const LazyLoadImageCard = React.memo(({ image }: { image: ImageData }) => {
   }, []);
 
   return (
-    <motion.div variants={item} className="w-full">
-      {!isLoaded && <ImagePlaceholder />}
-      <div style={{ display: isLoaded ? 'block' : 'none' }}>
-        <AIImageCard image={image} />
-      </div>
-      <img ref={imageRef} src={image.url} alt={image.prompt} style={{ display: 'none' }} />
+    <motion.div ref={imageRef} variants={item} className="w-full">
+      {isLoaded ? <AIImageCard image={image} /> : <ImagePlaceholder />}
     </motion.div>
   );
 });
