@@ -61,7 +61,7 @@ export default function AIImagePage() {
           }
         }
       `;
-      const response = await axios.post(`${apiUrl}/graphql`, { query });
+      const response = await axios.post(`${apiUrl}`, { query });
       const fetchedCategories: Category[] = response.data.data.imagecategories;
       setCategories([{ id: 'all', name: 'All' }, ...fetchedCategories]);
     } catch (error) {
@@ -127,7 +127,7 @@ export default function AIImagePage() {
         };
       }
 
-      const response = await axios.post(`${apiUrl}/graphql`, { query, variables });
+      const response = await axios.post(`${apiUrl}`, { query, variables });
       const fetchedData: ImageData[] = response.data.data.t2Iexamples.map((example: any) => ({
         id: example.id,
         prompt: example.prompt,
