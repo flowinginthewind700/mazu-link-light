@@ -47,7 +47,7 @@ const NewsDetailPage: React.FC<PageProps> = ({ params }) => {
     currentPage=""
     showMobileMenu={false}
   />
-    <div className="container mx-auto px-4 py-8 dark:bg-gray-900 dark:text-white">
+    <div className="container mx-auto px-2 py-8 bg-background">
       <PostDetail postId={params.id} />
     </div>
     </>
