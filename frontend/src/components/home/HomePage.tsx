@@ -4,12 +4,12 @@ import React, { useRef, useState, useEffect, useCallback } from 'react';
 import Head from 'next/head';
 import Script from 'next/script';
 import axios from 'axios';
-import { Category, Tool } from './types';
 import { HeroSearch } from './HeroSearch';
 import { FeaturedSection } from './FeaturedSection';
 import { ToolCard } from './ToolCard';
 import { AnimatedSectionTitle } from '@/components/animated-section-title';
 import { BottomNavbar } from '@/components/bottom-navbar';
+import { Category, Tool } from './types';
 import { Navigation } from '@/components/navigation';
 import { WavyBackground } from '@/components/ui/wavy-background';
 
@@ -57,12 +57,24 @@ export default function HomePage() {
     }
 
     try {
-      const query = `
+      const categoriesQuery = `
         query {
           agitoolcategories {
             id
             name
-            agitools(limit: ${TOOLS_PER_CATEGORY}) {
+          }
+        }
+      `;
+      const categoriesResponse = await axios.post(`${apiUrl}/graphql`, { query: categoriesQuery });
+      const fetchedCategories = categoriesResponse.data.data.agitoolcategories;
+
+      const toolsPromises = fetchedCategories.map(async (category: Category) => {
+        const toolsQuery = `
+          query($categoryId: ID!) {
+            agitools(
+              where: { agitoolcategory: { id: $categoryId } }
+              limit: ${TOOLS_PER_CATEGORY}
+            ) {
               id
               name
               Description
@@ -74,20 +86,24 @@ export default function HomePage() {
               internalPath
             }
           }
-        }
-      `;
-      const response = await axios.post(`${apiUrl}/graphql`, { query });
-      const categoriesWithTools = response.data.data.agitoolcategories;
+        `;
+        const toolsResponse = await axios.post(`${apiUrl}/graphql`, {
+          query: toolsQuery,
+          variables: { categoryId: category.id },
+        });
+        return { categoryId: category.id, tools: toolsResponse.data.data.agitools };
+      });
 
-      const toolsByCategory = categoriesWithTools.reduce((acc: Record<string, Tool[]>, category: Category) => {
-        acc[category.id] = category.agitools;
+      const toolsResults = await Promise.all(toolsPromises);
+      const newToolsByCategory = toolsResults.reduce((acc, { categoryId, tools }) => {
+        acc[categoryId] = tools;
         return acc;
       }, {} as Record<string, Tool[]>);
 
-      setCategories(categoriesWithTools);
-      setToolsByCategory(toolsByCategory);
+      setCategories(fetchedCategories);
+      setToolsByCategory(newToolsByCategory);
 
-      saveToCache({ categories: categoriesWithTools, toolsByCategory });
+      saveToCache({ categories: fetchedCategories, toolsByCategory: newToolsByCategory });
     } catch (error) {
       console.error('Error fetching categories and tools:', error);
     } finally {
@@ -100,27 +116,51 @@ export default function HomePage() {
   }, [fetchCategoriesAndTools]);
 
   useEffect(() => {
-    sectionRefs.current = categories.reduce((acc, category) => {
-      acc[category.id] = React.createRef();
-      return acc;
-    }, {} as Record<string, React.RefObject<HTMLDivElement>>);
+    if (categories.length > 0) {
+      sectionRefs.current = categories.reduce((acc, category) => {
+        acc[category.id] = React.createRef<HTMLDivElement>();
+        return acc;
+      }, {} as Record<string, React.RefObject<HTMLDivElement>>);
+    }
   }, [categories]);
 
   const scrollToSection = useCallback((sectionId: string) => {
-    const sectionRef = sectionRefs.current[sectionId]?.current;
-    if (sectionRef) {
-      sectionRef.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
-      });
-      setAnimatingSection(sectionId);
-      setTimeout(() => setAnimatingSection(''), 1000);
-    }
+    sectionRefs.current[sectionId]?.current?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    });
+    setAnimatingSection(sectionId);
+    setTimeout(() => setAnimatingSection(''), 1000);
   }, []);
 
   const handleCategorySelect = useCallback((categoryId: string) => {
     scrollToSection(categoryId);
   }, [scrollToSection]);
+
+  useEffect(() => {
+    const observers = categories.map(category => {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              setActiveSection(category.id);
+            }
+          });
+        },
+        { threshold: 0.5 }
+      );
+
+      if (sectionRefs.current[category.id]?.current) {
+        observer.observe(sectionRefs.current[category.id].current!);
+      }
+
+      return observer;
+    });
+
+    return () => {
+      observers.forEach(observer => observer.disconnect());
+    };
+  }, [categories]);
 
   return (
     <>
