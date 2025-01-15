@@ -28,6 +28,7 @@ export default function HomePage() {
 
   const sectionRefs = useRef<Record<string, React.RefObject<HTMLDivElement>>>({});
 
+  // 一次性获取所有分类及其工具数据
   const fetchCategoriesAndTools = useCallback(async () => {
     const cachedData = localStorage.getItem('categoriesAndTools');
     if (cachedData) {
@@ -95,13 +96,14 @@ export default function HomePage() {
     setTimeout(() => setAnimatingSection(''), 1000);
   }, []);
 
+  // 使用 IntersectionObserver 实现懒加载
   useEffect(() => {
     const observers = categories.map(category => {
       const observer = new IntersectionObserver(
         (entries) => {
           entries.forEach((entry) => {
-            if (entry.isIntersecting && !toolsByCategory[category.id]) {
-              fetchToolsForCategory(category.id);
+            if (entry.isIntersecting) {
+              setActiveSection(category.id);
             }
           });
         },
@@ -118,7 +120,7 @@ export default function HomePage() {
     return () => {
       observers.forEach(observer => observer.disconnect());
     };
-  }, [categories, toolsByCategory]);
+  }, [categories]);
 
   return (
     <>
