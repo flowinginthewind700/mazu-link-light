@@ -5,30 +5,14 @@ import Head from 'next/head';
 import Script from 'next/script';
 import axios from 'axios';
 import { Category, Tool } from './types';
+import HeroSearch from './HeroSearch'; // 直接导入 HeroSearch
+import FeaturedSection from './FeaturedSection'; // 直接导入 FeaturedSection
+import ToolCard from './ToolCard'; // 直接导入 ToolCard
+import AnimatedSectionTitle from '@/components/animated-section-title'; // 直接导入 AnimatedSectionTitle
+import BottomNavbar from '@/components/bottom-navbar'; // 直接导入 BottomNavbar
+import Navigation from '@/components/navigation'; // 直接导入 Navigation
+import WavyBackground from '@/components/ui/wavy-background'; // 直接导入 WavyBackground
 
-import dynamic from 'next/dynamic';
-
-const HeroSearch = dynamic(() => import('./HeroSearch').then(mod => mod.default), {
-  loading: () => <p>Loading...</p>,
-});
-const FeaturedSection = dynamic(() => import('./FeaturedSection').then(mod => mod.default), {
-  loading: () => <p>Loading...</p>,
-});
-const ToolCard = dynamic(() => import('./ToolCard').then(mod => mod.default), {
-  loading: () => <p>Loading...</p>,
-});
-const AnimatedSectionTitle = dynamic(() => import('@/components/animated-section-title').then(mod => mod.default), {
-  loading: () => <p>Loading...</p>,
-});
-const BottomNavbar = dynamic(() => import('@/components/bottom-navbar').then(mod => mod.default), {
-  loading: () => <p>Loading...</p>,
-});
-const Navigation = dynamic(() => import('@/components/navigation').then(mod => mod.default), {
-  loading: () => <p>Loading...</p>,
-});
-const WavyBackground = dynamic(() => import('@/components/ui/wavy-background').then(mod => mod.default), {
-  loading: () => <p>Loading...</p>,
-});
 const apiUrl = process.env.NEXT_PUBLIC_CMS_API_BASE_URL;
 const TOOLS_PER_CATEGORY = 24;
 
