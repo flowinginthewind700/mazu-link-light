@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/components/lib/utils";
 
@@ -8,8 +8,6 @@ interface WavyBackgroundProps {
   children?: React.ReactNode;
   className?: string;
   containerClassName?: string;
-  colors?: string[];
-  backgroundFill?: string;
   waveOpacity?: number;
   height?: string;
   animate?: boolean;
@@ -20,43 +18,11 @@ export const WavyBackground: React.FC<WavyBackgroundProps> = ({
   children,
   className,
   containerClassName,
-  colors,
-  backgroundFill,
   waveOpacity = 0.5,
   height = "400px",
   animate = true,
   ...props
 }) => {
-  const [isDarkMode, setIsDarkMode] = useState(false);
-
-  useEffect(() => {
-    const darkModeMediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    setIsDarkMode(darkModeMediaQuery.matches);
-
-    const handleChange = (e: MediaQueryListEvent) => {
-      setIsDarkMode(e.matches);
-    };
-
-    darkModeMediaQuery.addEventListener("change", handleChange);
-    return () => darkModeMediaQuery.removeEventListener("change", handleChange);
-  }, []);
-
-  const darkModeColors = [
-    "#0a0f18", // 深黑
-    "#1a1a2e", // 深蓝黑
-    "#16213e", // 深蓝
-  ];
-
-  const lightModeColors = [
-    "#e0f2f1", // 非常淡的绿
-    "#e1f5fe", // 非常淡的蓝
-    "#f3e5f5", // 非常淡的紫
-  ];
-
-  const waveColors = colors ?? (isDarkMode ? darkModeColors : lightModeColors);
-
-  const fillColor = backgroundFill || (isDarkMode ? "rgba(10, 15, 24, 0.7)" : "rgba(255, 255, 255, 0.5)");
-
   const variants = {
     initial: {
       backgroundPosition: "0 50%",
@@ -74,6 +40,7 @@ export const WavyBackground: React.FC<WavyBackgroundProps> = ({
       )}
       style={{ height }}
     >
+      {/* 背景渐变层 */}
       <motion.div
         variants={animate ? variants : undefined}
         initial={animate ? "initial" : undefined}
@@ -92,41 +59,17 @@ export const WavyBackground: React.FC<WavyBackgroundProps> = ({
         }}
         className={cn(
           "absolute inset-0 z-0 opacity-60 group-hover:opacity-100 blur-xl transition duration-500",
-          isDarkMode
-            ? "bg-[radial-gradient(circle_farthest-side_at_0_100%,#004d40,transparent),radial-gradient(circle_farthest-side_at_100%_0,#4a148c,transparent),radial-gradient(circle_farthest-side_at_100%_100%,#e65100,transparent),radial-gradient(circle_farthest-side_at_0_0,#01579b,#0a0f18)]"
-            : "bg-[radial-gradient(circle_farthest-side_at_0_100%,#e0f2f1,transparent),radial-gradient(circle_farthest-side_at_100%_0,#f3e5f5,transparent),radial-gradient(circle_farthest-side_at_100%_100%,#fff3e0,transparent),radial-gradient(circle_farthest-side_at_0_0,#e1f5fe,#ffffff)]"
+          "bg-[radial-gradient(circle_farthest-side_at_0_100%,hsl(var(--muted)),transparent),radial-gradient(circle_farthest-side_at_100%_0,hsl(var(--accent)),transparent),radial-gradient(circle_farthest-side_at_100%_100%,hsl(var(--primary)),transparent),radial-gradient(circle_farthest-side_at_0_0,hsl(var(--secondary)),hsl(var(--background)))]"
         )}
       />
-      <motion.div
-        variants={animate ? variants : undefined}
-        initial={animate ? "initial" : undefined}
-        animate={animate ? "animate" : undefined}
-        transition={
-          animate
-            ? {
-                duration: 20,
-                repeat: Infinity,
-                repeatType: "reverse",
-              }
-            : undefined
-        }
-        style={{
-          backgroundSize: animate ? "400% 400%" : undefined,
-        }}
-        className={cn(
-          "absolute inset-0 z-[1]",
-          isDarkMode
-            ? "bg-[radial-gradient(circle_farthest-side_at_0_100%,#004d40,transparent),radial-gradient(circle_farthest-side_at_100%_0,#4a148c,transparent),radial-gradient(circle_farthest-side_at_100%_100%,#e65100,transparent),radial-gradient(circle_farthest-side_at_0_0,#01579b,#0a0f18)]"
-            : "bg-[radial-gradient(circle_farthest-side_at_0_100%,#e0f2f1,transparent),radial-gradient(circle_farthest-side_at_100%_0,#f3e5f5,transparent),radial-gradient(circle_farthest-side_at_100%_100%,#fff3e0,transparent),radial-gradient(circle_farthest-side_at_0_0,#e1f5fe,#ffffff)]"
-        )}
-      />
-      {waveColors.map((color, index) => (
+      {/* 波浪层 */}
+      {[0, 1, 2].map((index) => (
         <motion.div
           key={index}
           className="absolute inset-0 z-0"
           style={{
-            backgroundColor: color,
-            opacity: isDarkMode ? waveOpacity * 0.3 : waveOpacity * 0.2,
+            backgroundColor: `hsl(var(--${index === 0 ? "muted" : index === 1 ? "accent" : "primary"}))`,
+            opacity: waveOpacity * (index === 0 ? 0.3 : index === 1 ? 0.2 : 0.1),
           }}
           animate={{
             y: ["0%", "100%", "0%"],
@@ -139,13 +82,15 @@ export const WavyBackground: React.FC<WavyBackgroundProps> = ({
           }}
         />
       ))}
+      {/* 背景填充层 */}
       <motion.div
         className="absolute inset-0 z-10"
-        style={{ backgroundColor: fillColor }}
+        style={{ backgroundColor: `hsl(var(--background) / 0.9)` }}
         initial={{ opacity: 0 }}
-        animate={{ opacity: isDarkMode ? waveOpacity * 0.8 : waveOpacity * 0.5 }}
+        animate={{ opacity: waveOpacity * 0.8 }}
         transition={{ duration: 1 }}
       />
+      {/* 内容层 */}
       <motion.div
         className={cn("relative z-20", className)}
         initial={{ opacity: 0, y: 20 }}
