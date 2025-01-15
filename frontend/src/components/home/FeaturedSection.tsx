@@ -7,7 +7,6 @@ import Image from "next/image";
 import { FeaturedToolCard } from "./FeaturedToolCard";
 import axios from "axios";
 import { WavyBackground } from "@/components/ui/wavy-background";
-import { cn } from "@/components/lib/utils";
 
 interface FeaturedCategory {
   id: number;

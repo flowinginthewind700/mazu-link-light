@@ -15,19 +15,20 @@ interface FeatureTool {
 
 interface FeaturedToolCardProps {
   tool: FeatureTool;
+  className?: string;
 }
 
 const apiUrl = process.env.NEXT_PUBLIC_CMS_API_BASE_URL;
 
-export const FeaturedToolCard: React.FC<FeaturedToolCardProps> = ({ tool }) => {
+export const FeaturedToolCard: React.FC<FeaturedToolCardProps> = ({ tool, className }) => {
   const CardWrapper = tool.linkType === 'internal' ? Link : 'a';
   const cardProps = tool.linkType === 'internal' 
     ? { href: tool.link } 
     : { href: tool.link, target: "_blank", rel: "noopener noreferrer" };
 
   return (
-    <CardWrapper {...cardProps}>
-      <div className="group flex flex-col rounded-lg overflow-hidden bg-white/80 dark:bg-gray-800/80 shadow-sm hover:shadow-md transition-all duration-200 relative">
+    <CardWrapper {...cardProps} className={className}>
+      <div className="group flex flex-col rounded-lg overflow-hidden bg-white/80 dark:bg-gray-800/80 shadow-sm hover:shadow-md transition-all duration-200 relative h-full">
         {/* 图片部分 */}
         <div className="relative aspect-[2/1] overflow-hidden">
           <Image
@@ -45,7 +46,7 @@ export const FeaturedToolCard: React.FC<FeaturedToolCardProps> = ({ tool }) => {
           </div>
         </div>
         {/* 描述部分 */}
-        <div className="p-2 sm:p-3">
+        <div className="p-2 sm:p-3 flex-grow">
           <p className="text-gray-700 dark:text-gray-300 text-xs sm:text-sm line-clamp-2 group-hover:text-gray-900 dark:group-hover:text-gray-100">
             {tool.description}
           </p>
