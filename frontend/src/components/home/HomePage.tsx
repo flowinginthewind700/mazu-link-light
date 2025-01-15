@@ -4,17 +4,31 @@ import React, { useRef, useState, useEffect, useCallback } from 'react';
 import Head from 'next/head';
 import Script from 'next/script';
 import axios from 'axios';
-import dynamic from 'next/dynamic';
 import { Category, Tool } from './types';
 
-const HeroSearch = dynamic(() => import('./HeroSearch'), { loading: () => <p>Loading...</p> });
-const FeaturedSection = dynamic(() => import('./FeaturedSection'), { loading: () => <p>Loading...</p> });
-const ToolCard = dynamic(() => import('./ToolCard'), { loading: () => <p>Loading...</p> });
-const AnimatedSectionTitle = dynamic(() => import('@/components/animated-section-title'), { loading: () => <p>Loading...</p> });
-const BottomNavbar = dynamic(() => import('@/components/bottom-navbar'), { loading: () => <p>Loading...</p> });
-const Navigation = dynamic(() => import('@/components/navigation'), { loading: () => <p>Loading...</p> });
-const WavyBackground = dynamic(() => import('@/components/ui/wavy-background'), { loading: () => <p>Loading...</p> });
+import dynamic from 'next/dynamic';
 
+const HeroSearch = dynamic(() => import('./HeroSearch').then(mod => mod.default), {
+  loading: () => <p>Loading...</p>,
+});
+const FeaturedSection = dynamic(() => import('./FeaturedSection').then(mod => mod.default), {
+  loading: () => <p>Loading...</p>,
+});
+const ToolCard = dynamic(() => import('./ToolCard').then(mod => mod.default), {
+  loading: () => <p>Loading...</p>,
+});
+const AnimatedSectionTitle = dynamic(() => import('@/components/animated-section-title').then(mod => mod.default), {
+  loading: () => <p>Loading...</p>,
+});
+const BottomNavbar = dynamic(() => import('@/components/bottom-navbar').then(mod => mod.default), {
+  loading: () => <p>Loading...</p>,
+});
+const Navigation = dynamic(() => import('@/components/navigation').then(mod => mod.default), {
+  loading: () => <p>Loading...</p>,
+});
+const WavyBackground = dynamic(() => import('@/components/ui/wavy-background').then(mod => mod.default), {
+  loading: () => <p>Loading...</p>,
+});
 const apiUrl = process.env.NEXT_PUBLIC_CMS_API_BASE_URL;
 const TOOLS_PER_CATEGORY = 24;
 
