@@ -42,19 +42,15 @@ export const WavyBackground: React.FC<WavyBackgroundProps> = ({
   }, []);
 
   const darkModeColors = [
-    "#004d40", // 深绿
-    "#01579b", // 深蓝
-    "#4a148c", // 深紫
-    "#e65100", // 深橙
-    "#880e4f", // 深粉
+    "#0a0f18", // 深黑
+    "#1a1a2e", // 深蓝黑
+    "#16213e", // 深蓝
   ];
 
   const lightModeColors = [
     "#e0f2f1", // 非常淡的绿
     "#e1f5fe", // 非常淡的蓝
     "#f3e5f5", // 非常淡的紫
-    "#fff3e0", // 非常淡的橙
-    "#fce4ec", // 非常淡的粉
   ];
 
   const waveColors = colors ?? (isDarkMode ? darkModeColors : lightModeColors);
