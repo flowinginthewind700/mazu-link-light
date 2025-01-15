@@ -35,19 +35,18 @@ interface FeaturedSectionProps {
 }
 
 const apiUrl = process.env.NEXT_PUBLIC_CMS_API_BASE_URL;
-const CACHE_EXPIRY_TIME = 30 * 1000; // 30 秒
+const CACHE_EXPIRY_TIME = 30 * 1000; // 30 seconds
 
 export const FeaturedSection: React.FC<FeaturedSectionProps> = ({
   selectedFeatureTab,
   setSelectedFeatureTab,
 }) => {
-  const [sectionHeight, setSectionHeight] = useState("auto");
-  const gridRef = useRef<HTMLDivElement>(null);
   const [categories, setCategories] = useState<FeaturedCategory[]>([]);
   const [featuredTools, setFeaturedTools] = useState<Record<string, FeatureTool[]>>({});
   const [loading, setLoading] = useState<boolean>(true);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const [contentHeight, setContentHeight] = useState<number>(0);
 
-  // 从 localStorage 加载缓存数据
   const loadFromCache = () => {
     const cachedData = localStorage.getItem("featuredData");
     if (cachedData) {
@@ -57,13 +56,12 @@ export const FeaturedSection: React.FC<FeaturedSectionProps> = ({
         setCategories(data.categories);
         setFeaturedTools(data.featuredTools);
         setLoading(false);
-        return true; // 缓存有效
+        return true;
       }
     }
-    return false; // 缓存无效或不存在
+    return false;
   };
 
-  // 保存数据到 localStorage
   const saveToCache = (data: { categories: FeaturedCategory[]; featuredTools: Record<string, FeatureTool[]> }) => {
     localStorage.setItem(
       "featuredData",
@@ -71,9 +69,7 @@ export const FeaturedSection: React.FC<FeaturedSectionProps> = ({
     );
   };
 
-  // 一次性获取所有分类及其工具数据
   const fetchCategoriesAndTools = useCallback(async () => {
-    // 先尝试从缓存加载
     if (loadFromCache()) {
       return;
     }
@@ -109,11 +105,8 @@ export const FeaturedSection: React.FC<FeaturedSectionProps> = ({
         return acc;
       }, {} as Record<string, FeatureTool[]>);
 
-      // 更新状态
       setCategories(fetchedCategories);
       setFeaturedTools(featuredTools);
-
-      // 保存到缓存
       saveToCache({ categories: fetchedCategories, featuredTools });
     } catch (error) {
       console.error("Error fetching featured categories and tools:", error);
@@ -126,37 +119,35 @@ export const FeaturedSection: React.FC<FeaturedSectionProps> = ({
     fetchCategoriesAndTools();
   }, [fetchCategoriesAndTools]);
 
-  // 动态调整高度
   useEffect(() => {
-    const updateHeight = () => {
-      if (gridRef.current) {
-        const gridItems = gridRef.current.children;
-        if (gridItems.length > 0) {
-          const itemHeight = gridItems[0].getBoundingClientRect().height;
-          const gap = 16;
-
-          // 根据屏幕宽度动态计算列数
-          let columns = 2; // 移动端默认 2 列
-          if (window.innerWidth >= 768) {
-            columns = 3; // 桌面端 3 列
-          }
-          if (window.innerWidth >= 1024) {
-            columns = 4; // 大屏幕桌面端 4 列
-          }
-
-          // 根据列数计算行数
-          const rows = Math.ceil(gridItems.length / columns);
-          const newHeight = rows * (itemHeight + gap) - gap;
-          setSectionHeight(`${newHeight}px`);
+    const updateContentHeight = () => {
+      if (scrollAreaRef.current) {
+        const contentElement = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
+        if (contentElement) {
+          const contentHeight = contentElement.scrollHeight;
+          const maxHeight = Math.min(contentHeight, window.innerHeight * 0.6);
+          setContentHeight(maxHeight);
         }
       }
     };
 
-    updateHeight();
-    window.addEventListener("resize", updateHeight);
+    // 初始更新
+    updateContentHeight();
 
-    return () => window.removeEventListener("resize", updateHeight);
-  }, [selectedFeatureTab, featuredTools, loading]);
+    // 监听窗口大小变化
+    window.addEventListener('resize', updateContentHeight);
+
+    // 在内容变化时更新（比如切换分类）
+    const observer = new MutationObserver(updateContentHeight);
+    if (scrollAreaRef.current) {
+      observer.observe(scrollAreaRef.current, { childList: true, subtree: true });
+    }
+
+    return () => {
+      window.removeEventListener('resize', updateContentHeight);
+      observer.disconnect();
+    };
+  }, [selectedFeatureTab]);
 
   const renderSkeleton = () => {
     return (
@@ -181,7 +172,7 @@ export const FeaturedSection: React.FC<FeaturedSectionProps> = ({
     <WavyBackground
       colors={['#38bdf8', '#818cf8', '#c084fc', '#e879f9', '#22d3ee']}
       waveOpacity={0.5}
-      height="400px"
+      height="auto"
       animate={true}
     >
       <Card className="p-4 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-lg overflow-hidden">
@@ -195,10 +186,11 @@ export const FeaturedSection: React.FC<FeaturedSectionProps> = ({
                 onClick={() => {
                   setSelectedFeatureTab(category.name);
                 }}
-                className={`h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0 transition-all duration-200 ${selectedFeatureTab === category.name
+                className={`h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0 transition-all duration-200 ${
+                  selectedFeatureTab === category.name
                     ? "bg-blue-100/50 dark:bg-blue-900/50 backdrop-blur-sm text-blue-600 dark:text-blue-300"
                     : "hover:bg-gray-100/50 dark:hover:bg-gray-700/50"
-                  }`}
+                }`}
               >
                 {category.icon && category.icon.url && (
                   <Image
@@ -212,14 +204,15 @@ export const FeaturedSection: React.FC<FeaturedSectionProps> = ({
             ))}
           </div>
 
-          <ScrollArea className="flex-1" style={{ height: sectionHeight }}>
+          <ScrollArea 
+            className="flex-1" 
+            ref={scrollAreaRef}
+            style={{ height: `${contentHeight}px` }}
+          >
             {loading ? (
               renderSkeleton()
             ) : (
-              <div
-                ref={gridRef}
-                className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4 p-2"
-              >
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4 p-2">
                 {featuredTools[selectedFeatureTab]?.map((item) => (
                   <FeaturedToolCard key={item.id} tool={item} />
                 ))}
