@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 import { cn } from '@/lib/utils';
@@ -9,15 +9,15 @@ import { AIImageCard } from '@/components/ai-image-card';
 import dynamic from 'next/dynamic';
 import { Navigation } from '@/components/navigation';
 import Image from 'next/image';
-import { useInView } from 'react-intersection-observer';
+import { FixedSizeList as List } from 'react-window';
+import AutoSizer from 'react-virtualized-auto-sizer';
+import throttle from 'lodash/throttle';
 
-// 动态导入 PageViewTracker 组件以减少初始加载时间
 const PageViewTracker = dynamic(() => import('@/components/ga/PageViewTracker'), { ssr: false });
 
 const apiUrl = process.env.NEXT_PUBLIC_CMS_API_BASE_URL || '';
 const IMAGES_PER_PAGE = 12;
 
-// 动画配置
 const container = {
   hidden: { opacity: 1, scale: 0 },
   visible: {
@@ -31,14 +31,10 @@ const container = {
 };
 
 const item = {
-  hidden: { y: 20, opacity: 0 },
-  visible: {
-    y: 0,
-    opacity: 1,
-  },
+  hidden: { opacity: 0 },
+  visible: { opacity: 1 },
 };
 
-// 类型定义
 interface Category {
   id: string;
   name: string;
@@ -50,7 +46,6 @@ interface ImageData {
   url: string;
 }
 
-// 主组件
 export default function AIImagePage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -59,7 +54,6 @@ export default function AIImagePage() {
   const [exampleData, setExampleData] = useState<ImageData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
-  // 使用 useCallback 优化函数，避免不必要的重新创建
   const fetchCategories = useCallback(async () => {
     try {
       const query = `
@@ -170,7 +164,6 @@ export default function AIImagePage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
-  // 使用 useMemo 优化分页计算
   const getPageRange = useCallback(() => {
     const range = [];
 
@@ -250,7 +243,6 @@ export default function AIImagePage() {
   );
 }
 
-// 分类列表组件
 const CategoryList = React.memo(({ categories, selectedCategory, onCategorySelect }: {
   categories: Category[];
   selectedCategory: string;
@@ -276,23 +268,36 @@ const CategoryList = React.memo(({ categories, selectedCategory, onCategorySelec
   </div>
 ));
 
-// 图片网格组件
 const ImageGrid = React.memo(({ loading, exampleData }: {
   loading: boolean;
   exampleData: ImageData[];
-}) => (
-  <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-    {loading
-      ? Array.from({ length: IMAGES_PER_PAGE }).map((_, index) => (
-          <ImagePlaceholder key={index} />
-        ))
-      : exampleData.map((image) => (
-          <LazyLoadImageCard key={image.id} image={image} />
-        ))}
-  </div>
-));
+}) => {
+  const Row = ({ index, style }: { index: number; style: React.CSSProperties }) => (
+    <div style={style}>
+      {loading ? (
+        <ImagePlaceholder />
+      ) : (
+        <LazyLoadImageCard image={exampleData[index]} />
+      )}
+    </div>
+  );
 
-// 图片占位符组件
+  return (
+    <AutoSizer>
+      {({ height, width }) => (
+        <List
+          height={height || 800}
+          itemCount={loading ? IMAGES_PER_PAGE : exampleData.length}
+          itemSize={300}
+          width={width || 300}
+        >
+          {Row}
+        </List>
+      )}
+    </AutoSizer>
+  );
+});
+
 const ImagePlaceholder = () => (
   <motion.div variants={item} className="w-full">
     <div className="relative space-y-5 overflow-hidden rounded-2xl bg-white/5 p-4 shadow-xl shadow-black/5 before:absolute before:inset-0 before:-translate-x-full before:-skew-x-12 before:animate-[shimmer_2s_infinite] before:border-t before:border-white/10 before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent">
@@ -313,57 +318,84 @@ const ImagePlaceholder = () => (
   </motion.div>
 );
 
-// 懒加载图片卡片组件
-const LazyLoadImageCard = ({ image }: { image: ImageData }) => {
-  const { ref, inView } = useInView({
-    triggerOnce: true,
-    rootMargin: '200px 0px',
-  });
+const LazyLoadImageCard = React.memo(({ image }: { image: ImageData }) => {
+  const [isLoaded, setIsLoaded] = useState(false);
+  const imageRef = useRef<HTMLImageElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsLoaded(true);
+          observer.unobserve(entry.target);
+        }
+      },
+      { rootMargin: '200px' }
+    );
+
+    if (imageRef.current) {
+      observer.observe(imageRef.current);
+    }
+
+    return () => {
+      if (imageRef.current) {
+        observer.unobserve(imageRef.current);
+      }
+    };
+  }, []);
 
   return (
-    <motion.div ref={ref} variants={item} className="w-full">
-      {inView ? (
+    <motion.div variants={item} className="w-full">
+      {!isLoaded && <ImagePlaceholder />}
+      <div style={{ display: isLoaded ? 'block' : 'none' }}>
         <AIImageCard image={image} />
-      ) : (
-        <ImagePlaceholder />
-      )}
+      </div>
+      <img ref={imageRef} src={image.url} alt={image.prompt} style={{ display: 'none' }} />
     </motion.div>
   );
-};
+});
 
-// 分页组件
 const Pagination = React.memo(({ pageNumbersToShow, currentPage, onPageChange }: {
   pageNumbersToShow: (number | string)[];
   currentPage: number;
   onPageChange: (page: number) => void;
-}) => (
-  <div className="mt-8 flex justify-center items-center gap-2">
-    {pageNumbersToShow.map((page, index) =>
-      typeof page === 'string' ? (
-        <span key={`ellipsis-${index}`} className="w-8 h-8 flex items-center justify-center">
-          ...
-        </span>
-      ) : (
-        <motion.button
-          key={page}
-          onClick={() => onPageChange(page)}
-          className={cn(
-            'w-8 h-8 flex items-center justify-center rounded-md text-sm',
-            currentPage === page
-              ? 'bg-primary text-primary-foreground font-bold'
-              : 'bg-muted hover:bg-muted/80'
-          )}
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-        >
-          {page}
-        </motion.button>
-      )
-    )}
-  </div>
-));
+}) => {
+  const throttledOnPageChange = useCallback(
+    throttle((page: number) => {
+      onPageChange(page);
+    }, 300),
+    [onPageChange]
+  );
 
-// 确保所有组件都使用 React.memo 来避免不必要的重渲染
+  return (
+    <div className="mt-8 flex justify-center items-center gap-2">
+      {pageNumbersToShow.map((page, index) =>
+        typeof page === 'string' ? (
+          <span key={`ellipsis-${index}`} className="w-8 h-8 flex items-center justify-center">
+            ...
+          </span>
+        ) : (
+          <motion.button
+            key={page}
+            onClick={() => throttledOnPageChange(page)}
+            className={cn(
+              'w-8 h-8 flex items-center justify-center rounded-md text-sm',
+              currentPage === page
+                ? 'bg-primary text-primary-foreground font-bold'
+                : 'bg-muted hover:bg-muted/80'
+            )}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+          >
+            {page}
+          </motion.button>
+        )
+      )}
+    </div>
+  );
+});
+
 CategoryList.displayName = 'CategoryList';
 ImageGrid.displayName = 'ImageGrid';
 Pagination.displayName = 'Pagination';
+LazyLoadImageCard.displayName = 'LazyLoadImageCard';

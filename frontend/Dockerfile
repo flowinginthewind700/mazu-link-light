@@ -45,6 +45,7 @@ RUN npm install @react-three/fiber three
 RUN npm install --save-dev @types/three
 RUN npm install simplex-noise
 RUN npm install react-intersection-observer
+RUN npm install react-window react-virtualized-auto-sizer lodash
 
 COPY . .
 RUN cp -r components/ui/* src/components/ui
