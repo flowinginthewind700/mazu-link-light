@@ -1,6 +1,8 @@
 "use client";
-import { cn } from "@/components/lib/utils";
+
 import React, { useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
+import { cn } from "@/components/lib/utils";
 import { createNoise3D } from "simplex-noise";
 
 export const WavyBackground = ({
@@ -13,7 +15,7 @@ export const WavyBackground = ({
   blur = 10,
   speed = "fast",
   waveOpacity = 0.5,
-  height = "400px", // 默认高度，可以通过 props 覆盖
+  height = "400px",
   ...props
 }: {
   children?: any;
@@ -25,9 +27,12 @@ export const WavyBackground = ({
   blur?: number;
   speed?: "slow" | "fast";
   waveOpacity?: number;
-  height?: string; // 新增高度属性
+  height?: string;
   [key: string]: any;
 }) => {
+  const [isMobile, setIsMobile] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const noise = createNoise3D();
   let w: number,
     h: number,
@@ -36,11 +41,14 @@ export const WavyBackground = ({
     x: number,
     ctx: any,
     canvas: any;
-  const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  // 获取当前主题
-  const [isDarkMode, setIsDarkMode] = useState(false);
   useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+
     const darkModeMediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
     setIsDarkMode(darkModeMediaQuery.matches);
 
@@ -49,8 +57,18 @@ export const WavyBackground = ({
     };
 
     darkModeMediaQuery.addEventListener("change", handleChange);
-    return () => darkModeMediaQuery.removeEventListener("change", handleChange);
+    return () => {
+      window.removeEventListener('resize', checkMobile);
+      darkModeMediaQuery.removeEventListener("change", handleChange);
+    };
   }, []);
+
+  const waveColors = colors ?? (isDarkMode
+    ? ["#38bdf8", "#818cf8", "#c084fc", "#e879f9", "#22d3ee"]
+    : ["#3b82f6", "#6366f1", "#8b5cf6", "#d946ef", "#06b6d4"]
+  );
+
+  const fillColor = backgroundFill || (isDarkMode ? "rgba(31, 41, 55, 0.5)" : "rgba(255, 255, 255, 0.5)");
 
   const getSpeed = () => {
     switch (speed) {
@@ -67,29 +85,11 @@ export const WavyBackground = ({
     canvas = canvasRef.current;
     ctx = canvas.getContext("2d");
     w = ctx.canvas.width = window.innerWidth;
-    h = ctx.canvas.height = parseInt(height, 10); // 使用传入的高度
+    h = ctx.canvas.height = parseInt(height, 10);
     ctx.filter = `blur(${blur}px)`;
     nt = 0;
     render();
   };
-
-  const resizeCanvas = () => {
-    if (canvasRef.current) {
-      w = canvasRef.current.width = window.innerWidth;
-      h = canvasRef.current.height = parseInt(height, 10);
-      ctx.filter = `blur(${blur}px)`;
-      render();
-    }
-  };
-
-  // 根据主题动态设置波浪颜色
-  const waveColors = colors ?? (isDarkMode
-    ? ["#38bdf8", "#818cf8", "#c084fc", "#e879f9", "#22d3ee"] // 深色模式下的颜色
-    : ["#3b82f6", "#6366f1", "#8b5cf6", "#d946ef", "#06b6d4"] // 浅色模式下的颜色
-  );
-
-  // 根据主题动态设置背景填充颜色
-  const fillColor = backgroundFill || (isDarkMode ? "rgba(31, 41, 55, 0.5)" : "rgba(255, 255, 255, 0.5)");
 
   const drawWave = (n: number) => {
     nt += getSpeed();
@@ -99,7 +99,7 @@ export const WavyBackground = ({
       ctx.strokeStyle = waveColors[i % waveColors.length];
       for (x = 0; x < w; x += 5) {
         var y = noise(x / 800, 0.3 * i, nt) * 100;
-        ctx.lineTo(x, y + h * 0.5); // 调整波浪高度
+        ctx.lineTo(x, y + h * 0.5);
       }
       ctx.stroke();
       ctx.closePath();
@@ -116,56 +116,100 @@ export const WavyBackground = ({
   };
 
   useEffect(() => {
-    init();
-    return () => {
-      cancelAnimationFrame(animationId);
-    };
-  }, [isDarkMode, height]); // 依赖 isDarkMode 和 height，主题或高度变化时重新渲染
-
-  const [isSafari, setIsSafari] = useState(false);
-  useEffect(() => {
-    // 检测是否为 Safari 浏览器
-    setIsSafari(
-      typeof window !== "undefined" &&
-        navigator.userAgent.includes("Safari") &&
-        !navigator.userAgent.includes("Chrome")
-    );
-  }, []);
-
-  // 监听高度变化
-  useEffect(() => {
-    const observer = new ResizeObserver(() => {
-      resizeCanvas();
-    });
-
-    if (canvasRef.current) {
-      observer.observe(canvasRef.current);
+    if (!isMobile) {
+      init();
+      return () => {
+        cancelAnimationFrame(animationId);
+      };
     }
+  }, [isDarkMode, height, isMobile]);
 
-    return () => {
-      if (canvasRef.current) {
-        observer.unobserve(canvasRef.current);
+  useEffect(() => {
+    const handleResize = () => {
+      if (canvasRef.current && !isMobile) {
+        w = canvasRef.current.width = window.innerWidth;
+        h = canvasRef.current.height = parseInt(height, 10);
+        ctx.filter = `blur(${blur}px)`;
       }
     };
-  }, [height]);
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [height, blur, isMobile]);
+
+  if (isMobile) {
+    return (
+      <MobileWavyBackground
+        height={height}
+        colors={waveColors}
+        fillColor={fillColor}
+        waveOpacity={waveOpacity}
+        className={className}
+        containerClassName={containerClassName}
+        {...props}
+      >
+        {children}
+      </MobileWavyBackground>
+    );
+  }
 
   return (
     <div
       className={cn(
-        "relative w-full rounded-lg overflow-hidden", // 移除 h-screen，改为 relative
+        "relative w-full rounded-lg overflow-hidden",
         containerClassName
       )}
-      style={{ height }} // 通过 style 设置高度
+      style={{ height }}
     >
       <canvas
-        className="absolute inset-0 z-0 w-full h-full" // 确保 canvas 充满容器
+        className="absolute inset-0 z-0 w-full h-full"
         ref={canvasRef}
         id="canvas"
-        style={{
-          ...(isSafari ? { filter: `blur(${blur}px)` } : {}),
-        }}
       ></canvas>
       <div className={cn("relative z-10", className)} {...props}>
+        {children}
+      </div>
+    </div>
+  );
+};
+
+const MobileWavyBackground: React.FC<{
+  height: string;
+  colors: string[];
+  fillColor: string;
+  waveOpacity: number;
+  className?: string;
+  containerClassName?: string;
+  children: React.ReactNode;
+}> = ({ height, colors, fillColor, waveOpacity, className, containerClassName, children }) => {
+  return (
+    <div
+      className={cn(
+        "relative w-full rounded-lg overflow-hidden",
+        containerClassName
+      )}
+      style={{ height }}
+    >
+      <div className="absolute inset-0" style={{ backgroundColor: fillColor, opacity: waveOpacity }} />
+      {colors.map((color, index) => (
+        <motion.div
+          key={index}
+          className="absolute inset-0"
+          style={{
+            backgroundColor: color,
+            opacity: 0.1,
+          }}
+          animate={{
+            y: ["0%", "100%", "0%"],
+          }}
+          transition={{
+            duration: 10 + index * 2,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+      ))}
+      <div className={cn("relative z-10", className)}>
         {children}
       </div>
     </div>
