@@ -15,7 +15,7 @@ import { WavyBackground } from '@/components/ui/wavy-background';
 
 const apiUrl = process.env.NEXT_PUBLIC_CMS_API_BASE_URL;
 const TOOLS_PER_CATEGORY = 24;
-const CACHE_EXPIRY_TIME = 30 * 1000; // 30 秒
+const CACHE_EXPIRY_TIME = 30 * 1000; // 30 seconds
 
 export default function HomePage() {
   const [selectedTopTab, setSelectedTopTab] = useState('default');
@@ -29,7 +29,6 @@ export default function HomePage() {
 
   const sectionRefs = useRef<Record<string, React.RefObject<HTMLDivElement>>>({});
 
-  // 从 localStorage 加载缓存数据
   const loadFromCache = () => {
     const cachedData = localStorage.getItem('categoriesAndTools');
     if (cachedData) {
@@ -39,13 +38,12 @@ export default function HomePage() {
         setCategories(data.categories);
         setToolsByCategory(data.toolsByCategory);
         setLoading(false);
-        return true; // 缓存有效
+        return true;
       }
     }
-    return false; // 缓存无效或不存在
+    return false;
   };
 
-  // 保存数据到 localStorage
   const saveToCache = (data: { categories: Category[]; toolsByCategory: Record<string, Tool[]> }) => {
     localStorage.setItem(
       'categoriesAndTools',
@@ -53,9 +51,7 @@ export default function HomePage() {
     );
   };
 
-  // 一次性获取所有分类及其工具数据
   const fetchCategoriesAndTools = useCallback(async () => {
-    // 先尝试从缓存加载
     if (loadFromCache()) {
       return;
     }
@@ -88,11 +84,9 @@ export default function HomePage() {
         return acc;
       }, {} as Record<string, Tool[]>);
 
-      // 更新状态
       setCategories(categoriesWithTools);
       setToolsByCategory(toolsByCategory);
 
-      // 保存到缓存
       saveToCache({ categories: categoriesWithTools, toolsByCategory });
     } catch (error) {
       console.error('Error fetching categories and tools:', error);
@@ -105,13 +99,12 @@ export default function HomePage() {
     fetchCategoriesAndTools();
   }, [fetchCategoriesAndTools]);
 
-  // 更新 sectionRefs
   useEffect(() => {
     sectionRefs.current = categories.reduce((acc, category) => {
       acc[category.id] = React.createRef();
       return acc;
     }, {} as Record<string, React.RefObject<HTMLDivElement>>);
-  }, [categories, toolsByCategory]);
+  }, [categories]);
 
   const scrollToSection = useCallback((sectionId: string) => {
     const sectionRef = sectionRefs.current[sectionId]?.current;
@@ -134,7 +127,7 @@ export default function HomePage() {
       <Navigation
         onCategorySelect={handleCategorySelect}
         categories={categories}
-        scrollToCategoryFromMobile={(categoryId) => scrollToSection(categoryId)}
+        scrollToCategoryFromMobile={scrollToSection}
         currentPage="home"
         showMobileMenu={true}
       />
@@ -144,18 +137,20 @@ export default function HomePage() {
       <Script
         id="structured-data"
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "WebSite",
-          "name": "AGI Entry",
-          "url": "https://agientry.com",
-          "description": "A comprehensive directory of AI and AGI tools including chatbots, image generators, and coding assistants.",
-          "potentialAction": {
-            "@type": "SearchAction",
-            "target": "https://agientry.com/search?q={search_term_string}",
-            "query-input": "required name=search_term_string"
-          }
-        }) }}
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            "name": "AGI Entry",
+            "url": "https://agientry.com",
+            "description": "A comprehensive directory of AI and AGI tools including chatbots, image generators, and coding assistants.",
+            "potentialAction": {
+              "@type": "SearchAction",
+              "target": "https://agientry.com/search?q={search_term_string}",
+              "query-input": "required name=search_term_string"
+            }
+          })
+        }}
       />
       <div className="min-h-screen bg-background text-foreground pb-20">
         <div className="container mx-auto px-4 py-8">
@@ -164,15 +159,13 @@ export default function HomePage() {
             <aside className="hidden lg:block w-48 space-y-4 sticky top-24 h-fit">
               <nav className="space-y-2">
                 {categories.map((category) => (
-                  sectionRefs.current[category.id] && (
-                    <button
-                      key={category.id}
-                      onClick={() => scrollToSection(category.id)}
-                      className="flex w-full items-center gap-2 p-2 rounded-lg hover:bg-accent hover:text-accent-foreground text-left transition-colors duration-200 ease-in-out glow-effect"
-                    >
-                      <span className="text-sm">{category.name}</span>
-                    </button>
-                  )
+                  <button
+                    key={category.id}
+                    onClick={() => scrollToSection(category.id)}
+                    className="flex w-full items-center gap-2 p-2 rounded-lg hover:bg-accent hover:text-accent-foreground text-left transition-colors duration-200 ease-in-out glow-effect"
+                  >
+                    <span className="text-sm">{category.name}</span>
+                  </button>
                 ))}
               </nav>
             </aside>
