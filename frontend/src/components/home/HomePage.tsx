@@ -1,17 +1,19 @@
 'use client';
 
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
 import Head from 'next/head';
 import Script from 'next/script';
 import axios from 'axios';
-import { HeroSearch } from './HeroSearch';
-import { FeaturedSection } from './FeaturedSection';
-import { ToolCard } from './ToolCard';
-import { AnimatedSectionTitle } from '@/components/animated-section-title';
-import { BottomNavbar } from '@/components/bottom-navbar';
+import dynamic from 'next/dynamic';
 import { Category, Tool } from './types';
-import { Navigation } from '@/components/navigation';
-import { WavyBackground } from '@/components/ui/wavy-background';
+
+const HeroSearch = dynamic(() => import('./HeroSearch'), { loading: () => <p>Loading...</p> });
+const FeaturedSection = dynamic(() => import('./FeaturedSection'), { loading: () => <p>Loading...</p> });
+const ToolCard = dynamic(() => import('./ToolCard'), { loading: () => <p>Loading...</p> });
+const AnimatedSectionTitle = dynamic(() => import('@/components/animated-section-title'), { loading: () => <p>Loading...</p> });
+const BottomNavbar = dynamic(() => import('@/components/bottom-navbar'), { loading: () => <p>Loading...</p> });
+const Navigation = dynamic(() => import('@/components/navigation'), { loading: () => <p>Loading...</p> });
+const WavyBackground = dynamic(() => import('@/components/ui/wavy-background'), { loading: () => <p>Loading...</p> });
 
 const apiUrl = process.env.NEXT_PUBLIC_CMS_API_BASE_URL;
 const TOOLS_PER_CATEGORY = 24;
@@ -24,100 +26,84 @@ export default function HomePage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [toolsByCategory, setToolsByCategory] = useState<Record<string, Tool[]>>({});
   const [selectedFeatureTab, setSelectedFeatureTab] = useState('agi-tools');
-  const [loading, setLoading] = useState<boolean>(true); // 新增 loading 状态
+  const [loading, setLoading] = useState<boolean>(true);
 
   const sectionRefs = useRef<Record<string, React.RefObject<HTMLDivElement>>>({});
 
-  useEffect(() => {
-    fetchCategories();
-  }, []);
-
-  useEffect(() => {
-    if (categories.length > 0) {
-      sectionRefs.current = categories.reduce((acc, category) => {
-        acc[category.id] = React.createRef<HTMLDivElement>();
-        return acc;
-      }, {} as Record<string, React.RefObject<HTMLDivElement>>);
-
-      categories.forEach(category => {
-        fetchToolsForCategory(category.id);
-      });
+  const fetchCategoriesAndTools = useCallback(async () => {
+    const cachedData = localStorage.getItem('categoriesAndTools');
+    if (cachedData) {
+      const { categories, toolsByCategory } = JSON.parse(cachedData);
+      setCategories(categories);
+      setToolsByCategory(toolsByCategory);
+      setLoading(false);
+      return;
     }
-  }, [categories]);
 
-  const handleCategorySelect = (categoryId: string) => {
-    scrollToSection(categoryId);
-  };
-
-  const fetchCategories = async () => {
     try {
       const query = `
         query {
           agitoolcategories {
             id
             name
+            agitools(limit: ${TOOLS_PER_CATEGORY}) {
+              id
+              name
+              Description
+              iconimage {
+                formats
+                url
+              }
+              accessLink
+              internalPath
+            }
           }
         }
       `;
       const response = await axios.post(`${apiUrl}/graphql`, { query });
-      setCategories(response.data.data.agitoolcategories);
+      const categoriesWithTools = response.data.data.agitoolcategories;
+
+      setCategories(categoriesWithTools);
+
+      const toolsByCategory = categoriesWithTools.reduce((acc, category) => {
+        acc[category.id] = category.agitools;
+        return acc;
+      }, {} as Record<string, Tool[]>);
+
+      setToolsByCategory(toolsByCategory);
+
+      localStorage.setItem('categoriesAndTools', JSON.stringify({ categories: categoriesWithTools, toolsByCategory }));
     } catch (error) {
-      console.error('Error fetching categories:', error);
+      console.error('Error fetching categories and tools:', error);
     } finally {
-      setLoading(false); // 数据加载完成后关闭 loading
+      setLoading(false);
     }
-  };
+  }, []);
 
-  const fetchToolsForCategory = async (categoryId: string) => {
-    try {
-      const query = `
-        query($categoryId: ID!) {
-          agitools(
-            where: { agitoolcategory: { id: $categoryId } }
-            limit: ${TOOLS_PER_CATEGORY}
-          ) {
-            id
-            name
-            Description
-            iconimage {
-              formats
-              url
-            }
-            accessLink
-            internalPath
-          }
-        }
-      `;
-      const response = await axios.post(`${apiUrl}/graphql`, {
-        query,
-        variables: { categoryId },
-      });
+  useEffect(() => {
+    fetchCategoriesAndTools();
+  }, [fetchCategoriesAndTools]);
 
-      setToolsByCategory(prev => ({
-        ...prev,
-        [categoryId]: response.data.data.agitools,
-      }));
-    } catch (error) {
-      console.error('Error fetching tools:', error);
-    }
-  };
+  const handleCategorySelect = useCallback((categoryId: string) => {
+    scrollToSection(categoryId);
+  }, []);
 
-  const scrollToSection = (sectionId: string) => {
+  const scrollToSection = useCallback((sectionId: string) => {
     sectionRefs.current[sectionId]?.current?.scrollIntoView({
       behavior: 'smooth',
       block: 'start',
     });
     setAnimatingSection(sectionId);
     setTimeout(() => setAnimatingSection(''), 1000);
-  };
+  }, []);
 
   useEffect(() => {
     const observers = categories.map(category => {
       const observer = new IntersectionObserver(
         (entries) => {
           entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              setActiveSection(category.id);
+            if (entry.isIntersecting && !toolsByCategory[category.id]) {
+              fetchToolsForCategory(category.id);
             }
           });
         },
@@ -134,7 +120,7 @@ export default function HomePage() {
     return () => {
       observers.forEach(observer => observer.disconnect());
     };
-  }, [categories]);
+  }, [categories, toolsByCategory]);
 
   return (
     <>
@@ -207,25 +193,25 @@ export default function HomePage() {
                     isActive={animatingSection === category.id}
                   />
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {loading
-  ? Array.from({ length: 6 }).map((_, index) => (
-      <ToolCard
-        key={index}
-        tool={{
-          id: index.toString(),
-          name: 'Loading AI tool...',
-          Description: 'Loading AI tool...',
-          iconimage: { url: '/placeholder.svg ' },
-          accessLink: '', // 补充缺失的属性
-          internalPath: '', // 补充缺失的属性
-        }}
-        apiUrl={apiUrl || ''}
-        loading={true} // 启用骨架屏
-      />
-    ))
-  : toolsByCategory[category.id]?.map((tool) => (
-      <ToolCard key={tool.id} tool={tool} apiUrl={apiUrl || ''} />
-    ))}
+                    {loading
+                      ? Array.from({ length: 6 }).map((_, index) => (
+                          <ToolCard
+                            key={index}
+                            tool={{
+                              id: index.toString(),
+                              name: 'Loading AI tool...',
+                              Description: 'Loading AI tool...',
+                              iconimage: { url: '/placeholder.svg' },
+                              accessLink: '',
+                              internalPath: '',
+                            }}
+                            apiUrl={apiUrl || ''}
+                            loading={true}
+                          />
+                        ))
+                      : toolsByCategory[category.id]?.map((tool) => (
+                          <ToolCard key={tool.id} tool={tool} apiUrl={apiUrl || ''} />
+                        ))}
                   </div>
                 </div>
               ))}
