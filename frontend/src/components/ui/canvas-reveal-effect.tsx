@@ -1,13 +1,15 @@
 "use client";
+
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { motion } from 'framer-motion';
 import { cn } from "@/components/lib/utils";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import React, { useMemo, useRef } from "react";
 import * as THREE from "three";
 
 interface CanvasRevealEffectProps {
   animationSpeed?: number;
   opacities?: number[];
-  colors?: number[][];
+  colors?: string[];
   containerClassName?: string;
   dotSize?: number;
   showGradient?: boolean;
@@ -16,18 +18,40 @@ interface CanvasRevealEffectProps {
 export const CanvasRevealEffect: React.FC<CanvasRevealEffectProps> = ({
   animationSpeed = 0.4,
   opacities = [0.3, 0.3, 0.3, 0.5, 0.5, 0.5, 0.8, 0.8, 0.8, 1],
-  colors = [[0, 255, 255]],
+  colors = ['#00ffff', '#ff00ff', '#ffff00'],
   containerClassName,
-  dotSize,
+  dotSize = 3,
   showGradient = true,
 }) => {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  if (isMobile) {
+    return (
+      <div className={cn("h-full relative bg-white dark:bg-neutral-900 w-full overflow-hidden", containerClassName)}>
+        <MobileEffect colors={colors} />
+        {showGradient && (
+          <div className="absolute inset-0 bg-gradient-to-t from-gray-950 to-[84%] dark:from-gray-900 dark:to-[84%]" />
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className={cn("h-full relative bg-white dark:bg-neutral-900 w-full", containerClassName)}>
       <div className="h-full w-full">
         <DotMatrix
-          colors={colors ?? [[0, 255, 255]]}
-          dotSize={dotSize ?? 3}
-          opacities={opacities ?? [0.3, 0.3, 0.3, 0.5, 0.5, 0.5, 0.8, 0.8, 0.8, 1]}
+          colors={colors.map(color => hexToRgb(color))}
+          dotSize={dotSize}
+          opacities={opacities}
           shader={`
             float animation_speed_factor = ${animationSpeed.toFixed(1)};
             float intro_offset = distance(u_resolution / 2.0 / u_total_size, st2) * 0.01 + (random(st2) * 0.15);
@@ -44,22 +68,67 @@ export const CanvasRevealEffect: React.FC<CanvasRevealEffectProps> = ({
   );
 };
 
+const MobileEffect: React.FC<{ colors: string[] }> = ({ colors }) => {
+  return (
+    <>
+      {colors.map((color, index) => (
+        <motion.div
+          key={index}
+          className="absolute inset-0"
+          style={{
+            backgroundColor: color,
+            opacity: 0.1,
+          }}
+          animate={{
+            scale: [1, 1.2, 1],
+            opacity: [0.1, 0.2, 0.1],
+          }}
+          transition={{
+            duration: 5 + index,
+            repeat: Infinity,
+            repeatType: "reverse",
+            ease: "easeInOut",
+          }}
+        />
+      ))}
+      <motion.div
+        className="absolute inset-0"
+        style={{
+          background: `radial-gradient(circle, ${colors[0]} 0%, transparent 70%)`,
+          opacity: 0.1,
+        }}
+        animate={{
+          scale: [1, 1.1, 1],
+          x: [0, 50, 0],
+          y: [0, 30, 0],
+        }}
+        transition={{
+          duration: 10,
+          repeat: Infinity,
+          repeatType: "reverse",
+          ease: "easeInOut",
+        }}
+      />
+    </>
+  );
+};
+
 interface DotMatrixProps {
-  colors?: number[][];
-  opacities?: number[];
+  colors: number[][];
+  opacities: number[];
   totalSize?: number;
-  dotSize?: number;
-  shader?: string;
-  center?: string[];
+  dotSize: number;
+  shader: string;
+  center: string[];
 }
 
 const DotMatrix: React.FC<DotMatrixProps> = ({
-  colors = [[0, 0, 0]],
-  opacities = [0.04, 0.04, 0.04, 0.04, 0.04, 0.08, 0.08, 0.08, 0.08, 0.14],
+  colors,
+  opacities,
   totalSize = 4,
-  dotSize = 2,
-  shader = "",
-  center = ["x", "y"],
+  dotSize,
+  shader,
+  center,
 }) => {
   const uniforms = useMemo(() => {
     let colorsArray = [
@@ -291,3 +360,13 @@ const Shader: React.FC<ShaderProps> = ({ source, uniforms, maxFps = 60 }) => {
     </Canvas>
   );
 };
+
+// Utility function to convert hex color to RGB
+function hexToRgb(hex: string): number[] {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result ? [
+    parseInt(result[1], 16),
+    parseInt(result[2], 16),
+    parseInt(result[3], 16)
+  ] : [0, 0, 0];
+}
