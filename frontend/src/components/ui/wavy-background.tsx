@@ -16,6 +16,7 @@ export const WavyBackground = ({
   speed = "fast",
   waveOpacity = 0.5,
   height = "400px",
+  animate = true,
   ...props
 }: {
   children?: any;
@@ -28,9 +29,10 @@ export const WavyBackground = ({
   speed?: "slow" | "fast";
   waveOpacity?: number;
   height?: string;
+  animate?: boolean;
   [key: string]: any;
 }) => {
-  const [isMobile, setIsMobile] = useState(false);
+  const [fallbackToMotion, setFallbackToMotion] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const noise = createNoise3D();
@@ -43,12 +45,6 @@ export const WavyBackground = ({
     canvas: any;
 
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-
     const darkModeMediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
     setIsDarkMode(darkModeMediaQuery.matches);
 
@@ -57,10 +53,7 @@ export const WavyBackground = ({
     };
 
     darkModeMediaQuery.addEventListener("change", handleChange);
-    return () => {
-      window.removeEventListener('resize', checkMobile);
-      darkModeMediaQuery.removeEventListener("change", handleChange);
-    };
+    return () => darkModeMediaQuery.removeEventListener("change", handleChange);
   }, []);
 
   const waveColors = colors ?? (isDarkMode
@@ -83,7 +76,11 @@ export const WavyBackground = ({
 
   const init = () => {
     canvas = canvasRef.current;
-    ctx = canvas.getContext("2d");
+    ctx = canvas.getContext("2d", { willReadFrequently: true });
+    if (!ctx) {
+      setFallbackToMotion(true);
+      return;
+    }
     w = ctx.canvas.width = window.innerWidth;
     h = ctx.canvas.height = parseInt(height, 10);
     ctx.filter = `blur(${blur}px)`;
@@ -108,25 +105,36 @@ export const WavyBackground = ({
 
   let animationId: number;
   const render = () => {
+    ctx.clearRect(0, 0, w, h);
     ctx.fillStyle = fillColor;
     ctx.globalAlpha = waveOpacity || 0.5;
     ctx.fillRect(0, 0, w, h);
     drawWave(5);
+    ctx.globalCompositeOperation = 'soft-light';
+    const gradient = ctx.createLinearGradient(0, 0, w, h);
+    gradient.addColorStop(0, 'rgba(255,255,255,0.5)');
+    gradient.addColorStop(1, 'rgba(0,0,0,0.5)');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, w, h);
+    ctx.globalCompositeOperation = 'source-over';
     animationId = requestAnimationFrame(render);
   };
 
   useEffect(() => {
-    if (!isMobile) {
+    try {
       init();
-      return () => {
-        cancelAnimationFrame(animationId);
-      };
+    } catch (error) {
+      console.error("WebGL context could not be created:", error);
+      setFallbackToMotion(true);
     }
-  }, [isDarkMode, height, isMobile]);
+    return () => {
+      cancelAnimationFrame(animationId);
+    };
+  }, [isDarkMode, height]);
 
   useEffect(() => {
     const handleResize = () => {
-      if (canvasRef.current && !isMobile) {
+      if (canvasRef.current && !fallbackToMotion) {
         w = canvasRef.current.width = window.innerWidth;
         h = canvasRef.current.height = parseInt(height, 10);
         ctx.filter = `blur(${blur}px)`;
@@ -135,21 +143,22 @@ export const WavyBackground = ({
 
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, [height, blur, isMobile]);
+  }, [height, blur, fallbackToMotion]);
 
-  if (isMobile) {
+  if (fallbackToMotion) {
     return (
-      <MobileWavyBackground
+      <MotionWavyBackground
         height={height}
         colors={waveColors}
         fillColor={fillColor}
         waveOpacity={waveOpacity}
         className={className}
         containerClassName={containerClassName}
+        animate={animate}
         {...props}
       >
         {children}
-      </MobileWavyBackground>
+      </MotionWavyBackground>
     );
   }
 
@@ -173,31 +182,61 @@ export const WavyBackground = ({
   );
 };
 
-const MobileWavyBackground: React.FC<{
+const MotionWavyBackground: React.FC<{
   height: string;
   colors: string[];
   fillColor: string;
   waveOpacity: number;
   className?: string;
   containerClassName?: string;
+  animate: boolean;
   children: React.ReactNode;
-}> = ({ height, colors, fillColor, waveOpacity, className, containerClassName, children }) => {
+}> = ({ height, colors, fillColor, waveOpacity, className, containerClassName, animate, children }) => {
+  const variants = {
+    initial: {
+      backgroundPosition: "0 50%",
+    },
+    animate: {
+      backgroundPosition: ["0, 50%", "100% 50%", "0 50%"],
+    },
+  };
+
   return (
     <div
       className={cn(
-        "relative w-full rounded-lg overflow-hidden",
+        "relative rounded-lg overflow-hidden",
         containerClassName
       )}
       style={{ height }}
     >
-      <div className="absolute inset-0" style={{ backgroundColor: fillColor, opacity: waveOpacity }} />
+      <motion.div
+        variants={animate ? variants : undefined}
+        initial={animate ? "initial" : undefined}
+        animate={animate ? "animate" : undefined}
+        transition={
+          animate
+            ? {
+                duration: 20,
+                repeat: Infinity,
+                repeatType: "reverse",
+              }
+            : undefined
+        }
+        style={{
+          backgroundSize: animate ? "400% 400%" : undefined,
+        }}
+        className={cn(
+          "absolute inset-0 z-0 opacity-60 blur-xl transition duration-500",
+          "bg-[radial-gradient(circle_farthest-side_at_0_100%,#00ccb1,transparent),radial-gradient(circle_farthest-side_at_100%_0,#7b61ff,transparent),radial-gradient(circle_farthest-side_at_100%_100%,#ffc414,transparent),radial-gradient(circle_farthest-side_at_0_0,#1ca0fb,#141316)]"
+        )}
+      />
       {colors.map((color, index) => (
         <motion.div
           key={index}
-          className="absolute inset-0"
+          className="absolute inset-0 z-0"
           style={{
             backgroundColor: color,
-            opacity: 0.1,
+            opacity: waveOpacity * 0.2,
           }}
           animate={{
             y: ["0%", "100%", "0%"],
@@ -209,6 +248,10 @@ const MobileWavyBackground: React.FC<{
           }}
         />
       ))}
+      <div
+        className="absolute inset-0 z-0"
+        style={{ backgroundColor: fillColor, opacity: waveOpacity }}
+      />
       <div className={cn("relative z-10", className)}>
         {children}
       </div>

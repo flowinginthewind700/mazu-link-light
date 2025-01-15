@@ -1,8 +1,10 @@
 "use client";
+
 import { cn } from "@/components/lib/utils";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import React, { useMemo, useRef } from "react";
+import React, { useMemo, useRef, useState, useEffect } from "react";
 import * as THREE from "three";
+import { motion } from "framer-motion";
 
 interface CanvasRevealEffectProps {
   animationSpeed?: number;
@@ -21,13 +23,35 @@ export const CanvasRevealEffect: React.FC<CanvasRevealEffectProps> = ({
   dotSize,
   showGradient = true,
 }) => {
+  const [fallbackToMotion, setFallbackToMotion] = useState(false);
+
+  useEffect(() => {
+    const canvas = document.createElement('canvas');
+    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+    if (!gl) {
+      setFallbackToMotion(true);
+    }
+  }, []);
+
+  if (fallbackToMotion) {
+    return (
+      <MotionDotMatrix
+        colors={colors}
+        dotSize={dotSize ?? 3}
+        opacities={opacities}
+        containerClassName={containerClassName}
+        showGradient={showGradient}
+      />
+    );
+  }
+
   return (
     <div className={cn("h-full relative bg-white dark:bg-neutral-900 w-full", containerClassName)}>
       <div className="h-full w-full">
         <DotMatrix
-          colors={colors ?? [[0, 255, 255]]}
+          colors={colors}
           dotSize={dotSize ?? 3}
-          opacities={opacities ?? [0.3, 0.3, 0.3, 0.5, 0.5, 0.5, 0.8, 0.8, 0.8, 1]}
+          opacities={opacities}
           shader={`
             float animation_speed_factor = ${animationSpeed.toFixed(1)};
             float intro_offset = distance(u_resolution / 2.0 / u_total_size, st2) * 0.01 + (random(st2) * 0.15);
@@ -45,72 +69,38 @@ export const CanvasRevealEffect: React.FC<CanvasRevealEffectProps> = ({
 };
 
 interface DotMatrixProps {
-  colors?: number[][];
-  opacities?: number[];
+  colors: number[][];
+  opacities: number[];
   totalSize?: number;
-  dotSize?: number;
-  shader?: string;
-  center?: string[];
+  dotSize: number;
+  shader: string;
+  center: string[];
 }
 
 const DotMatrix: React.FC<DotMatrixProps> = ({
-  colors = [[0, 0, 0]],
-  opacities = [0.04, 0.04, 0.04, 0.04, 0.04, 0.08, 0.08, 0.08, 0.08, 0.14],
+  colors,
+  opacities,
   totalSize = 4,
-  dotSize = 2,
-  shader = "",
-  center = ["x", "y"],
+  dotSize,
+  shader,
+  center,
 }) => {
   const uniforms = useMemo(() => {
-    let colorsArray = [
-      colors[0],
-      colors[0],
-      colors[0],
-      colors[0],
-      colors[0],
-      colors[0],
-    ];
+    let colorsArray = Array(6).fill(colors[0]);
     if (colors.length === 2) {
-      colorsArray = [
-        colors[0],
-        colors[0],
-        colors[0],
-        colors[1],
-        colors[1],
-        colors[1],
-      ];
+      colorsArray = [...Array(3).fill(colors[0]), ...Array(3).fill(colors[1])];
     } else if (colors.length === 3) {
-      colorsArray = [
-        colors[0],
-        colors[0],
-        colors[1],
-        colors[1],
-        colors[2],
-        colors[2],
-      ];
+      colorsArray = [...Array(2).fill(colors[0]), ...Array(2).fill(colors[1]), ...Array(2).fill(colors[2])];
     }
 
     return {
       u_colors: {
-        value: colorsArray.map((color) => [
-          color[0] / 255,
-          color[1] / 255,
-          color[2] / 255,
-        ]),
+        value: colorsArray.map((color) => color.map((c) => c / 255)),
         type: "uniform3fv",
       },
-      u_opacities: {
-        value: opacities,
-        type: "uniform1fv",
-      },
-      u_total_size: {
-        value: totalSize,
-        type: "uniform1f",
-      },
-      u_dot_size: {
-        value: dotSize,
-        type: "uniform1f",
-      },
+      u_opacities: { value: opacities, type: "uniform1fv" },
+      u_total_size: { value: totalSize, type: "uniform1f" },
+      u_dot_size: { value: dotSize, type: "uniform1f" },
     };
   }, [colors, opacities, totalSize, dotSize]);
 
@@ -127,27 +117,19 @@ const DotMatrix: React.FC<DotMatrixProps> = ({
         uniform float u_dot_size;
         uniform vec2 u_resolution;
         out vec4 fragColor;
+        
         float PHI = 1.61803398874989484820459;
+        
         float random(vec2 xy) {
             return fract(tan(distance(xy * PHI, xy) * 0.5) * xy.x);
         }
-        float map(float value, float min1, float max1, float min2, float max2) {
-            return min2 + (value - min1) * (max2 - min2) / (max1 - min1);
-        }
+        
         void main() {
             vec2 st = fragCoord.xy;
-            ${
-              center.includes("x")
-                ? "st.x -= abs(floor((mod(u_resolution.x, u_total_size) - u_dot_size) * 0.5));"
-                : ""
-            }
-            ${
-              center.includes("y")
-                ? "st.y -= abs(floor((mod(u_resolution.y, u_total_size) - u_dot_size) * 0.5));"
-                : ""
-            }
-            float opacity = step(0.0, st.x);
-            opacity *= step(0.0, st.y);
+            ${center.includes("x") ? "st.x -= abs(floor((mod(u_resolution.x, u_total_size) - u_dot_size) * 0.5));" : ""}
+            ${center.includes("y") ? "st.y -= abs(floor((mod(u_resolution.y, u_total_size) - u_dot_size) * 0.5));" : ""}
+            
+            float opacity = step(0.0, st.x) * step(0.0, st.y);
 
             vec2 st2 = vec2(int(st.x / u_total_size), int(st.y / u_total_size));
 
@@ -196,8 +178,7 @@ const ShaderMaterial: React.FC<ShaderMaterialProps> = ({
     lastFrameTime = timestamp;
 
     const material = ref.current.material as THREE.ShaderMaterial;
-    const timeLocation = material.uniforms.u_time;
-    timeLocation.value = timestamp;
+    material.uniforms.u_time.value = timestamp;
   });
 
   const getUniforms = () => {
@@ -208,65 +189,42 @@ const ShaderMaterial: React.FC<ShaderMaterialProps> = ({
 
       switch (uniform.type) {
         case "uniform1f":
-          preparedUniforms[uniformName] = { value: uniform.value, type: "1f" };
+          preparedUniforms[uniformName] = { value: uniform.value };
           break;
         case "uniform3f":
-          preparedUniforms[uniformName] = {
-            value: new THREE.Vector3().fromArray(uniform.value),
-            type: "3f",
-          };
+          preparedUniforms[uniformName] = { value: new THREE.Vector3().fromArray(uniform.value) };
           break;
         case "uniform1fv":
-          preparedUniforms[uniformName] = { value: uniform.value, type: "1fv" };
+          preparedUniforms[uniformName] = { value: uniform.value };
           break;
         case "uniform3fv":
-          preparedUniforms[uniformName] = {
-            value: uniform.value.map((v: number[]) =>
-              new THREE.Vector3().fromArray(v)
-            ),
-            type: "3fv",
-          };
+          preparedUniforms[uniformName] = { value: uniform.value.map((v: number[]) => new THREE.Vector3().fromArray(v)) };
           break;
         case "uniform2f":
-          preparedUniforms[uniformName] = {
-            value: new THREE.Vector2().fromArray(uniform.value),
-            type: "2f",
-          };
+          preparedUniforms[uniformName] = { value: new THREE.Vector2().fromArray(uniform.value) };
           break;
         default:
           console.error(`Invalid uniform type for '${uniformName}'.`);
-          break;
       }
     }
 
-    preparedUniforms["u_time"] = { value: 0, type: "1f" };
-    preparedUniforms["u_resolution"] = {
-      value: new THREE.Vector2(size.width * 2, size.height * 2),
-    };
+    preparedUniforms["u_time"] = { value: 0 };
+    preparedUniforms["u_resolution"] = { value: new THREE.Vector2(size.width, size.height) };
     return preparedUniforms;
   };
 
   const material = useMemo(() => {
     return new THREE.ShaderMaterial({
       vertexShader: `
-        precision mediump float;
-        in vec2 coordinates;
-        uniform vec2 u_resolution;
-        out vec2 fragCoord;
+        varying vec2 fragCoord;
         void main() {
-          float x = position.x;
-          float y = position.y;
-          gl_Position = vec4(x, y, 0.0, 1.0);
-          fragCoord = (position.xy + vec2(1.0)) * 0.5 * u_resolution;
-          fragCoord.y = u_resolution.y - fragCoord.y;
+          fragCoord = uv;
+          gl_Position = vec4(position, 1.0);
         }
       `,
       fragmentShader: source,
       uniforms: getUniforms(),
-      glslVersion: THREE.GLSL3,
-      blending: THREE.CustomBlending,
-      blendSrc: THREE.SrcAlphaFactor,
-      blendDst: THREE.OneFactor,
+      transparent: true,
     });
   }, [size.width, size.height, source]);
 
@@ -291,3 +249,89 @@ const Shader: React.FC<ShaderProps> = ({ source, uniforms, maxFps = 60 }) => {
     </Canvas>
   );
 };
+
+interface MotionDotMatrixProps {
+  colors: number[][];
+  dotSize: number;
+  opacities: number[];
+  containerClassName?: string;
+  showGradient?: boolean;
+}
+
+const MotionDotMatrix: React.FC<MotionDotMatrixProps> = ({
+  colors,
+  dotSize,
+  opacities,
+  containerClassName,
+  showGradient
+}) => {
+  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+
+  useEffect(() => {
+    const updateDimensions = () => {
+      setDimensions({
+        width: window.innerWidth,
+        height: window.innerHeight
+      });
+    };
+
+    updateDimensions();
+    window.addEventListener('resize', updateDimensions);
+
+    return () => window.removeEventListener('resize', updateDimensions);
+  }, []);
+
+  const dots = useMemo(() => {
+    const dotsArray = [];
+    const totalSize = 20;
+    const numDotsX = Math.ceil(dimensions.width / totalSize);
+    const numDotsY = Math.ceil(dimensions.height / totalSize);
+
+    for (let y = 0; y < numDotsY; y++) {
+      for (let x = 0; x < numDotsX; x++) {
+        dotsArray.push({
+          x: x * totalSize,
+          y: y * totalSize,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          opacity: opacities[Math.floor(Math.random() * opacities.length)]
+        });
+      }
+    }
+
+    return dotsArray;
+  }, [dimensions, colors, opacities]);
+
+  return (
+    <div className={cn("h-full relative bg-white dark:bg-neutral-900 w-full", containerClassName)}>
+      {dots.map((dot, index) => (
+        <motion.div
+          key={index}
+          style={{
+            position: 'absolute',
+            left: dot.x,
+            top: dot.y,
+            width: dotSize,
+            height: dotSize,
+            borderRadius: '50%',
+            backgroundColor: `rgb(${dot.color[0]}, ${dot.color[1]}, ${dot.color[2]})`,
+            opacity: dot.opacity
+          }}
+          animate={{
+            opacity: [dot.opacity, dot.opacity * 0.5, dot.opacity],
+            scale: [1, 1.2, 1]
+          }}
+          transition={{
+            duration: 2 + Math.random() * 2,
+            repeat: Infinity,
+            repeatType: 'reverse'
+          }}
+        />
+      ))}
+      {showGradient && (
+        <div className="absolute inset-0 bg-gradient-to-t from-gray-950 to-[84%] dark:from-gray-900 dark:to-[84%]" />
+      )}
+    </div>
+  );
+};
+
+export default CanvasRevealEffect;
