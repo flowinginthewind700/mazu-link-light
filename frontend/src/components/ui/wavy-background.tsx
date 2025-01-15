@@ -41,10 +41,13 @@ export const WavyBackground: React.FC<WavyBackgroundProps> = ({
     return () => darkModeMediaQuery.removeEventListener("change", handleChange);
   }, []);
 
-  const waveColors = colors ?? (isDarkMode
-    ? ["#1e40af", "#3730a3", "#6d28d9", "#86198f", "#0f766e"]
-    : ["#60a5fa", "#818cf8", "#a78bfa", "#e879f9", "#34d399"]
-  );
+  const waveColors = colors ?? [
+    "#00ccb1",
+    "#1ca0fb",
+    "#7b61ff",
+    "#ffc414",
+    "#f472b6"
+  ];
 
   const fillColor = backgroundFill || (isDarkMode ? "rgba(17, 24, 39, 0.7)" : "rgba(255, 255, 255, 0.7)");
 
@@ -60,7 +63,7 @@ export const WavyBackground: React.FC<WavyBackgroundProps> = ({
   return (
     <div
       className={cn(
-        "relative rounded-lg overflow-hidden",
+        "relative rounded-3xl overflow-hidden",
         containerClassName
       )}
       style={{ height }}
@@ -72,7 +75,7 @@ export const WavyBackground: React.FC<WavyBackgroundProps> = ({
         transition={
           animate
             ? {
-                duration: 30,
+                duration: 20,
                 repeat: Infinity,
                 repeatType: "reverse",
               }
@@ -82,10 +85,29 @@ export const WavyBackground: React.FC<WavyBackgroundProps> = ({
           backgroundSize: animate ? "400% 400%" : undefined,
         }}
         className={cn(
-          "absolute inset-0 z-0 opacity-70 blur-2xl transition duration-1000",
-          isDarkMode
-            ? "bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-indigo-900 via-purple-900 to-pink-900"
-            : "bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-blue-400 via-purple-400 to-pink-400"
+          "absolute inset-0 z-0 opacity-60 group-hover:opacity-100 blur-xl transition duration-500",
+          "bg-[radial-gradient(circle_farthest-side_at_0_100%,#00ccb1,transparent),radial-gradient(circle_farthest-side_at_100%_0,#7b61ff,transparent),radial-gradient(circle_farthest-side_at_100%_100%,#ffc414,transparent),radial-gradient(circle_farthest-side_at_0_0,#1ca0fb,#141316)]"
+        )}
+      />
+      <motion.div
+        variants={animate ? variants : undefined}
+        initial={animate ? "initial" : undefined}
+        animate={animate ? "animate" : undefined}
+        transition={
+          animate
+            ? {
+                duration: 20,
+                repeat: Infinity,
+                repeatType: "reverse",
+              }
+            : undefined
+        }
+        style={{
+          backgroundSize: animate ? "400% 400%" : undefined,
+        }}
+        className={cn(
+          "absolute inset-0 z-[1]",
+          "bg-[radial-gradient(circle_farthest-side_at_0_100%,#00ccb1,transparent),radial-gradient(circle_farthest-side_at_100%_0,#7b61ff,transparent),radial-gradient(circle_farthest-side_at_100%_100%,#ffc414,transparent),radial-gradient(circle_farthest-side_at_0_0,#1ca0fb,#141316)]"
         )}
       />
       {waveColors.map((color, index) => (
@@ -94,28 +116,28 @@ export const WavyBackground: React.FC<WavyBackgroundProps> = ({
           className="absolute inset-0 z-0"
           style={{
             backgroundColor: color,
-            opacity: waveOpacity * 0.15,
+            opacity: waveOpacity * 0.2,
           }}
           animate={{
             y: ["0%", "100%", "0%"],
             x: [`${index * 5}%`, `${(index + 1) * 10}%`, `${index * 5}%`],
           }}
           transition={{
-            duration: 15 + index * 3,
+            duration: 10 + index * 2,
             repeat: Infinity,
             ease: "easeInOut",
           }}
         />
       ))}
       <motion.div
-        className="absolute inset-0 z-0"
+        className="absolute inset-0 z-10"
         style={{ backgroundColor: fillColor }}
         initial={{ opacity: 0 }}
         animate={{ opacity: waveOpacity }}
         transition={{ duration: 1 }}
       />
       <motion.div
-        className={cn("relative z-10", className)}
+        className={cn("relative z-20", className)}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.2 }}
