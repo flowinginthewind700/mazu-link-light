@@ -94,27 +94,31 @@ export const ToolCard: React.FC<ToolCardProps> = ({ tool, apiUrl, loading }) => 
       )}
       {/* 修复后的边缘动画效果 */}
       <div className="absolute inset-0">
+        {/* 顶部线条 */}
         <motion.div
           className="absolute top-0 left-0 w-full h-[2px] bg-gray-300 dark:bg-gray-600"
-          initial={{ scaleX: 0 }}
+          initial={{ scaleX: 0, originX: 0 }}
           whileHover={{ scaleX: 1 }}
           transition={{ duration: 0.3 }}
         />
+        {/* 右侧线条 */}
         <motion.div
           className="absolute top-0 right-0 w-[2px] h-full bg-gray-300 dark:bg-gray-600"
-          initial={{ scaleY: 0 }}
+          initial={{ scaleY: 0, originY: 0 }}
           whileHover={{ scaleY: 1 }}
           transition={{ duration: 0.3, delay: 0.1 }}
         />
+        {/* 底部线条 */}
         <motion.div
           className="absolute bottom-0 right-0 w-full h-[2px] bg-gray-300 dark:bg-gray-600"
-          initial={{ scaleX: 0 }}
+          initial={{ scaleX: 0, originX: 1 }}
           whileHover={{ scaleX: 1 }}
           transition={{ duration: 0.3, delay: 0.2 }}
         />
+        {/* 左侧线条 */}
         <motion.div
           className="absolute bottom-0 left-0 w-[2px] h-full bg-gray-300 dark:bg-gray-600"
-          initial={{ scaleY: 0 }}
+          initial={{ scaleY: 0, originY: 1 }}
           whileHover={{ scaleY: 1 }}
           transition={{ duration: 0.3, delay: 0.3 }}
         />
