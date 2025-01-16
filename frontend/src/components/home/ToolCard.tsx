@@ -94,8 +94,16 @@ export const ToolCard: React.FC<ToolCardProps> = ({ tool, apiUrl, loading }) => 
       )}
       {/* Border Animation */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 left-0 w-0 h-0 border-t-2 border-l-2 border-gray-300 dark:border-gray-600 transition-all duration-300 group-hover:w-full group-hover:h-full"></div>
-        <div className="absolute bottom-0 right-0 w-0 h-0 border-b-2 border-r-2 border-gray-300 dark:border-gray-600 transition-all duration-300 group-hover:w-full group-hover:h-full"></div>
+        {/* Top Border */}
+        <div
+          className="absolute top-0 left-0 w-0 h-[3px] bg-black dark:bg-white transition-all duration-300 group-hover:w-full"
+          style={{ boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)' }}
+        />
+        {/* Bottom Border */}
+        <div
+          className="absolute bottom-0 right-0 w-0 h-[3px] bg-black dark:bg-white transition-all duration-300 group-hover:w-full"
+          style={{ boxShadow: '0 -2px 4px rgba(0, 0, 0, 0.1)' }}
+        />
       </div>
     </motion.div>
   );
