@@ -98,9 +98,13 @@ export const ToolCard: React.FC<ToolCardProps> = ({ tool, apiUrl, loading }) => 
         whileHover={{ opacity: 1, x: '100%' }}
         transition={{ duration: 0.5 }}
       />
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-gray-300 dark:border-gray-600 transition-all duration-300 group-hover:w-full group-hover:h-full"></div>
-        <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-gray-300 dark:border-gray-600 transition-all duration-300 group-hover:w-full group-hover:h-full"></div>
+      <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-lg">
+        <motion.div
+          className="absolute inset-0 border-2 border-gray-300 dark:border-gray-600 opacity-0 rounded-lg"
+          initial={{ scale: 1.5 }}
+          whileHover={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.3 }}
+        />
       </div>
     </motion.div>
   );
