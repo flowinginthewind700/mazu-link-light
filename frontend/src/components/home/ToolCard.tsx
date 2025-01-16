@@ -45,10 +45,10 @@ export const ToolCard: React.FC<ToolCardProps> = ({ tool, apiUrl, loading }) => 
     <motion.div
       whileHover={{ scale: 1.05 }}
       transition={{ type: "spring", stiffness: 300 }}
-      className="relative overflow-hidden rounded-lg bg-white dark:bg-gray-800 p-4 hover:shadow-lg transition-all group"
+      className="relative overflow-hidden rounded-lg bg-white dark:bg-gray-800 p-4 hover:shadow-lg transition-all group cursor-pointer"
     >
       <Link href={`/agitool/${tool.id}`} passHref>
-        <div className="flex items-center gap-4 cursor-pointer">
+        <div className="flex items-center gap-4">
           <motion.div 
             whileHover={{ rotate: 360 }} 
             transition={{ duration: 0.5 }}
@@ -92,14 +92,10 @@ export const ToolCard: React.FC<ToolCardProps> = ({ tool, apiUrl, loading }) => 
           </Tooltip>
         </TooltipProvider>
       )}
-      <motion.div
-        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
-        initial={{ opacity: 0, x: '-100%' }}
-        whileHover={{ opacity: 1, x: '100%' }}
-        transition={{ duration: 0.5 }}
-      />
+      {/* Border Animation */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 left-0 w-full h-full border-2 border-transparent transition-all duration-300 group-hover:border-gray-300 dark:group-hover:border-gray-600 rounded-lg"></div>
+        <div className="absolute top-0 left-0 w-0 h-0 border-t-2 border-l-2 border-gray-300 dark:border-gray-600 transition-all duration-300 group-hover:w-full group-hover:h-full"></div>
+        <div className="absolute bottom-0 right-0 w-0 h-0 border-b-2 border-r-2 border-gray-300 dark:border-gray-600 transition-all duration-300 group-hover:w-full group-hover:h-full"></div>
       </div>
     </motion.div>
   );
