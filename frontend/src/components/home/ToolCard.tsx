@@ -92,13 +92,8 @@ export const ToolCard: React.FC<ToolCardProps> = ({ tool, apiUrl, loading }) => 
           </Tooltip>
         </TooltipProvider>
       )}
-      <motion.div
-        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
-        initial={{ opacity: 0, x: '-100%' }}
-        whileHover={{ opacity: 1, x: '100%' }}
-        transition={{ duration: 0.5 }}
-      />
-      <div className="absolute inset-0 pointer-events-none">
+      {/* 修复后的边缘动画效果 */}
+      <div className="absolute inset-0">
         <motion.div
           className="absolute top-0 left-0 w-full h-[2px] bg-gray-300 dark:bg-gray-600"
           initial={{ scaleX: 0 }}
