@@ -25,7 +25,7 @@ export const ToolCard: React.FC<ToolCardProps> = ({ tool, apiUrl, loading }) => 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="relative overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 hover:shadow-lg transition-shadow"
+        className="relative overflow-hidden rounded-lg bg-white dark:bg-gray-800 p-4 hover:shadow-lg transition-shadow"
       >
         <div className="flex items-center gap-4">
           <div className="relative space-y-5 overflow-hidden rounded-2xl bg-white/5 p-4 shadow-xl shadow-black/5 before:absolute before:inset-0 before:-translate-x-full before:-skew-x-12 before:animate-[shimmer_2s_infinite] before:border-t before:border-white/10 before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent">
@@ -45,14 +45,14 @@ export const ToolCard: React.FC<ToolCardProps> = ({ tool, apiUrl, loading }) => 
     <motion.div
       whileHover={{ scale: 1.05 }}
       transition={{ type: "spring", stiffness: 300 }}
-      className="relative overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 hover:shadow-lg transition-all group"
+      className="relative overflow-hidden rounded-lg bg-white dark:bg-gray-800 p-4 hover:shadow-lg transition-all group"
     >
       <Link href={`/agitool/${tool.id}`} passHref>
         <div className="flex items-center gap-4 cursor-pointer">
           <motion.div 
             whileHover={{ rotate: 360 }} 
             transition={{ duration: 0.5 }}
-            className="relative w-16 h-16 rounded-lg overflow-hidden shadow-md"
+            className="relative w-16 h-16 rounded-lg overflow-hidden shadow-md z-10"
           >
             <Image
               src={`${apiUrl}${tool.iconimage.formats?.thumbnail?.url || tool.iconimage.url}`}
@@ -81,7 +81,7 @@ export const ToolCard: React.FC<ToolCardProps> = ({ tool, apiUrl, loading }) => 
                 whileHover={{ scale: 1.2 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={handleExternalClick}
-                className="absolute top-4 right-4 p-1 rounded-full bg-background/80 hover:bg-background transition-colors"
+                className="absolute top-4 right-4 p-1 rounded-full bg-background/80 hover:bg-background transition-colors z-10"
               >
                 <SquareArrowOutUpRight className="w-4 h-4 text-muted-foreground" />
               </motion.button>
@@ -98,6 +98,12 @@ export const ToolCard: React.FC<ToolCardProps> = ({ tool, apiUrl, loading }) => 
         whileHover={{ opacity: 1, x: '100%' }}
         transition={{ duration: 0.5 }}
       />
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-gray-300 dark:border-gray-600 transition-all duration-300 group-hover:w-full group-hover:h-full"></div>
+        <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-gray-300 dark:border-gray-600 transition-all duration-300 group-hover:w-full group-hover:h-full"></div>
+      </div>
     </motion.div>
   );
 };
+
+export default ToolCard;
