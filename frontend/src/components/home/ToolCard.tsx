@@ -96,12 +96,12 @@ export const ToolCard: React.FC<ToolCardProps> = ({ tool, apiUrl, loading }) => 
       <div className="absolute inset-0 pointer-events-none">
         {/* Top Border */}
         <div
-          className="absolute top-0 left-0 w-0 h-[3px] bg-black dark:bg-white transition-all duration-300 group-hover:w-full"
+          className="absolute top-0 left-0 w-0 h-[3px] bg-gray-600 dark:bg-white transition-all duration-300 group-hover:w-full"
           style={{ boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)' }}
         />
         {/* Bottom Border */}
         <div
-          className="absolute bottom-0 right-0 w-0 h-[3px] bg-black dark:bg-white transition-all duration-300 group-hover:w-full"
+          className="absolute bottom-0 right-0 w-0 h-[3px] bg-gray-600 dark:bg-white transition-all duration-300 group-hover:w-full"
           style={{ boxShadow: '0 -2px 4px rgba(0, 0, 0, 0.1)' }}
         />
       </div>
