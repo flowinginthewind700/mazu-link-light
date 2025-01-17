@@ -26,6 +26,7 @@ interface NavigationProps {
 interface NavItem {
   name: string;
   url: string;
+  key: string;
 }
 
 const NavLink = React.memo(({ href, isActive, children }: { href: string; isActive: boolean; children: React.ReactNode }) => (
@@ -56,12 +57,19 @@ export const Navigation = React.memo(function Navigation({
 
   const currentPage = useMemo(() => {
     if (propCurrentPage) return propCurrentPage
-    if (pathname.startsWith('/home')) return 'home'
+    if (pathname === '/' || pathname.startsWith('/home')) return 'home'
     if (pathname.startsWith('/blog')) return 'blog'
     if (pathname.startsWith('/tools')) return 'tools'
     if (pathname.startsWith('/ai-image')) return 'ai-image'
     return ''
   }, [propCurrentPage, pathname])
+
+  const navItems: NavItem[] = useMemo(() => [
+    { name: "Home", url: "/", key: "home" },
+    { name: "Blog", url: "/blog", key: "blog" },
+    { name: "Tools", url: "/tools", key: "tools" },
+    { name: "AI Image", url: "/ai-image", key: "ai-image" },
+  ], [])
 
   useEffect(() => {
     setActiveTab(currentPage)
@@ -72,13 +80,6 @@ export const Navigation = React.memo(function Navigation({
     window.addEventListener("resize", handleResize)
     return () => window.removeEventListener("resize", handleResize)
   }, [currentPage])
-
-  const navItems: NavItem[] = useMemo(() => [
-    { name: "Home", url: "/" },
-    { name: "Blog", url: "/blog" },
-    { name: "Tools", url: "/tools" },
-    { name: "AI Image", url: "/ai-image" },
-  ], [])
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -92,12 +93,12 @@ export const Navigation = React.memo(function Navigation({
           <nav className="flex items-center space-x-6 text-sm font-medium">
             <div className="flex items-center gap-3 bg-background/5 border border-border backdrop-blur-lg py-1 px-1 rounded-full shadow-lg">
               {navItems.map((item) => {
-                const isActive = activeTab === item.name.toLowerCase()
+                const isActive = activeTab === item.key
                 return (
                   <Link
-                    key={item.name}
+                    key={item.key}
                     href={item.url}
-                    onClick={() => setActiveTab(item.name.toLowerCase())}
+                    onClick={() => setActiveTab(item.key)}
                     className={cn(
                       "relative cursor-pointer text-sm font-semibold px-6 py-2 rounded-full transition-colors",
                       "text-foreground/80 hover:text-primary",
