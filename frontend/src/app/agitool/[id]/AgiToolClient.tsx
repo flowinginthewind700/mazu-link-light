@@ -7,15 +7,16 @@ import axios from 'axios';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ExternalLink, Calendar, User, Twitter, Facebook, Linkedin, Share2 } from 'lucide-react';
+import { ExternalLink, Calendar, User, Twitter, Facebook, Linkedin, Share2, ArrowLeft, X } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
 import { Navigation } from '@/components/navigation';
 import { BottomNavbar } from '@/components/bottom-navbar';
 import * as Dialog from '@radix-ui/react-dialog';
-import { X } from 'lucide-react';
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
+import { CodeRenderer, BlockNode } from '@/components/MarkdownComponents';
+import { BilibiliEmbed, YouTubeEmbed, VideoEmbed } from '@/components/EmbedComponents';
 
 const apiUrl = process.env.NEXT_PUBLIC_CMS_API_BASE_URL || '';
 
@@ -44,14 +45,6 @@ interface AgiTool {
     tagname: string;
   }>;
 }
-
-const CodeRenderer = ({ node, ...props }: any) => (
-  <code className="bg-gray-100 dark:bg-gray-800 p-1 rounded" {...props} />
-);
-
-const BlockNode = ({ node, ...props }: any) => (
-  <div className="my-4" {...props} />
-);
 
 const ImageZoomDialog: React.FC<{ isOpen: boolean; onClose: () => void; imageUrl: string }> = ({ isOpen, onClose, imageUrl }) => {
   const [dialogSize, setDialogSize] = useState({ width: 'auto', height: 'auto' });
@@ -200,6 +193,20 @@ export default function AgiToolClient() {
     setZoomedImage(imageUrl);
   };
 
+  const components = {
+    code: CodeRenderer as any,
+    div: ({ node, ...props }: any) => <BlockNode node={node} {...props} />,
+    a: ({ node, ...props }: any) => <a {...props} className="text-blue-500 hover:underline dark:text-blue-400" target="_blank" rel="noopener noreferrer" />,
+    img: ({ node, ...props }: any) => (
+      <img
+        {...props}
+        className="cursor-zoom-in rounded-lg shadow-md my-4"
+        onClick={() => handleImageClick(props.src)}
+        loading="lazy"
+      />
+    ),
+  };
+
   if (!tool) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -212,6 +219,13 @@ export default function AgiToolClient() {
     <>
       <Navigation currentPage="" showMobileMenu={false} />
       <div className="container mx-auto px-4 py-8 max-w-5xl">
+        <button
+          onClick={() => router.back()}
+          className="mb-6 flex items-center text-primary hover:underline"
+        >
+          <ArrowLeft className="mr-2" size={20} /> Back
+        </button>
+
         <Card className="mb-8 dark:bg-gray-800 dark:border-gray-700">
           <CardHeader>
             <CardTitle className="text-3xl dark:text-white">{tool.name}</CardTitle>
@@ -224,8 +238,7 @@ export default function AgiToolClient() {
                   alt={tool.name}
                   fill
                   className="object-cover cursor-zoom-in"
-                  onClick={() => handleImageClick(`${apiUrl}${tool.screenshot?.url || tool.imagelarge?.url}`)
-                }
+                  onClick={() => handleImageClick(`${apiUrl}${tool.screenshot?.url || tool.imagelarge?.url}`)}
                 />
               </div>
               <div className="flex flex-wrap gap-2">
@@ -293,20 +306,7 @@ export default function AgiToolClient() {
             <ReactMarkdown
               rehypePlugins={[rehypeRaw]}
               remarkPlugins={[remarkGfm]}
-              components={{
-                code: CodeRenderer,
-                div: BlockNode,
-                a: ({ node, ...props }: any) => (
-                  <a {...props} className="text-blue-500 hover:underline dark:text-blue-400" target="_blank" rel="noopener noreferrer" />
-                ),
-                img: ({ node, ...props }: any) => (
-                  <img
-                    {...props}
-                    className="cursor-zoom-in"
-                    onClick={() => handleImageClick(props.src)}
-                  />
-                ),
-              }}
+              components={components}
             >
               {tool.content}
             </ReactMarkdown>
