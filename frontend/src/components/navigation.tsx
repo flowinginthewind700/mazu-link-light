@@ -1,11 +1,12 @@
 'use client'
 
-import React, { useMemo } from 'react'
+import React, { useMemo, useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from "@/lib/utils"
 import { ThemeToggle } from '@/components/theme-toggle'
 import { MobileMenu } from '@/components/mobile-menu'
+import { motion } from "framer-motion"
 
 interface Category {
   id: string;
@@ -22,13 +23,12 @@ interface NavigationProps {
   showMobileMenu?: boolean;
 }
 
-interface NavLinkProps {
-  href: string;
-  isActive: boolean;
-  children: React.ReactNode;
+interface NavItem {
+  name: string;
+  url: string;
 }
 
-const NavLink = React.memo(({ href, isActive, children }: NavLinkProps) => (
+const NavLink = React.memo(({ href, isActive, children }: { href: string; isActive: boolean; children: React.ReactNode }) => (
   <Link
     href={href}
     className={cn(
@@ -51,6 +51,8 @@ export const Navigation = React.memo(function Navigation({
   showMobileMenu = false
 }: NavigationProps) {
   const pathname = usePathname()
+  const [activeTab, setActiveTab] = useState('')
+  const [isMobile, setIsMobile] = useState(false)
 
   const currentPage = useMemo(() => {
     if (propCurrentPage) return propCurrentPage
@@ -61,28 +63,70 @@ export const Navigation = React.memo(function Navigation({
     return ''
   }, [propCurrentPage, pathname])
 
-  const navLinks = useMemo(() => [
-    { href: "/", label: "Home", isActive: currentPage === 'home' },
-    { href: "/blog", label: "Blog", isActive: currentPage === 'blog' },
-    { href: "/tools", label: "Tools", isActive: currentPage === 'tools' },
-    { href: "/ai-image", label: "AI Image", isActive: currentPage === 'ai-image' },
-  ], [currentPage])
+  useEffect(() => {
+    setActiveTab(currentPage)
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    handleResize()
+    window.addEventListener("resize", handleResize)
+    return () => window.removeEventListener("resize", handleResize)
+  }, [currentPage])
+
+  const navItems: NavItem[] = useMemo(() => [
+    { name: "Home", url: "/" },
+    { name: "Blog", url: "/blog" },
+    { name: "Tools", url: "/tools" },
+    { name: "AI Image", url: "/ai-image" },
+  ], [])
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 items-center">
-        <div className="mr-4 hidden md:flex">
+        <div className="mr-4 hidden md:flex items-center">
           <Link href="/" className="mr-6 flex items-center space-x-2">
             <span className="hidden text-xl font-bold sm:inline-block">
               AI Tools Directory
             </span>
           </Link>
           <nav className="flex items-center space-x-6 text-sm font-medium">
-            {navLinks.map(({ href, label, isActive }) => (
-              <NavLink key={href} href={href} isActive={isActive}>
-                {label}
-              </NavLink>
-            ))}
+            <div className="flex items-center gap-3 bg-background/5 border border-border backdrop-blur-lg py-1 px-1 rounded-full shadow-lg">
+              {navItems.map((item) => {
+                const isActive = activeTab === item.name.toLowerCase()
+                return (
+                  <Link
+                    key={item.name}
+                    href={item.url}
+                    onClick={() => setActiveTab(item.name.toLowerCase())}
+                    className={cn(
+                      "relative cursor-pointer text-sm font-semibold px-6 py-2 rounded-full transition-colors",
+                      "text-foreground/80 hover:text-primary",
+                      isActive && "bg-muted text-primary"
+                    )}
+                  >
+                    <span>{item.name}</span>
+                    {isActive && (
+                      <motion.div
+                        layoutId="lamp"
+                        className="absolute inset-0 w-full bg-primary/5 rounded-full -z-10"
+                        initial={false}
+                        transition={{
+                          type: "spring",
+                          stiffness: 300,
+                          damping: 30,
+                        }}
+                      >
+                        <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-8 h-1 bg-primary rounded-t-full">
+                          <div className="absolute w-12 h-6 bg-primary/20 rounded-full blur-md -top-2 -left-2" />
+                          <div className="absolute w-8 h-6 bg-primary/20 rounded-full blur-md -top-1" />
+                          <div className="absolute w-4 h-4 bg-primary/20 rounded-full blur-sm top-0 left-2" />
+                        </div>
+                      </motion.div>
+                    )}
+                  </Link>
+                )
+              })}
+            </div>
           </nav>
         </div>
         <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
@@ -108,3 +152,5 @@ export const Navigation = React.memo(function Navigation({
 })
 
 Navigation.displayName = 'Navigation'
+
+export default Navigation
