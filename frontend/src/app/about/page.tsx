@@ -1,6 +1,7 @@
 import { Metadata } from 'next'
 import { Github } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Navigation } from '@/components/navigation';
 
 export const metadata: Metadata = {
   title: 'About AI Tools Directory',
@@ -9,6 +10,7 @@ export const metadata: Metadata = {
 
 export default function AboutPage() {
   return (
+    <><Navigation currentPage="" showMobileMenu={false} />
     <div className="container mx-auto px-4 py-16 max-w-4xl">
       <h1 className="text-4xl font-bold mb-8 text-center">About AI Tools Directory</h1>
       
@@ -43,6 +45,7 @@ export default function AboutPage() {
         </div>
       </div>
     </div>
+    </>
   )
 }
 
