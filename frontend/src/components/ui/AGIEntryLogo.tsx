@@ -17,10 +17,11 @@ const AGIEntryLogo: React.FC<AGIEntryLogoProps> = ({ className = '' }) => {
           className="absolute -top-1/2 -left-1/2 w-[200%] h-[200%] bg-gradient-to-br from-[#ff00cc] to-[#3333ff]"
           animate={{ rotate: 360 }}
           transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+          style={{ zIndex: -1 }}
         />
       </motion.div>
-      <div className="absolute top-[6.5px] left-[6.5px] text-[15.6px] text-white font-sans text-shadow-lg">AGI</div>
-      <div className="absolute bottom-[6.5px] right-[6.5px] text-[15.6px] text-white font-sans text-shadow-lg">Entry</div>
+      <div className="absolute top-[6.5px] left-[6.5px] text-[15.6px] text-white font-sans" style={{ textShadow: '0 0 6.5px rgba(255, 255, 255, 0.8)' }}>AGI</div>
+      <div className="absolute bottom-[6.5px] right-[6.5px] text-[15.6px] text-white font-sans" style={{ textShadow: '0 0 6.5px rgba(255, 255, 255, 0.8)' }}>Entry</div>
       <motion.div 
         className="absolute top-0 right-0 w-[65px] h-[65px] border-t-[6.5px] border-r-[6.5px] border-t-[#ff00cc] border-r-[#3333ff] rounded-bl-[65px]"
         animate={{ boxShadow: ['0 0 6.5px rgba(255, 0, 204, 0.8)', '0 0 13px rgba(255, 0, 204, 1)'] }}
