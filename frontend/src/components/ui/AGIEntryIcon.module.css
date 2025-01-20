@@ -1,0 +1,95 @@
+.icon-container {
+    position: relative;
+    width: 120px;
+    height: 40px;
+    background: var(--icon-bg);
+    border-radius: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+    animation: glow 2s infinite alternate;
+  }
+  
+  .icon-container::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: var(--gradient);
+    z-index: -1;
+    animation: rotate 4s linear infinite;
+  }
+  
+  .text-top-left {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    font-size: 16px;
+    color: var(--text-color);
+    font-family: 'Arial', sans-serif;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
+  }
+  
+  .text-bottom-right {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    font-size: 16px;
+    color: var(--text-color);
+    font-family: 'Arial', sans-serif;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
+  }
+  
+  .arc-top-right {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 40px;
+    height: 40px;
+    border-top: 5px solid #ff00cc;
+    border-right: 5px solid #3333ff;
+    border-radius: 0 0 0 50%;
+    box-shadow: 0 0 5px var(--arc-shadow);
+    animation: arc-glow 2s infinite alternate;
+  }
+  
+  .arc-bottom-left {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 40px;
+    height: 40px;
+    border-bottom: 5px solid #3333ff;
+    border-left: 5px solid #ff00cc;
+    border-radius: 0 50% 0 0;
+    box-shadow: 0 0 5px var(--arc-shadow);
+    animation: arc-glow 2s infinite alternate;
+  }
+  
+  @keyframes rotate {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+  
+  @keyframes glow {
+    0% {
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+    100% {
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+    }
+  }
+  
+  @keyframes arc-glow {
+    0% {
+      box-shadow: 0 0 5px rgba(255, 0, 204, 0.8);
+    }
+    100% {
+      box-shadow: 0 0 10px rgba(255, 0, 204, 1);
+    }
+  }

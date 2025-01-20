@@ -7,6 +7,7 @@ import { ToolCard } from './ToolCard';
 import axios from 'axios';
 import { Tool } from './types'; // 导入 Tool 类型
 import { BackgroundGradient } from '@/components/ui/background-gradient';
+import AGIEntryIcon  from '@/components/ui/AGIEntryIcon';
 
 // 定义 HeroSearchProps 接口
 interface HeroSearchProps {
@@ -204,7 +205,7 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
     <div className="text-center space-y-6">
       {/* 只在 Image 组件外部使用 BackgroundGradient */}
       <div className="inline-block">
-        <BackgroundGradient className="p-2 rounded-lg">
+        {/* <BackgroundGradient className="p-2 rounded-lg">
           <Image
             src="/images/agientrylogo_large.jpg"
             alt="AI Tools Logo Large"
@@ -212,7 +213,8 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
             height={40}
             className="mx-auto"
           />
-        </BackgroundGradient>
+        </BackgroundGradient> */}
+        <AGIEntryIcon />
       </div>
 
       <Tabs value={selectedTopTab} onValueChange={handleTopTabChange} className="w-full max-w-2xl mx-auto">
