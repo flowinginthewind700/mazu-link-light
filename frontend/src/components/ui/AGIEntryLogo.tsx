@@ -7,10 +7,10 @@ interface AGIEntryLogoProps {
 
 const AGIEntryLogo: React.FC<AGIEntryLogoProps> = ({ className = '' }) => {
   return (
-    <div className={`relative w-[200px] h-[200px] ${className}`}>
+    <div className={`relative w-[130px] h-[130px] ${className}`}>
       <motion.div 
-        className="absolute inset-0 bg-[#2a2a40] rounded-[20px] overflow-hidden"
-        animate={{ boxShadow: ['0 0 20px rgba(0, 0, 0, 0.5)', '0 0 40px rgba(255, 255, 255, 0.8)'] }}
+        className="absolute inset-0 bg-[#2a2a40] rounded-[13px] overflow-hidden"
+        animate={{ boxShadow: ['0 0 13px rgba(0, 0, 0, 0.5)', '0 0 26px rgba(255, 255, 255, 0.8)'] }}
         transition={{ duration: 2, repeat: Infinity, repeatType: 'reverse' }}
       >
         <motion.div
@@ -19,16 +19,16 @@ const AGIEntryLogo: React.FC<AGIEntryLogoProps> = ({ className = '' }) => {
           transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
         />
       </motion.div>
-      <div className="absolute top-[10px] left-[10px] text-[24px] text-white font-sans text-shadow-lg">AGI</div>
-      <div className="absolute bottom-[10px] right-[10px] text-[24px] text-white font-sans text-shadow-lg">Entry</div>
+      <div className="absolute top-[6.5px] left-[6.5px] text-[15.6px] text-white font-sans text-shadow-lg">AGI</div>
+      <div className="absolute bottom-[6.5px] right-[6.5px] text-[15.6px] text-white font-sans text-shadow-lg">Entry</div>
       <motion.div 
-        className="absolute top-0 right-0 w-[100px] h-[100px] border-t-[10px] border-r-[10px] border-t-[#ff00cc] border-r-[#3333ff] rounded-bl-[100%]"
-        animate={{ boxShadow: ['0 0 10px rgba(255, 0, 204, 0.8)', '0 0 20px rgba(255, 0, 204, 1)'] }}
+        className="absolute top-0 right-0 w-[65px] h-[65px] border-t-[6.5px] border-r-[6.5px] border-t-[#ff00cc] border-r-[#3333ff] rounded-bl-[65px]"
+        animate={{ boxShadow: ['0 0 6.5px rgba(255, 0, 204, 0.8)', '0 0 13px rgba(255, 0, 204, 1)'] }}
         transition={{ duration: 2, repeat: Infinity, repeatType: 'reverse' }}
       />
       <motion.div 
-        className="absolute bottom-0 left-0 w-[100px] h-[100px] border-b-[10px] border-l-[10px] border-b-[#3333ff] border-l-[#ff00cc] rounded-tr-[100%]"
-        animate={{ boxShadow: ['0 0 10px rgba(51, 51, 255, 0.8)', '0 0 20px rgba(51, 51, 255, 1)'] }}
+        className="absolute bottom-0 left-0 w-[65px] h-[65px] border-b-[6.5px] border-l-[6.5px] border-b-[#3333ff] border-l-[#ff00cc] rounded-tr-[65px]"
+        animate={{ boxShadow: ['0 0 6.5px rgba(51, 51, 255, 0.8)', '0 0 13px rgba(51, 51, 255, 1)'] }}
         transition={{ duration: 2, repeat: Infinity, repeatType: 'reverse' }}
       />
     </div>
