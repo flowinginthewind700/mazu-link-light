@@ -125,12 +125,22 @@ export default function HomePage() {
   }, [categories]);
 
   const scrollToSection = useCallback((sectionId: string) => {
-    sectionRefs.current[sectionId]?.current?.scrollIntoView({
-      behavior: 'smooth',
-      block: 'start',
-    });
-    setAnimatingSection(sectionId);
-    setTimeout(() => setAnimatingSection(''), 1000);
+    const sectionRef = sectionRefs.current[sectionId]?.current;
+    if (sectionRef) {
+      // Force layout recalculation
+      sectionRef.getBoundingClientRect();
+
+      // Delay scrolling to ensure layout is stable
+      setTimeout(() => {
+        sectionRef.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+        });
+      }, 50); // 50ms delay to ensure layout is stable
+
+      setAnimatingSection(sectionId);
+      setTimeout(() => setAnimatingSection(''), 1000);
+    }
   }, []);
 
   const handleCategorySelect = useCallback((categoryId: string) => {
