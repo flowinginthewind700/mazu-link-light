@@ -125,23 +125,23 @@ export default function HomePage() {
   }, [categories]);
 
   const scrollToSection = useCallback((sectionId: string) => {
+    console.log('Attempting to scroll to section:', sectionId);
     const sectionRef = sectionRefs.current[sectionId]?.current;
     if (sectionRef) {
-      // Force layout recalculation
-      sectionRef.getBoundingClientRect();
-
-      // Scroll to the section
+      console.log('Section ref found, scrolling...');
       sectionRef.scrollIntoView({
         behavior: 'smooth',
         block: 'start',
       });
-
       setAnimatingSection(sectionId);
       setTimeout(() => setAnimatingSection(''), 1000);
+    } else {
+      console.log('Section ref not found');
     }
   }, []);
 
   const handleCategorySelect = useCallback((categoryId: string) => {
+    console.log('Category selected:', categoryId);
     scrollToSection(categoryId);
   }, [scrollToSection]);
 
@@ -236,7 +236,7 @@ export default function HomePage() {
                 <div
                   key={category.id}
                   ref={sectionRefs.current[category.id]}
-                  className="space-y-4 scroll-mt-24" // Add scroll-margin-top to account for fixed header
+                  className="space-y-4 scroll-mt-24"
                 >
                   <AnimatedSectionTitle
                     title={category.name}
