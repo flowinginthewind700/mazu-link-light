@@ -65,7 +65,7 @@ async function getFavicon(url: string): Promise<FaviconResult> {
     `${protocol}//${domain}/favicon.png`,
     `${protocol}//${domain}/apple-touch-icon.png`,
     `${protocol}//${domain}/apple-touch-icon-precomposed.png`,
-    `https://www.google.com/s2/favicons?domain=${domain}&sz=64`,
+    `https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=${url}&size=64`,
     `https://icons.duckduckgo.com/ip3/${domain}.ico`,
     `https://${domain}/logo.svg`,
     `https://${domain}/logo.png`,
@@ -107,7 +107,7 @@ async function getFavicon(url: string): Promise<FaviconResult> {
   }
 
   // Fallback to a default favicon if all else fails
-  const defaultFaviconUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`
+  const defaultFaviconUrl = `https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=${url}&size=64`
   try {
     const response = await fetchWithRetry(defaultFaviconUrl)
     if (response.headers['content-type']?.includes('image')) {
