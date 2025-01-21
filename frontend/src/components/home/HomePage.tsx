@@ -125,23 +125,21 @@ export default function HomePage() {
   }, [categories]);
 
   const scrollToSection = useCallback((sectionId: string) => {
-    console.log('Attempting to scroll to section:', sectionId);
-    const sectionRef = sectionRefs.current[sectionId]?.current;
-    if (sectionRef) {
-      console.log('Section ref found, scrolling...');
-      sectionRef.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
-      });
-      setAnimatingSection(sectionId);
-      setTimeout(() => setAnimatingSection(''), 1000);
-    } else {
-      console.log('Section ref not found');
-    }
+    // Add a small delay to allow time for DOM rendering
+    setTimeout(() => {
+      const sectionRef = sectionRefs.current[sectionId];
+      if (sectionRef && sectionRef.current) {
+        sectionRef.current.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+        });
+        setAnimatingSection(sectionId);
+        setTimeout(() => setAnimatingSection(''), 1000);
+      }
+    }, 100);
   }, []);
 
   const handleCategorySelect = useCallback((categoryId: string) => {
-    console.log('Category selected:', categoryId);
     scrollToSection(categoryId);
   }, [scrollToSection]);
 
