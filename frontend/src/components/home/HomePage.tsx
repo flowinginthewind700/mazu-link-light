@@ -11,6 +11,7 @@ import { AnimatedSectionTitle } from '@/components/animated-section-title';
 import { BottomNavbar } from '@/components/bottom-navbar';
 import { Category, Tool } from './types';
 import { Navigation } from '@/components/navigation';
+import { WavyBackground } from '@/components/ui/wavy-background';
 
 const apiUrl = process.env.NEXT_PUBLIC_CMS_API_BASE_URL;
 const TOOLS_PER_CATEGORY = 24;
@@ -57,35 +58,35 @@ export default function HomePage() {
 
     try {
       const categoriesQuery = `
-        query {
-          agitoolcategories {
-            id
-            name
-          }
-        }
-      `;
+query {
+agitoolcategories {
+id
+name
+}
+}
+`;
       const categoriesResponse = await axios.post(`${apiUrl}/graphql`, { query: categoriesQuery });
       const fetchedCategories = categoriesResponse.data.data.agitoolcategories;
 
       const toolsPromises = fetchedCategories.map(async (category: Category) => {
         const toolsQuery = `
-          query($categoryId: ID!) {
-            agitools(
-              where: { agitoolcategory: { id: $categoryId } }
-              limit: ${TOOLS_PER_CATEGORY}
-            ) {
-              id
-              name
-              Description
-              iconimage {
-                formats
-                url
-              }
-              accessLink
-              internalPath
-            }
-          }
-        `;
+query($categoryId: ID!) {
+agitools(
+where: { agitoolcategory: { id: $categoryId } }
+limit: ${TOOLS_PER_CATEGORY}
+) {
+id
+name
+Description
+iconimage {
+formats
+url
+}
+accessLink
+internalPath
+}
+}
+`;
         const toolsResponse = await axios.post(`${apiUrl}/graphql`, {
           query: toolsQuery,
           variables: { categoryId: category.id },
@@ -124,14 +125,12 @@ export default function HomePage() {
   }, [categories]);
 
   const scrollToSection = useCallback((sectionId: string) => {
-    if (sectionRefs.current[sectionId]?.current) {
-      sectionRefs.current[sectionId]?.current?.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
-      });
-      setAnimatingSection(sectionId);
-      setTimeout(() => setAnimatingSection(''), 1000);
-    }
+    sectionRefs.current[sectionId]?.current?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    });
+    setAnimatingSection(sectionId);
+    setTimeout(() => setAnimatingSection(''), 1000);
   }, []);
 
   const handleCategorySelect = useCallback((categoryId: string) => {
@@ -225,7 +224,7 @@ export default function HomePage() {
                 setSelectedFeatureTab={setSelectedFeatureTab}
               />
 
-              {categories.length > 0 && categories.map((category) => (
+              {categories.map((category) => (
                 <div
                   key={category.id}
                   ref={sectionRefs.current[category.id]}
@@ -238,23 +237,23 @@ export default function HomePage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {loading
                       ? Array.from({ length: 6 }).map((_, index) => (
-                          <ToolCard
-                            key={index}
-                            tool={{
-                              id: index.toString(),
-                              name: 'Loading AI tool...',
-                              Description: 'Loading AI tool...',
-                              iconimage: { url: '/placeholder.svg' },
-                              accessLink: '',
-                              internalPath: '',
-                            }}
-                            apiUrl={apiUrl || ''}
-                            loading={true}
-                          />
-                        ))
+                        <ToolCard
+                          key={index}
+                          tool={{
+                            id: index.toString(),
+                            name: 'Loading AI tool...',
+                            Description: 'Loading AI tool...',
+                            iconimage: { url: '/placeholder.svg' },
+                            accessLink: '',
+                            internalPath: '',
+                          }}
+                          apiUrl={apiUrl || ''}
+                          loading={true}
+                        />
+                      ))
                       : toolsByCategory[category.id]?.map((tool) => (
-                          <ToolCard key={tool.id} tool={tool} apiUrl={apiUrl || ''} />
-                        ))}
+                        <ToolCard key={tool.id} tool={tool} apiUrl={apiUrl || ''} />
+                      ))}
                   </div>
                 </div>
               ))}
