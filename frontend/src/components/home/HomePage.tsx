@@ -257,6 +257,7 @@ export default function HomePage() {
                       exit={{ opacity: 0 }}
                       transition={{ duration: 0.5 }}
                       className="absolute inset-0 pointer-events-none"
+                      style={{ top: 0 }} // 将光照效果的上边缘与 section 上边缘对齐
                     >
                       <div className="relative flex w-full flex-1 scale-y-125 items-center justify-center isolate z-0">
                         <motion.div
