@@ -127,24 +127,17 @@ export default function HomePage() {
   const scrollToSection = useCallback((sectionId: string) => {
     const sectionElement = sectionRefs.current[sectionId]?.current;
     if (sectionElement) {
+      // Always scroll to the section, even if it's already in view
       sectionElement.scrollIntoView({
         behavior: 'smooth',
         block: 'start',
       });
 
-      // Check if the section is in view after a delay
+      // Add a highlight effect
+      sectionElement.classList.add('highlight');
       setTimeout(() => {
-        const rect = sectionElement.getBoundingClientRect();
-        const isInView = rect.top >= 0 && rect.bottom <= window.innerHeight;
-
-        if (!isInView) {
-          // If not in view, retry scrolling
-          sectionElement.scrollIntoView({
-            behavior: 'smooth',
-            block: 'start',
-          });
-        }
-      }, 1000); // Adjust the delay as needed
+        sectionElement.classList.remove('highlight');
+      }, 1000); // Remove the highlight after 1 second
     }
 
     setAnimatingSection(sectionId);
@@ -279,6 +272,24 @@ export default function HomePage() {
           </div>
         </div>
       </div>
+
+      <style jsx>{`
+        .highlight {
+          animation: highlight 1s ease-in-out;
+        }
+
+        @keyframes highlight {
+          0% {
+            background-color: rgba(255, 255, 0, 0.1);
+          }
+          50% {
+            background-color: rgba(255, 255, 0, 0.3);
+          }
+          100% {
+            background-color: rgba(255, 255, 0, 0.1);
+          }
+        }
+      `}</style>
     </>
   );
 }
