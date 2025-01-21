@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import React, { useRef, useState, useEffect, useCallback } from 'react';
 import Head from 'next/head';
@@ -12,7 +12,8 @@ import { BottomNavbar } from '@/components/bottom-navbar';
 import { Category, Tool } from './types';
 import { Navigation } from '@/components/navigation';
 import { WavyBackground } from '@/components/ui/wavy-background';
-import { LampEffect } from '@/components/ui/LampEffect'; // Import the LampEffect component
+import { motion } from 'framer-motion';
+import { cn } from '@/lib/utils';
 
 const apiUrl = process.env.NEXT_PUBLIC_CMS_API_BASE_URL;
 const TOOLS_PER_CATEGORY = 24;
@@ -133,9 +134,23 @@ export default function HomePage() {
         block: 'start',
       });
 
-      // Trigger the lamp effect
-      setAnimatingSection(sectionId);
+      // Check if the section is in view after a delay
+      setTimeout(() => {
+        const rect = sectionElement.getBoundingClientRect();
+        const isInView = rect.top >= 0 && rect.bottom <= window.innerHeight;
+
+        if (!isInView) {
+          // If not in view, retry scrolling
+          sectionElement.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start',
+          });
+        }
+      }, 1000); // Adjust the delay as needed
     }
+
+    setAnimatingSection(sectionId);
+    setTimeout(() => setAnimatingSection(''), 1000);
   }, []);
 
   const handleCategorySelect = useCallback((categoryId: string) => {
@@ -166,6 +181,22 @@ export default function HomePage() {
       observers.forEach(observer => observer.disconnect());
     };
   }, [categories]);
+
+  const SectionAnimation = ({ children, sectionId }: { children: React.ReactNode; sectionId: string }) => {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 50 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, ease: "easeInOut" }}
+        viewport={{ once: true }}
+        className={cn("space-y-4 scroll-mt-24", {
+          'glow-effect': animatingSection === sectionId,
+        })}
+      >
+        {children}
+      </motion.div>
+    );
+  };
 
   return (
     <>
@@ -230,40 +261,38 @@ export default function HomePage() {
               />
 
               {categories.map((category) => (
-                <div
-                  key={category.id}
-                  ref={sectionRefs.current[category.id]}
-                  className="space-y-4 scroll-mt-24"
-                >
-                  {animatingSection === category.id && (
-                    <LampEffect isActive={true} />
-                  )}
-                  <AnimatedSectionTitle
-                    title={category.name}
-                    isActive={animatingSection === category.id}
-                  />
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {loading
-                      ? Array.from({ length: 6 }).map((_, index) => (
-                        <ToolCard
-                          key={index}
-                          tool={{
-                            id: index.toString(),
-                            name: 'Loading AI tool...',
-                            Description: 'Loading AI tool...',
-                            iconimage: { url: '/placeholder.svg' },
-                            accessLink: '',
-                            internalPath: '',
-                          }}
-                          apiUrl={apiUrl || ''}
-                          loading={true}
-                        />
-                      ))
-                      : toolsByCategory[category.id]?.map((tool) => (
-                        <ToolCard key={tool.id} tool={tool} apiUrl={apiUrl || ''} />
-                      ))}
+                <SectionAnimation key={category.id} sectionId={category.id}>
+                  <div
+                    ref={sectionRefs.current[category.id]}
+                    className="space-y-4 scroll-mt-24"
+                  >
+                    <AnimatedSectionTitle
+                      title={category.name}
+                      isActive={animatingSection === category.id}
+                    />
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {loading
+                        ? Array.from({ length: 6 }).map((_, index) => (
+                          <ToolCard
+                            key={index}
+                            tool={{
+                              id: index.toString(),
+                              name: 'Loading AI tool...',
+                              Description: 'Loading AI tool...',
+                              iconimage: { url: '/placeholder.svg' },
+                              accessLink: '',
+                              internalPath: '',
+                            }}
+                            apiUrl={apiUrl || ''}
+                            loading={true}
+                          />
+                        ))
+                        : toolsByCategory[category.id]?.map((tool) => (
+                          <ToolCard key={tool.id} tool={tool} apiUrl={apiUrl || ''} />
+                        ))}
+                    </div>
                   </div>
-                </div>
+                </SectionAnimation>
               ))}
             </main>
           </div>
