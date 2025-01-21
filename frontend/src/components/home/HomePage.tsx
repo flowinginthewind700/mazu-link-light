@@ -130,13 +130,11 @@ export default function HomePage() {
       // Force layout recalculation
       sectionRef.getBoundingClientRect();
 
-      // Delay scrolling to ensure layout is stable
-      setTimeout(() => {
-        sectionRef.scrollIntoView({
-          behavior: 'smooth',
-          block: 'start',
-        });
-      }, 50); // 50ms delay to ensure layout is stable
+      // Scroll to the section
+      sectionRef.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
 
       setAnimatingSection(sectionId);
       setTimeout(() => setAnimatingSection(''), 1000);
@@ -238,7 +236,7 @@ export default function HomePage() {
                 <div
                   key={category.id}
                   ref={sectionRefs.current[category.id]}
-                  className="space-y-4 scroll-mt-24"
+                  className="space-y-4 scroll-mt-24" // Add scroll-margin-top to account for fixed header
                 >
                   <AnimatedSectionTitle
                     title={category.name}
