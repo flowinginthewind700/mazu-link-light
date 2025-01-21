@@ -58,35 +58,35 @@ export default function HomePage() {
 
     try {
       const categoriesQuery = `
-query {
-agitoolcategories {
-id
-name
-}
-}
-`;
+        query {
+          agitoolcategories {
+            id
+            name
+          }
+        }
+      `;
       const categoriesResponse = await axios.post(`${apiUrl}/graphql`, { query: categoriesQuery });
       const fetchedCategories = categoriesResponse.data.data.agitoolcategories;
 
       const toolsPromises = fetchedCategories.map(async (category: Category) => {
         const toolsQuery = `
-query($categoryId: ID!) {
-agitools(
-where: { agitoolcategory: { id: $categoryId } }
-limit: ${TOOLS_PER_CATEGORY}
-) {
-id
-name
-Description
-iconimage {
-formats
-url
-}
-accessLink
-internalPath
-}
-}
-`;
+          query($categoryId: ID!) {
+            agitools(
+              where: { agitoolcategory: { id: $categoryId } }
+              limit: ${TOOLS_PER_CATEGORY}
+            ) {
+              id
+              name
+              Description
+              iconimage {
+                formats
+                url
+              }
+              accessLink
+              internalPath
+            }
+          }
+        `;
         const toolsResponse = await axios.post(`${apiUrl}/graphql`, {
           query: toolsQuery,
           variables: { categoryId: category.id },
@@ -125,10 +125,28 @@ internalPath
   }, [categories]);
 
   const scrollToSection = useCallback((sectionId: string) => {
-    sectionRefs.current[sectionId]?.current?.scrollIntoView({
-      behavior: 'smooth',
-      block: 'start',
-    });
+    const sectionElement = sectionRefs.current[sectionId]?.current;
+    if (sectionElement) {
+      sectionElement.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+
+      // Check if the section is in view after a delay
+      setTimeout(() => {
+        const rect = sectionElement.getBoundingClientRect();
+        const isInView = rect.top >= 0 && rect.bottom <= window.innerHeight;
+
+        if (!isInView) {
+          // If not in view, retry scrolling
+          sectionElement.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start',
+          });
+        }
+      }, 1000); // Adjust the delay as needed
+    }
+
     setAnimatingSection(sectionId);
     setTimeout(() => setAnimatingSection(''), 1000);
   }, []);
