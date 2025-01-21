@@ -48,6 +48,7 @@ RUN npm install react-intersection-observer
 RUN npm install react-window react-virtualized-auto-sizer lodash
 RUN npm i --save-dev @types/react-window
 RUN npm i --save-dev @types/lodash
+RUN npm install puppeteer
 
 COPY . .
 RUN cp -r components/ui/* src/components/ui

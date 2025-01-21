@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import * as cheerio from 'cheerio'
 import axios, { AxiosResponse } from 'axios'
+import puppeteer from 'puppeteer'
 
 const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
 const TIMEOUT = 10000 // 10 seconds
@@ -24,6 +25,10 @@ async function fetchWithRetry(url: string, retries = MAX_RETRIES): Promise<Axios
         'Accept-Encoding': 'gzip, deflate, br',
         'Connection': 'keep-alive',
         'Upgrade-Insecure-Requests': '1',
+        'Referer': 'https://www.google.com/', // 模拟从 Google 跳转
+        'Sec-Fetch-Dest': 'image', // 模拟浏览器请求图片
+        'Sec-Fetch-Mode': 'no-cors', // 模拟浏览器的跨域请求模式
+        'Sec-Fetch-Site': 'cross-site', // 模拟跨站请求
       },
     })
   } catch (error) {
@@ -53,6 +58,43 @@ async function findFaviconInHtml(html: string, baseUrl: string): Promise<string 
   }
 
   return null
+}
+
+async function getFaviconWithPuppeteer(url: string): Promise<FaviconResult> {
+  const browser = await puppeteer.launch({ headless: true })
+  const page = await browser.newPage()
+  await page.goto(url, { waitUntil: 'networkidle2' })
+
+  // 查找 favicon 的 URL
+  const faviconUrl = await page.evaluate(() => {
+    const icon = document.querySelector('link[rel="icon"], link[rel="shortcut icon"]')
+    return icon ? (icon as HTMLLinkElement).href : null
+  })
+
+  if (!faviconUrl) {
+    await browser.close()
+    throw new Error('No favicon found in HTML')
+  }
+
+  // 使用 axios 下载 favicon
+  const response = await axios.get(faviconUrl, {
+    responseType: 'arraybuffer',
+    headers: {
+      'User-Agent': USER_AGENT,
+    },
+  })
+
+  await browser.close()
+
+  if (response.headers['content-type']?.includes('image')) {
+    return {
+      url: faviconUrl,
+      buffer: Buffer.from(response.data),
+      contentType: response.headers['content-type'],
+    }
+  }
+
+  throw new Error('Failed to fetch favicon')
 }
 
 async function getFavicon(url: string): Promise<FaviconResult> {
@@ -106,19 +148,12 @@ async function getFavicon(url: string): Promise<FaviconResult> {
     console.log(`Failed to fetch or parse HTML for ${url}: ${error}`)
   }
 
-  // Fallback to a default favicon if all else fails
-  const defaultFaviconUrl = `https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=${url}&size=64`
+  // Fallback to Puppeteer if all else fails
   try {
-    const response = await fetchWithRetry(defaultFaviconUrl)
-    if (response.headers['content-type']?.includes('image')) {
-      return {
-        url: defaultFaviconUrl,
-        buffer: Buffer.from(response.data),
-        contentType: response.headers['content-type'],
-      }
-    }
+    console.log('Fallback to Puppeteer for favicon fetching')
+    return await getFaviconWithPuppeteer(url)
   } catch (error) {
-    console.log(`Failed to fetch default favicon from ${defaultFaviconUrl}: ${error}`)
+    console.log(`Failed to fetch favicon with Puppeteer: ${error}`)
   }
 
   throw new Error('No valid favicon found')
