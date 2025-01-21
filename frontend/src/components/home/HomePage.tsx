@@ -1,4 +1,3 @@
-// HomePage.tsx
 'use client';
 
 import React, { useRef, useState, useEffect, useCallback } from 'react';
@@ -13,6 +12,7 @@ import { BottomNavbar } from '@/components/bottom-navbar';
 import { Category, Tool } from './types';
 import { Navigation } from '@/components/navigation';
 import { LampEffect } from '@/components/ui/LampEffect';
+import { motion } from 'framer-motion';
 
 const apiUrl = process.env.NEXT_PUBLIC_CMS_API_BASE_URL;
 const TOOLS_PER_CATEGORY = 24;
@@ -30,6 +30,7 @@ export default function HomePage() {
 
   const sectionRefs = useRef<Record<string, React.RefObject<HTMLDivElement>>>({});
 
+  // 从缓存加载数据
   const loadFromCache = () => {
     const cachedData = localStorage.getItem('categoriesAndTools');
     if (cachedData) {
@@ -45,6 +46,7 @@ export default function HomePage() {
     return false;
   };
 
+  // 保存数据到缓存
   const saveToCache = (data: { categories: Category[]; toolsByCategory: Record<string, Tool[]> }) => {
     localStorage.setItem(
       'categoriesAndTools',
@@ -52,6 +54,7 @@ export default function HomePage() {
     );
   };
 
+  // 获取分类和工具数据
   const fetchCategoriesAndTools = useCallback(async () => {
     if (loadFromCache()) {
       return;
@@ -112,10 +115,12 @@ export default function HomePage() {
     }
   }, []);
 
+  // 初始化加载数据
   useEffect(() => {
     fetchCategoriesAndTools();
   }, [fetchCategoriesAndTools]);
 
+  // 初始化 sectionRefs
   useEffect(() => {
     if (categories.length > 0) {
       sectionRefs.current = categories.reduce((acc, category) => {
@@ -125,6 +130,7 @@ export default function HomePage() {
     }
   }, [categories]);
 
+  // 滚动到指定分类
   const scrollToSection = useCallback((sectionId: string) => {
     const sectionElement = sectionRefs.current[sectionId]?.current;
     if (sectionElement) {
@@ -133,16 +139,18 @@ export default function HomePage() {
         block: 'start',
       });
 
-      // Trigger the lamp effect
+      // 触发光照效果
       setAnimatingSection(sectionId);
-      setTimeout(() => setAnimatingSection(''), 2000); // Reset after 2 seconds
+      setTimeout(() => setAnimatingSection(''), 2000); // 2秒后重置
     }
   }, []);
 
+  // 处理分类选择
   const handleCategorySelect = useCallback((categoryId: string) => {
     scrollToSection(categoryId);
   }, [scrollToSection]);
 
+  // 监听分类是否在视口中
   useEffect(() => {
     const observers = categories.map(category => {
       const observer = new IntersectionObserver(
