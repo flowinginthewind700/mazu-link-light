@@ -11,7 +11,7 @@ import { AnimatedSectionTitle } from '@/components/animated-section-title';
 import { BottomNavbar } from '@/components/bottom-navbar';
 import { Category, Tool } from './types';
 import { Navigation } from '@/components/navigation';
-import { LampEffect } from '@/components/ui/LampEffect';
+import { WavyBackground } from '@/components/ui/wavy-background';
 import { motion } from 'framer-motion';
 
 const apiUrl = process.env.NEXT_PUBLIC_CMS_API_BASE_URL;
@@ -30,7 +30,6 @@ export default function HomePage() {
 
   const sectionRefs = useRef<Record<string, React.RefObject<HTMLDivElement>>>({});
 
-  // 从缓存加载数据
   const loadFromCache = () => {
     const cachedData = localStorage.getItem('categoriesAndTools');
     if (cachedData) {
@@ -46,7 +45,6 @@ export default function HomePage() {
     return false;
   };
 
-  // 保存数据到缓存
   const saveToCache = (data: { categories: Category[]; toolsByCategory: Record<string, Tool[]> }) => {
     localStorage.setItem(
       'categoriesAndTools',
@@ -54,7 +52,6 @@ export default function HomePage() {
     );
   };
 
-  // 获取分类和工具数据
   const fetchCategoriesAndTools = useCallback(async () => {
     if (loadFromCache()) {
       return;
@@ -115,12 +112,10 @@ export default function HomePage() {
     }
   }, []);
 
-  // 初始化加载数据
   useEffect(() => {
     fetchCategoriesAndTools();
   }, [fetchCategoriesAndTools]);
 
-  // 初始化 sectionRefs
   useEffect(() => {
     if (categories.length > 0) {
       sectionRefs.current = categories.reduce((acc, category) => {
@@ -130,7 +125,6 @@ export default function HomePage() {
     }
   }, [categories]);
 
-  // 滚动到指定分类
   const scrollToSection = useCallback((sectionId: string) => {
     const sectionElement = sectionRefs.current[sectionId]?.current;
     if (sectionElement) {
@@ -139,18 +133,29 @@ export default function HomePage() {
         block: 'start',
       });
 
-      // 触发光照效果
-      setAnimatingSection(sectionId);
-      setTimeout(() => setAnimatingSection(''), 2000); // 2秒后重置
+      // Check if the section is in view after a delay
+      setTimeout(() => {
+        const rect = sectionElement.getBoundingClientRect();
+        const isInView = rect.top >= 0 && rect.bottom <= window.innerHeight;
+
+        if (!isInView) {
+          // If not in view, retry scrolling
+          sectionElement.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start',
+          });
+        }
+      }, 1000); // Adjust the delay as needed
     }
+
+    setAnimatingSection(sectionId);
+    setTimeout(() => setAnimatingSection(''), 1000);
   }, []);
 
-  // 处理分类选择
   const handleCategorySelect = useCallback((categoryId: string) => {
     scrollToSection(categoryId);
   }, [scrollToSection]);
 
-  // 监听分类是否在视口中
   useEffect(() => {
     const observers = categories.map(category => {
       const observer = new IntersectionObserver(
@@ -216,7 +221,7 @@ export default function HomePage() {
                   <button
                     key={category.id}
                     onClick={() => scrollToSection(category.id)}
-                    className="flex w-full items-center gap-2 p-2 rounded-lg hover:bg-accent hover:text-accent-foreground text-left transition-colors duration-200 ease-in-out"
+                    className="flex w-full items-center gap-2 p-2 rounded-lg hover:bg-accent hover:text-accent-foreground text-left transition-colors duration-200 ease-in-out glow-effect"
                   >
                     <span className="text-sm">{category.name}</span>
                   </button>
@@ -244,9 +249,52 @@ export default function HomePage() {
                   ref={sectionRefs.current[category.id]}
                   className="relative space-y-4 scroll-mt-24"
                 >
+                  {/* 添加光照效果 */}
                   {animatingSection === category.id && (
-                    <LampEffect targetId={category.id} isActive={true} />
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.5 }}
+                      className="absolute inset-0 pointer-events-none"
+                    >
+                      <div className="relative flex w-full flex-1 scale-y-125 items-center justify-center isolate z-0">
+                        <motion.div
+                          initial={{ opacity: 0.5, width: "15rem" }}
+                          animate={{ opacity: 1, width: "30rem" }}
+                          transition={{
+                            delay: 0.3,
+                            duration: 0.8,
+                            ease: "easeInOut",
+                          }}
+                          style={{
+                            backgroundImage: `conic-gradient(var(--conic-position), var(--tw-gradient-stops))`,
+                          }}
+                          className="absolute inset-auto right-1/2 h-56 overflow-visible w-[30rem] bg-gradient-conic from-cyan-500 via-transparent to-transparent text-white [--conic-position:from_70deg_at_center_top]"
+                        >
+                          <div className="absolute w-[100%] left-0 bg-background h-40 bottom-0 z-20 [mask-image:linear-gradient(to_top,white,transparent)]" />
+                          <div className="absolute w-40 h-[100%] left-0 bg-background bottom-0 z-20 [mask-image:linear-gradient(to_right,white,transparent)]" />
+                        </motion.div>
+                        <motion.div
+                          initial={{ opacity: 0.5, width: "15rem" }}
+                          animate={{ opacity: 1, width: "30rem" }}
+                          transition={{
+                            delay: 0.3,
+                            duration: 0.8,
+                            ease: "easeInOut",
+                          }}
+                          style={{
+                            backgroundImage: `conic-gradient(var(--conic-position), var(--tw-gradient-stops))`,
+                          }}
+                          className="absolute inset-auto left-1/2 h-56 w-[30rem] bg-gradient-conic from-transparent via-transparent to-cyan-500 text-white [--conic-position:from_290deg_at_center_top]"
+                        >
+                          <div className="absolute w-40 h-[100%] right-0 bg-background bottom-0 z-20 [mask-image:linear-gradient(to_left,white,transparent)]" />
+                          <div className="absolute w-[100%] right-0 bg-background h-40 bottom-0 z-20 [mask-image:linear-gradient(to_top,white,transparent)]" />
+                        </motion.div>
+                      </div>
+                    </motion.div>
                   )}
+
                   <AnimatedSectionTitle
                     title={category.name}
                     isActive={animatingSection === category.id}
