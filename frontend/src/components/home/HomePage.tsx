@@ -124,9 +124,11 @@ export default function HomePage() {
     }
   }, [categories]);
 
-  const scrollToSection = useCallback((sectionId: string) => {
-    // Add a small delay to allow time for DOM rendering
-    setTimeout(() => {
+  const scrollToSection = useCallback((sectionId: string, retryCount = 0) => {
+    const maxRetries = 3;
+    const retryDelay = 100; // ms
+
+    const performScroll = () => {
       const sectionRef = sectionRefs.current[sectionId];
       if (sectionRef && sectionRef.current) {
         sectionRef.current.scrollIntoView({
@@ -135,8 +137,16 @@ export default function HomePage() {
         });
         setAnimatingSection(sectionId);
         setTimeout(() => setAnimatingSection(''), 1000);
+        return true;
       }
-    }, 100);
+      return false;
+    };
+
+    if (!performScroll() && retryCount < maxRetries) {
+      setTimeout(() => {
+        scrollToSection(sectionId, retryCount + 1);
+      }, retryDelay);
+    }
   }, []);
 
   const handleCategorySelect = useCallback((categoryId: string) => {
