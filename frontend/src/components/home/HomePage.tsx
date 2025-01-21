@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import React, { useRef, useState, useEffect, useCallback } from 'react';
 import Head from 'next/head';
@@ -12,6 +12,7 @@ import { BottomNavbar } from '@/components/bottom-navbar';
 import { Category, Tool } from './types';
 import { Navigation } from '@/components/navigation';
 import { WavyBackground } from '@/components/ui/wavy-background';
+import { LampEffect } from '@/components/ui/LampEffect'; // Import the LampEffect component
 
 const apiUrl = process.env.NEXT_PUBLIC_CMS_API_BASE_URL;
 const TOOLS_PER_CATEGORY = 24;
@@ -127,21 +128,14 @@ export default function HomePage() {
   const scrollToSection = useCallback((sectionId: string) => {
     const sectionElement = sectionRefs.current[sectionId]?.current;
     if (sectionElement) {
-      // Always scroll to the section, even if it's already in view
       sectionElement.scrollIntoView({
         behavior: 'smooth',
         block: 'start',
       });
 
-      // Add a "shine" effect
-      sectionElement.classList.add('shine');
-      setTimeout(() => {
-        sectionElement.classList.remove('shine');
-      }, 1000); // Remove the effect after 1 second
+      // Trigger the lamp effect
+      setAnimatingSection(sectionId);
     }
-
-    setAnimatingSection(sectionId);
-    setTimeout(() => setAnimatingSection(''), 1000);
   }, []);
 
   const handleCategorySelect = useCallback((categoryId: string) => {
@@ -239,8 +233,11 @@ export default function HomePage() {
                 <div
                   key={category.id}
                   ref={sectionRefs.current[category.id]}
-                  className="space-y-4 scroll-mt-24 relative"
+                  className="space-y-4 scroll-mt-24"
                 >
+                  {animatingSection === category.id && (
+                    <LampEffect isActive={true} />
+                  )}
                   <AnimatedSectionTitle
                     title={category.name}
                     isActive={animatingSection === category.id}
@@ -272,48 +269,6 @@ export default function HomePage() {
           </div>
         </div>
       </div>
-
-      <style jsx>{`
-        .shine {
-          position: relative;
-          overflow: hidden;
-        }
-
-        .shine::after {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: -100%;
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(
-            90deg,
-            transparent,
-            rgba(255, 255, 255, 0.2) 50%,
-            transparent
-          );
-          animation: shine 1s ease-in-out;
-        }
-
-        @keyframes shine {
-          0% {
-            left: -100%;
-          }
-          100% {
-            left: 100%;
-          }
-        }
-
-        /* Dark mode adjustments */
-        .dark .shine::after {
-          background: linear-gradient(
-            90deg,
-            transparent,
-            rgba(255, 255, 255, 0.1) 50%,
-            transparent
-          );
-        }
-      `}</style>
     </>
   );
 }
