@@ -133,11 +133,11 @@ export default function HomePage() {
         block: 'start',
       });
 
-      // Add a highlight effect
-      sectionElement.classList.add('highlight');
+      // Add a "shine" effect
+      sectionElement.classList.add('shine');
       setTimeout(() => {
-        sectionElement.classList.remove('highlight');
-      }, 1000); // Remove the highlight after 1 second
+        sectionElement.classList.remove('shine');
+      }, 1000); // Remove the effect after 1 second
     }
 
     setAnimatingSection(sectionId);
@@ -239,7 +239,7 @@ export default function HomePage() {
                 <div
                   key={category.id}
                   ref={sectionRefs.current[category.id]}
-                  className="space-y-4 scroll-mt-24"
+                  className="space-y-4 scroll-mt-24 relative"
                 >
                   <AnimatedSectionTitle
                     title={category.name}
@@ -274,20 +274,44 @@ export default function HomePage() {
       </div>
 
       <style jsx>{`
-        .highlight {
-          animation: highlight 1s ease-in-out;
+        .shine {
+          position: relative;
+          overflow: hidden;
         }
 
-        @keyframes highlight {
+        .shine::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(
+            90deg,
+            transparent,
+            rgba(255, 255, 255, 0.2) 50%,
+            transparent
+          );
+          animation: shine 1s ease-in-out;
+        }
+
+        @keyframes shine {
           0% {
-            background-color: rgba(255, 255, 0, 0.1);
-          }
-          50% {
-            background-color: rgba(255, 255, 0, 0.3);
+            left: -100%;
           }
           100% {
-            background-color: rgba(255, 255, 0, 0.1);
+            left: 100%;
           }
+        }
+
+        /* Dark mode adjustments */
+        .dark .shine::after {
+          background: linear-gradient(
+            90deg,
+            transparent,
+            rgba(255, 255, 255, 0.1) 50%,
+            transparent
+          );
         }
       `}</style>
     </>
