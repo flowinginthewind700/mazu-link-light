@@ -65,6 +65,10 @@ async function getFavicon(url: string): Promise<FaviconResult> {
     `${protocol}//${domain}/favicon.png`,
     `${protocol}//${domain}/apple-touch-icon.png`,
     `${protocol}//${domain}/apple-touch-icon-precomposed.png`,
+    `https://www.google.com/s2/favicons?domain=${domain}&sz=64`,
+    `https://icons.duckduckgo.com/ip3/${domain}.ico`,
+    `https://${domain}/logo.svg`,
+    `https://${domain}/logo.png`,
   ]
 
   for (const candidateUrl of faviconCandidates) {
@@ -83,19 +87,38 @@ async function getFavicon(url: string): Promise<FaviconResult> {
   }
 
   // If direct attempts fail, try parsing HTML
-  const htmlResponse = await fetchWithRetry(url)
-  const html = htmlResponse.data.toString('utf-8')
-  const foundFaviconUrl = await findFaviconInHtml(html, url)
+  try {
+    const htmlResponse = await fetchWithRetry(url)
+    const html = htmlResponse.data.toString('utf-8')
+    const foundFaviconUrl = await findFaviconInHtml(html, url)
 
-  if (foundFaviconUrl) {
-    const response = await fetchWithRetry(foundFaviconUrl)
+    if (foundFaviconUrl) {
+      const response = await fetchWithRetry(foundFaviconUrl)
+      if (response.headers['content-type']?.includes('image')) {
+        return {
+          url: foundFaviconUrl,
+          buffer: Buffer.from(response.data),
+          contentType: response.headers['content-type'],
+        }
+      }
+    }
+  } catch (error) {
+    console.log(`Failed to fetch or parse HTML for ${url}: ${error}`)
+  }
+
+  // Fallback to a default favicon if all else fails
+  const defaultFaviconUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`
+  try {
+    const response = await fetchWithRetry(defaultFaviconUrl)
     if (response.headers['content-type']?.includes('image')) {
       return {
-        url: foundFaviconUrl,
+        url: defaultFaviconUrl,
         buffer: Buffer.from(response.data),
         contentType: response.headers['content-type'],
       }
     }
+  } catch (error) {
+    console.log(`Failed to fetch default favicon from ${defaultFaviconUrl}: ${error}`)
   }
 
   throw new Error('No valid favicon found')
