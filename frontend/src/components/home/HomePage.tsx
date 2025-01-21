@@ -11,7 +11,6 @@ import { AnimatedSectionTitle } from '@/components/animated-section-title';
 import { BottomNavbar } from '@/components/bottom-navbar';
 import { Category, Tool } from './types';
 import { Navigation } from '@/components/navigation';
-import { WavyBackground } from '@/components/ui/wavy-background';
 
 const apiUrl = process.env.NEXT_PUBLIC_CMS_API_BASE_URL;
 const TOOLS_PER_CATEGORY = 24;
@@ -124,28 +123,14 @@ export default function HomePage() {
     }
   }, [categories]);
 
-  const scrollToSection = useCallback((sectionId: string, retryCount = 0) => {
-    const maxRetries = 3;
-    const retryDelay = 100; // ms
-
-    const performScroll = () => {
-      const sectionRef = sectionRefs.current[sectionId];
-      if (sectionRef && sectionRef.current) {
-        sectionRef.current.scrollIntoView({
-          behavior: 'smooth',
-          block: 'start',
-        });
-        setAnimatingSection(sectionId);
-        setTimeout(() => setAnimatingSection(''), 1000);
-        return true;
-      }
-      return false;
-    };
-
-    if (!performScroll() && retryCount < maxRetries) {
-      setTimeout(() => {
-        scrollToSection(sectionId, retryCount + 1);
-      }, retryDelay);
+  const scrollToSection = useCallback((sectionId: string) => {
+    if (sectionRefs.current[sectionId]?.current) {
+      sectionRefs.current[sectionId]?.current?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+      setAnimatingSection(sectionId);
+      setTimeout(() => setAnimatingSection(''), 1000);
     }
   }, []);
 
@@ -240,7 +225,7 @@ export default function HomePage() {
                 setSelectedFeatureTab={setSelectedFeatureTab}
               />
 
-              {categories.map((category) => (
+              {categories.length > 0 && categories.map((category) => (
                 <div
                   key={category.id}
                   ref={sectionRefs.current[category.id]}
