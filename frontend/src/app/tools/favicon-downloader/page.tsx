@@ -95,7 +95,16 @@ export default function FaviconDownloader() {
   }
 
   const convertSvgToPng = async (svgUrl: string, width: number, height: number): Promise<string> => {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
+      if (typeof window === 'undefined') {
+        reject(new Error('This function can only run in the browser'))
+        return
+      }
+
+      // 动态导入 canvas 库
+      const { default: Canvas } = await import('canvas')
+      const { Image } = Canvas
+
       const img = new Image()
       img.src = svgUrl
       img.crossOrigin = 'Anonymous' // 允许跨域
