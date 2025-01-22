@@ -42,6 +42,8 @@ async function fetchWithRetry(url: string, retries = MAX_RETRIES): Promise<Axios
 async function findFaviconInHtml(html: string, baseUrl: string): Promise<string | null> {
   const $ = cheerio.load(html)
   const iconSelectors = [
+    'link[rel="icon"][type="image/svg+xml"]', // 优先查找 SVG 格式的 favicon
+    'link[rel="shortcut icon"][type="image/svg+xml"]',
     'link[rel="icon"]',
     'link[rel="shortcut icon"]',
     'link[rel="apple-touch-icon"]',
@@ -65,6 +67,7 @@ async function getFavicon(url: string): Promise<FaviconResult> {
   const protocol = parsedUrl.protocol
 
   const faviconCandidates = [
+    `${protocol}//${domain}/favicon.svg`, // 优先尝试 SVG 格式的 favicon
     `${protocol}//${domain}/favicon.ico`,
     `${protocol}//${domain}/favicon.png`,
     `${protocol}//${domain}/apple-touch-icon.png`,
