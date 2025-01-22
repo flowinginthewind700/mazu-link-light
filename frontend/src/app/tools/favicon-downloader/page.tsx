@@ -101,13 +101,13 @@ export default function FaviconDownloader() {
         return
       }
 
-      // 动态导入 canvas 库
-      const { default: Canvas } = await import('canvas')
-      const { Image } = Canvas
-
       const img = new Image()
       img.src = svgUrl
-      img.crossOrigin = 'Anonymous' // 允许跨域
+
+      // 仅在浏览器环境中设置 crossOrigin
+      if (typeof window !== 'undefined') {
+        img.crossOrigin = 'Anonymous' // 允许跨域
+      }
 
       img.onload = () => {
         const canvas = document.createElement('canvas')
