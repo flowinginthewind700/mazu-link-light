@@ -95,19 +95,16 @@ export default function FaviconDownloader() {
   }
 
   const convertSvgToPng = async (svgUrl: string, width: number, height: number): Promise<string> => {
-    return new Promise(async (resolve, reject) => {
+    return new Promise((resolve, reject) => {
       if (typeof window === 'undefined') {
         reject(new Error('This function can only run in the browser'))
         return
       }
 
-      const img = new Image()
+      const img = new window.Image()
       img.src = svgUrl
 
-      // 仅在浏览器环境中设置 crossOrigin
-      if (typeof window !== 'undefined') {
-        img.crossOrigin = 'Anonymous' // 允许跨域
-      }
+      img.crossOrigin = 'Anonymous' // 允许跨域
 
       img.onload = () => {
         const canvas = document.createElement('canvas')
@@ -134,7 +131,7 @@ export default function FaviconDownloader() {
         }, 'image/png')
       }
 
-      img.onerror = (error) => {
+      img.onerror = () => {
         reject(new Error('Failed to load SVG image'))
       }
     })
