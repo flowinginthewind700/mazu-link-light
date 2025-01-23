@@ -9,7 +9,7 @@ blog:
     description: "Stay ahead with the latest AI, LLM, and AIGC trends. Expert analysis on machine learning, multimodal models, and tech innovations."
     image: "https://agientry.com/images/blogog.jpg"
 
-ai-image:
+aiImage:
   title: "AI Image Gallery: Explore & Copy Prompts for AI Art, Characters, Landscapes & More | AGIEntry"
   description: "Discover a vast collection of AI-generated images, including characters, sci-fi, animals, landscapes, and more. Copy prompts for AI art generation and master prompt engineering with AGIEntry."
   canonical: "https://agientry.com/ai-image"
