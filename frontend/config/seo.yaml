@@ -8,3 +8,14 @@ blog:
     url: "https://agientry.com/blog"
     description: "Stay ahead with the latest AI, LLM, and AIGC trends. Expert analysis on machine learning, multimodal models, and tech innovations."
     image: "https://agientry.com/images/blogog.jpg"
+
+ai-image:
+  title: "AI Image Gallery: Explore & Copy Prompts for AI Art, Characters, Landscapes & More | AGIEntry"
+  description: "Discover a vast collection of AI-generated images, including characters, sci-fi, animals, landscapes, and more. Copy prompts for AI art generation and master prompt engineering with AGIEntry."
+  canonical: "https://agientry.com/ai-image"
+  keywords: "AI image gallery, AI art prompts, AI-generated images, prompt engineering, AI characters, sci-fi art, animal art, landscape art, fantasy art, anime art, AI tools, AGIEntry"
+  og:
+    title: "AI Image Gallery: Explore & Copy Prompts for AI Art | AGIEntry"
+    url: "https://agientry.com/ai-image"
+    description: "Discover AI-generated images and copy prompts for characters, sci-fi, animals, landscapes, and more. Master prompt engineering with AGIEntry."
+    image: "https://agientry.com/images/aiimagesog.jpg"
