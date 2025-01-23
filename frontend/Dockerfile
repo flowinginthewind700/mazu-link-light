@@ -50,6 +50,7 @@ RUN npm i --save-dev @types/react-window
 RUN npm i --save-dev @types/lodash
 RUN npm install puppeteer
 RUN npm install canvas
+RUN npm install js-yaml
 
 COPY . .
 RUN cp -r components/ui/* src/components/ui

@@ -1,8 +1,16 @@
-// BlogPage.tsx
+// app/blog/page.tsx
+import { loadSEOConfig } from '@/components/seo/seoConfig'
+import { generateMetadata } from '@/components/seo/SEO'
+
+export const generateMetadata = () => {
+  const seoConfig = loadSEOConfig()
+  return generateMetadata(seoConfig.blog)
+}
+
+// 你的客户端组件逻辑
 'use client'
 
 import { useState, useEffect } from 'react'
-import axios from 'axios'
 import { Navigation } from '@/components/navigation'
 import { CategorySelect } from '@/components/blog/CategorySelect'
 import { BlogList } from '@/components/blog/BlogList'
@@ -12,7 +20,7 @@ import { fetchCategories, fetchBlogPosts, searchBlogPosts } from '@/components/b
 import { Category, BlogPost } from '@/components/blog/types'
 
 const POSTS_PER_PAGE = 9
-const EXCLUDED_CATEGORY_IDS = ["1", "4"]
+const EXCLUDED_CATEGORY_IDS = ['1', '4']
 
 export default function BlogPage() {
   const [categories, setCategories] = useState<Category[]>([])
@@ -60,8 +68,8 @@ export default function BlogPage() {
   }
 
   const clearSearchResults = () => {
-    setSearchQuery('') // 清空搜索查询
-    setSearchResults([]) // 清空搜索结果
+    setSearchQuery('')
+    setSearchResults([])
   }
 
   return (
@@ -75,10 +83,10 @@ export default function BlogPage() {
       />
       <div className="min-h-screen bg-background">
         <div className="container mx-auto px-4 py-8">
-          <SearchBar 
-            onSearch={handleSearch} 
-            onClearSearch={clearSearchResults} 
-            searchQuery={searchQuery} // 将 searchQuery 传递给 SearchBar
+          <SearchBar
+            onSearch={handleSearch}
+            onClearSearch={clearSearchResults}
+            searchQuery={searchQuery}
           />
           <div className="lg:flex lg:gap-8">
             <CategorySelect
