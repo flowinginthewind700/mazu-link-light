@@ -214,9 +214,9 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
             className="mx-auto"
           />
         </BackgroundGradient> */}
-        <BackgroundGradient className="p-2 rounded-lg">
+        {/* <BackgroundGradient className="p-2 rounded-lg"> */}
           <AGIEntryLogo className="mx-auto" />
-        </BackgroundGradient>
+        {/* </BackgroundGradient> */}
       </div>
 
       <Tabs value={selectedTopTab} onValueChange={handleTopTabChange} className="w-full max-w-2xl mx-auto">
