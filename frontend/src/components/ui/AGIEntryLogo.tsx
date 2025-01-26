@@ -7,7 +7,7 @@ interface AGIEntryLogoProps {
 
 const AGIEntryLogo: React.FC<AGIEntryLogoProps> = ({ className = '' }) => {
   return (
-    <div className={`relative w-[130px] h-[130px] ${className}`}>
+    <div className={`relative w-[64px] h-[64px] ${className}`}>
       <motion.div 
         className="absolute inset-0 bg-[#2a2a40] rounded-[13px] overflow-hidden"
         animate={{ boxShadow: ['0 0 13px rgba(0, 0, 0, 0.5)', '0 0 26px rgba(255, 255, 255, 0.8)'] }}
