@@ -216,7 +216,7 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
           />
         </BackgroundGradient> */}
         {/* <BackgroundGradient className="p-2 rounded-lg"> */}
-          <AGILogo width={200} height={150} />
+          <AGILogo width={160} height={110} />
         {/* </BackgroundGradient> */}
       </div>
 

@@ -17,14 +17,12 @@ export default function AGILogo({
   style = {},
   theme = "dark",
 }: AGILogoProps) {
-  // 深色模式使用青色系渐变
   const darkGradient = {
     start: "#00F5FF",
     mid: "#00BFFF",
     end: "#1E90FF",
   }
 
-  // 浅色模式使用深蓝色系渐变
   const lightGradient = {
     start: "#0066CC",
     mid: "#0033CC",
@@ -37,21 +35,19 @@ export default function AGILogo({
     <svg
       width={width}
       height={height}
-      viewBox="0 0 400 300"
+      viewBox="0 0 300 150"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className={className}
       style={style}
     >
       <defs>
-        {/* 定义渐变 */}
         <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
           <stop offset="0%" stopColor={gradient.start} />
           <stop offset="50%" stopColor={gradient.mid} />
           <stop offset="100%" stopColor={gradient.end} />
         </linearGradient>
 
-        {/* 定义动画路径 */}
         <filter id="glow">
           <feGaussianBlur stdDeviation="2" result="coloredBlur" />
           <feMerge>
@@ -61,28 +57,25 @@ export default function AGILogo({
         </filter>
       </defs>
 
-      {/* 横线 */}
-      <line x1="100" y1="150" x2="300" y2="150" stroke="url(#lineGradient)" strokeWidth="2" filter="url(#glow)">
-        <animate attributeName="stroke-width" values="2;3;2" dur="2s" repeatCount="indefinite" />
+      <line x1="20" y1="75" x2="280" y2="75" stroke="url(#lineGradient)" strokeWidth="3" filter="url(#glow)">
+        <animate attributeName="stroke-width" values="3;4;3" dur="2s" repeatCount="indefinite" />
       </line>
 
-      {/* 曲线 */}
       <path
-        d="M100 150 Q 150 220 200 150 Q 250 80 300 150"
+        d="M20 75 Q 75 135 150 75 Q 225 15 280 75"
         stroke="url(#lineGradient)"
-        strokeWidth="2"
+        strokeWidth="3"
         fill="none"
         filter="url(#glow)"
       >
-        <animate attributeName="stroke-width" values="2;3;2" dur="2s" repeatCount="indefinite" />
+        <animate attributeName="stroke-width" values="3;4;3" dur="2s" repeatCount="indefinite" />
       </path>
 
-      {/* AGI文字 */}
       <text
-        x="100"
-        y="130"
+        x="20"
+        y="55"
         fill={gradient.mid}
-        fontSize="36"
+        fontSize="40"
         fontFamily="'Inter', sans-serif"
         fontWeight="bold"
         filter="url(#glow)"
@@ -91,12 +84,11 @@ export default function AGILogo({
         AGI
       </text>
 
-      {/* Entry文字 */}
       <text
-        x="220"
-        y="190"
+        x="190"
+        y="115"
         fill={gradient.mid}
-        fontSize="36"
+        fontSize="40"
         fontFamily="'Inter', sans-serif"
         fontWeight="bold"
         filter="url(#glow)"
