@@ -1,0 +1,2 @@
+DeepSeek prompt with web search enabled:
+Introduce [XXX], including name, brief summary, features, price, how to use etc. Output format is markdown source code.
