@@ -8,6 +8,7 @@ import axios from 'axios';
 import { Tool } from './types'; // 导入 Tool 类型
 import { BackgroundGradient } from '@/components/ui/background-gradient';
 import AGIEntryLogo from '@/components/ui/AGIEntryLogo';
+import AGILogo from "@/components/ui/agi-logo"
 
 // 定义 HeroSearchProps 接口
 interface HeroSearchProps {
@@ -215,7 +216,7 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
           />
         </BackgroundGradient> */}
         {/* <BackgroundGradient className="p-2 rounded-lg"> */}
-          <AGIEntryLogo className="mx-auto" />
+          <AGILogo width={200} height={150} />
         {/* </BackgroundGradient> */}
       </div>
 
