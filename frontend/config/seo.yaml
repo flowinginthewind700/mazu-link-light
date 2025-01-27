@@ -19,3 +19,14 @@ aiImage:
     url: "https://agientry.com/ai-image"
     description: "Discover AI-generated images and copy prompts for characters, sci-fi, animals, landscapes, and more. Master prompt engineering with AGIEntry."
     image: "https://agientry.com/images/aiimagesog.jpg"
+
+home:
+  title: "AI Tools Directory: Find the Best AI Tools & Apps | AGIEntry"
+  description: "Discover the best AI tools for chat, code, search, image, video, music, audio, 3D, SAAS, design, and education. Free and premium AI solutions curated for innovators and creators."
+  canonical: "https://agientry.com"
+  keywords: "google ai, ai工具, ai free, ai app, ai online, best ai, toolify ai, ai apps, ai网站, ai导航, ai tool, ai tools free, best ai tools, ai tools list, top ai tools, chat tools, code tools, search tools, image tools, video tools, music tools, audio tools, 3d tools, AI SAAS, Design tools, education tools"
+  og:
+    title: "AI Tools Directory: Find the Best AI Tools & Apps | AGIEntry"
+    url: "https://agientry.com"
+    description: "Explore a comprehensive directory of AI tools for chat, code, image, video, and more. Find free and premium AI solutions to boost your productivity and creativity."
+    image: "https://agientry.com/images/agiog.jpg"
