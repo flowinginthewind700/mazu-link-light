@@ -4,7 +4,7 @@ import Image from 'next/image';
 interface AuthorInfoProps {
   author?: {
     name: string;
-    avatar?: { url: string };
+    avatar?: string;
     twitter?: string;
   };
   createdAt: string;
@@ -12,8 +12,8 @@ interface AuthorInfoProps {
 
 const AuthorInfo: React.FC<AuthorInfoProps> = ({ author, createdAt }) => {
   if (author) {
-    const avatarUrl = author.avatar?.url
-      ? `${process.env.NEXT_PUBLIC_CMS_API_BASE_URL}${author.avatar.url}`
+    const avatarUrl = author.avatar
+      ? `${author.avatar}`
       : '/images/defaultavatar.jpg';
 
     return (
