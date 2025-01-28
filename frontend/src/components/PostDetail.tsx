@@ -24,7 +24,7 @@ interface Post {
   created_at: string;
   author?: {
     name: string;
-    avatar?: { url: string };
+    avatar?: string;
     twitter?: string;
   };
 }
