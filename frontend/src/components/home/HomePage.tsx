@@ -212,8 +212,8 @@ export default function HomePage() {
         }}
       />
       <div className="min-h-screen bg-background text-foreground pb-20">
-        <div className="container mx-auto px-4 py-8">
-          <div className="lg:flex lg:gap-8">
+        <div className="container mx-auto px-4 py-2">
+          <div className="lg:flex lg:gap-2">
             {/* Sidebar */}
             <aside className="hidden lg:block w-48 space-y-4 sticky top-24 h-fit">
               <nav className="space-y-2">
