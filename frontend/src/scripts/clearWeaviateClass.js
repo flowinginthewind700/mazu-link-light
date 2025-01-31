@@ -2,7 +2,8 @@ require('dotenv').config({ path: '.env.local' });
 
 const axios = require('axios');
 
-const WEAVIATE_URL = 'http://weaviate:8080/v1';
+const WEAVIATE_SERVER = process.env.NEXT_PUBLIC_WEAVIATE_URL;
+const WEAVIATE_URL = `${WEAVIATE_SERVER}/v1`
 
 // 从命令行参数获取类名
 const className = process.argv[2];

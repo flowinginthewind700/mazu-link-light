@@ -12,7 +12,9 @@ if (!STRAPI_API_URL) {
   process.exit(1);
 }
 
-const WEAVIATE_URL = 'http://weaviate:8080/v1/objects';
+const WEAVIATE_SERVER = process.env.NEXT_PUBLIC_WEAVIATE_URL;
+const WEAVIATE_URL = `${WEAVIATE_SERVER}/v1/objects`;
+
 const WEAVIATE_CLASS_NAME = 'Agitool';
 
 // 根据 id 获取单条 Agitool

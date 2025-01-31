@@ -4,7 +4,10 @@ const axios = require('axios');
 
 const UUID_NAMESPACE = '1b671a64-40d5-491e-99b0-da01ff1f3343';
 const STRAPI_API_URL = process.env.NEXT_PUBLIC_CMS_API_BASE_URL;
-const WEAVIATE_URL = 'http://weaviate:8080/v1/objects';
+
+const WEAVIATE_SERVER = process.env.NEXT_PUBLIC_WEAVIATE_URL;
+const WEAVIATE_URL = `${WEAVIATE_SERVER}/v1/objects`;
+
 const WEAVIATE_CLASS_NAME = 'BlogPost';
 const POSTS_PER_PAGE = 20;
 const EXCLUDED_CATEGORY_IDS = []; // 填入你想要排除的分类 ID
