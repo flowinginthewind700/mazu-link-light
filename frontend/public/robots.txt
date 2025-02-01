@@ -4,4 +4,4 @@ Disallow: /api/
 Disallow: /admin/
 Disallow: /private/
 
-Sitemap: https://www.agientry.com/sitemap.xml
+Sitemap: https://agientry.com/api/sitemap.xml
