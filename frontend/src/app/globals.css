@@ -34,6 +34,41 @@
     --ring: 215 20.2% 65.1%;
 
     --radius: 0.5rem;
+
+    /* 新增的语法高亮变量 */
+    --syntax-color: 222.2 84% 4.9%;
+    --syntax-bg: 210 40% 98%;
+    --syntax-comment: 215.4 16.3% 46.9%;
+    --syntax-prolog: 215.4 16.3% 46.9%;
+    --syntax-doctype: 215.4 16.3% 46.9%;
+    --syntax-cdata: 215.4 16.3% 46.9%;
+    --syntax-punctuation: 222.2 84% 4.9%;
+    --syntax-property: 221 83% 53%;
+    --syntax-tag: 142.1 76.2% 36.3%;
+    --syntax-boolean: 221 83% 53%;
+    --syntax-number: 221 83% 53%;
+    --syntax-constant: 221 83% 53%;
+    --syntax-symbol: 35.5 91.7% 32.9%;
+    --syntax-deleted: 0 84.2% 60.2%;
+    --syntax-selector: 269.2 79.7% 39%;
+    --syntax-attr-name: 142.1 76.2% 36.3%;
+    --syntax-string: 212.7 100% 26.5%;
+    --syntax-char: 212.7 100% 26.5%;
+    --syntax-builtin: 221 83% 53%;
+    --syntax-inserted: 142.1 76.2% 36.3%;
+    --syntax-operator: 355.3 100% 42.5%;
+    --syntax-entity: 269.2 79.7% 39%;
+    --syntax-url: 212.7 100% 26.5%;
+    --syntax-css-string: 212.7 100% 26.5%;
+    --syntax-style-string: 212.7 100% 26.5%;
+    --syntax-variable: 35.5 91.7% 32.9%;
+    --syntax-atrule: 355.3 100% 42.5%;
+    --syntax-attr-value: 212.7 100% 26.5%;
+    --syntax-function: 269.2 79.7% 39%;
+    --syntax-class-name: 269.2 79.7% 39%;
+    --syntax-keyword: 355.3 100% 42.5%;
+    --syntax-regex: 212.7 100% 26.5%;
+    --syntax-important: 355.3 100% 42.5%;
   }
 
   .dark {
@@ -65,6 +100,41 @@
     --destructive-foreground: 210 40% 98%;
 
     --ring: 217.2 32.6% 17.5%;
+
+    /* 新增的语法高亮变量 */
+    --syntax-color: 210 40% 98%;
+    --syntax-bg: 222.2 84% 4.9%;
+    --syntax-comment: 215 20.2% 65.1%;
+    --syntax-prolog: 215 20.2% 65.1%;
+    --syntax-doctype: 215 20.2% 65.1%;
+    --syntax-cdata: 215 20.2% 65.1%;
+    --syntax-punctuation: 210 40% 98%;
+    --syntax-property: 198.6 88.7% 48.4%;
+    --syntax-tag: 135.1 94.2% 43.9%;
+    --syntax-boolean: 198.6 88.7% 48.4%;
+    --syntax-number: 198.6 88.7% 48.4%;
+    --syntax-constant: 198.6 88.7% 48.4%;
+    --syntax-symbol: 35.5 91.7% 62.9%;
+    --syntax-deleted: 0 84.2% 60.2%;
+    --syntax-selector: 269.2 79.7% 69%;
+    --syntax-attr-name: 135.1 94.2% 43.9%;
+    --syntax-string: 211.7 100% 56.1%;
+    --syntax-char: 211.7 100% 56.1%;
+    --syntax-builtin: 198.6 88.7% 48.4%;
+    --syntax-inserted: 135.1 94.2% 43.9%;
+    --syntax-operator: 355.3 100% 72.5%;
+    --syntax-entity: 269.2 79.7% 69%;
+    --syntax-url: 211.7 100% 56.1%;
+    --syntax-css-string: 211.7 100% 56.1%;
+    --syntax-style-string: 211.7 100% 56.1%;
+    --syntax-variable: 35.5 91.7% 62.9%;
+    --syntax-atrule: 355.3 100% 72.5%;
+    --syntax-attr-value: 211.7 100% 56.1%;
+    --syntax-function: 269.2 79.7% 69%;
+    --syntax-class-name: 269.2 79.7% 69%;
+    --syntax-keyword: 355.3 100% 72.5%;
+    --syntax-regex: 211.7 100% 56.1%;
+    --syntax-important: 355.3 100% 72.5%;
   }
 }
 
