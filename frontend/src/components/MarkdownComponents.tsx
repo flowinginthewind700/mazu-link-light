@@ -1,9 +1,10 @@
 import React from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { BilibiliEmbed, YouTubeEmbed, VideoEmbed } from './EmbedComponents';
+import { CSSProperties } from 'react';
 
 // 自定义主题
-const customTheme = {
+const customTheme: { [key: string]: CSSProperties } = {
   'code[class*="language-"]': {
     color: 'var(--syntax-color)',
     background: 'var(--syntax-bg)',
