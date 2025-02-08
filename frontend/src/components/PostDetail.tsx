@@ -16,6 +16,9 @@ import { BilibiliEmbed, YouTubeEmbed, VideoEmbed } from './EmbedComponents';
 import { CodeRenderer, BlockNode } from './MarkdownComponents';
 import AuthorInfo from './AuthorInfo';
 
+import 'katex/dist/katex.min.css';
+import { InlineMath, BlockMath } from 'react-katex';
+
 interface Post {
   cover: { url: string }[];
   title: string;
