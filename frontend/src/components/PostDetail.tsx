@@ -18,6 +18,7 @@ import AuthorInfo from './AuthorInfo';
 
 import 'katex/dist/katex.min.css';
 import { InlineMath, BlockMath } from 'react-katex';
+import remarkMath from 'remark-math';
 
 interface Post {
   cover: { url: string }[];
@@ -212,7 +213,8 @@ const PostDetail: React.FC<{ postId: string }> = ({ postId }) => {
         <div className="prose dark:prose-invert max-w-none">
           <ReactMarkdown
             rehypePlugins={[rehypeRaw]}
-            remarkPlugins={[remarkGfm]}
+            remarkPlugins={[remarkGfm, remarkMath]}
+            
             components={components}
           >
             {post.content}

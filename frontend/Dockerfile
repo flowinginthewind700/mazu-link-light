@@ -54,6 +54,7 @@ RUN npm install js-yaml
 RUN npm i --save-dev @types/js-yaml
 RUN npm install katex react-katex
 RUN npm i --save-dev @types/react-katex
+RUN npm install remark-math
 
 
 COPY . .
