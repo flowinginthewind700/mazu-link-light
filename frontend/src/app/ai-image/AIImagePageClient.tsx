@@ -68,7 +68,7 @@ export default function AIImagePageClient() {
         }
       `
       const response = await axios.post(`${apiUrl}/graphql`, { query })
-      const fetchedCategories: Category[] = response.data.data.imagecategories
+      const fetchedCategories: Category[] = response.data.data.imagecategory1s
       setCategories([{ id: 'all', name: 'All' }, ...fetchedCategories])
     } catch (error) {
       console.error('Error fetching categories:', error)
