@@ -52,6 +52,8 @@ RUN npm install puppeteer
 RUN npm install canvas
 RUN npm install js-yaml
 RUN npm i --save-dev @types/js-yaml
+RUN npm install katex react-katex
+
 
 COPY . .
 RUN cp -r components/ui/* src/components/ui

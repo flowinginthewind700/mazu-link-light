@@ -150,6 +150,8 @@ const PostDetail: React.FC<{ postId: string }> = ({ postId }) => {
   const components = {
     code: CodeRenderer as any,
     div: ({ node, ...props }: any) => <BlockNode node={node} {...props} />,
+    inlineMath: ({ value }: { value: string }) => <InlineMath math={value} />,
+    math: ({ value }: { value: string }) => <BlockMath math={value} />,
     a: ({ node, ...props }: any) => <a {...props} className="text-blue-500 hover:underline" target="_blank" rel="noopener noreferrer" />,
     img: ({ node, ...props }: any) => (
       <img

@@ -3,6 +3,9 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { BilibiliEmbed, YouTubeEmbed, VideoEmbed } from './EmbedComponents';
 import { CSSProperties } from 'react';
 
+import 'katex/dist/katex.min.css';
+import { InlineMath, BlockMath } from 'react-katex';
+
 // 自定义主题
 const customTheme: { [key: string]: CSSProperties } = {
   'code[class*="language-"]': {
