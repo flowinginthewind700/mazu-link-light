@@ -61,7 +61,7 @@ export default function AIImagePageClient() {
     try {
       const query = `
         query {
-          imagecategories {
+          imagecategory1s {
             id
             name
           }
