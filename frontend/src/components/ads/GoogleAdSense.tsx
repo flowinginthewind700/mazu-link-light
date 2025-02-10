@@ -1,4 +1,5 @@
 // GoogleAdSense.tsx
+'use client';
 import { useEffect } from 'react';
 
 export const GoogleAdSense = () => {
