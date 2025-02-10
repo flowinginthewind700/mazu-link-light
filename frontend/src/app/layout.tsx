@@ -1,3 +1,4 @@
+// app/layout.tsx
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
@@ -5,8 +6,7 @@ import { ThemeProvider } from '@/components/theme-provider'
 import { Footer } from '@/components/footer'
 import dynamic from 'next/dynamic'
 import { BottomNavbar } from '@/components/bottom-navbar'
-import { WavyBackground } from "@/components/ui/wavy-background";
-import { GoogleAdSense } from '@/components/ads/GoogleAdSense';
+import { GoogleAdSense } from '@/components/ads/GoogleAdSense'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -24,18 +24,16 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning className="dark">
-      <head>
-        <GoogleAdSense />
-      </head>
       <body className={`${inter.className} flex flex-col min-h-screen`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            <div className="futuristic-bg-light dark:futuristic-bg-dark tech-pattern min-h-screen">
-              {children}
-              <Footer />
-            </div>
+          <div className="futuristic-bg-light dark:futuristic-bg-dark tech-pattern min-h-screen">
+            {children}
+            <Footer />
+          </div>
         </ThemeProvider>
         <Analytics />
         <BottomNavbar />
+        <GoogleAdSense />
       </body>
     </html>
   )
