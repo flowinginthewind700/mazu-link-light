@@ -1,5 +1,16 @@
 const path = require('path');
 
+const ContentSecurityPolicy = `
+  default-src 'self';
+  script-src 'self' 'unsafe-inline' 'unsafe-eval' https://pagead2.googlesyndication.com https://partner.googleadservices.com https://tpc.googlesyndication.com https://www.googletagservices.com;
+  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+  img-src 'self' data: https: http:;
+  font-src 'self' https://fonts.gstatic.com;
+  frame-src 'self' https://googleads.g.doubleclick.net https://tpc.googlesyndication.com;
+  frame-ancestors 'self' https://www.google.com;
+  connect-src 'self' https://pagead2.googlesyndication.com;
+`.replace(/\s{2,}/g, ' ').trim();
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -31,7 +42,6 @@ const nextConfig = {
       },
     ];
   },
-  // 新增这个配置
   async headers() {
     return [
       {
@@ -40,6 +50,16 @@ const nextConfig = {
           {
             key: 'Content-Type',
             value: 'text/plain',
+          },
+        ],
+      },
+      {
+        // 应用 CSP 到所有页面
+        source: '/:path*',
+        headers: [
+          {
+            key: 'Content-Security-Policy',
+            value: ContentSecurityPolicy,
           },
         ],
       },
