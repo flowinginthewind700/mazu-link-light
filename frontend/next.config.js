@@ -2,13 +2,18 @@ const path = require('path');
 
 const ContentSecurityPolicy = `
   default-src 'self';
-  script-src 'self' 'unsafe-inline' 'unsafe-eval' https://pagead2.googlesyndication.com https://partner.googleadservices.com https://tpc.googlesyndication.com https://www.googletagservices.com https://www.googletagmanager.com https://www.google-analytics.com;
-  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+  script-src 'self' 'unsafe-inline' 'unsafe-eval' https: http:;
+  style-src 'self' 'unsafe-inline' https: http:;
   img-src 'self' data: https: http:;
-  font-src 'self' https://fonts.gstatic.com;
-  frame-src 'self' https://googleads.g.doubleclick.net https://tpc.googlesyndication.com;
-  frame-ancestors 'self' https://www.google.com;
-  connect-src 'self' https://pagead2.googlesyndication.com https://cms.llmstock.com https://llmstock.com https://llmstock.com:2337 https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com https://ep1.adtrafficquality.google;
+  font-src 'self' data: https: http:;
+  frame-src 'self' https: http:;
+  frame-ancestors 'self' https: http:;
+  connect-src 'self' https: http: ws: wss:;
+  media-src 'self' https: http:;
+  object-src 'none';
+  base-uri 'self';
+  form-action 'self';
+  upgrade-insecure-requests;
 `.replace(/\s{2,}/g, ' ').trim();
 
 /** @type {import('next').NextConfig} */
@@ -19,18 +24,15 @@ const nextConfig = {
     return config;
   },
   images: {
+    domains: ['sdimage-1253436389.cos.ap-nanjing.myqcloud.com', 'cms.llmstock.com'],
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'sdimage-1253436389.cos.ap-nanjing.myqcloud.com',
-        port: '',
-        pathname: '/**',
+        hostname: '**',
       },
       {
-        protocol: 'https',
-        hostname: 'cms.llmstock.com',
-        port: '',
-        pathname: '/**',
+        protocol: 'http',
+        hostname: '**',
       },
     ],
   },
@@ -54,12 +56,31 @@ const nextConfig = {
         ],
       },
       {
-        // 应用 CSP 到所有页面
         source: '/:path*',
         headers: [
           {
             key: 'Content-Security-Policy',
             value: ContentSecurityPolicy,
+          },
+          {
+            key: 'X-XSS-Protection',
+            value: '1; mode=block',
+          },
+          {
+            key: 'X-Frame-Options',
+            value: 'SAMEORIGIN',
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'strict-origin-when-cross-origin',
+          },
+          {
+            key: 'Permissions-Policy',
+            value: 'camera=(), microphone=(), geolocation=(), interest-cohort=()',
           },
         ],
       },
