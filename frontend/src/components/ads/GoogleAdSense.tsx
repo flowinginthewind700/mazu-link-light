@@ -1,21 +1,20 @@
 // GoogleAdSense.tsx
 import { useEffect } from 'react';
-import Script from 'next/script';
 
 export const GoogleAdSense = () => {
   const adsenseClientId = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID;
 
-  if (!adsenseClientId) {
-    console.warn('AdSense client ID is not set in environment variables.');
-    return null;
-  }
+  useEffect(() => {
+    if (adsenseClientId) {
+      const script = document.createElement('script');
+      script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsenseClientId}`;
+      script.async = true;
+      script.crossOrigin = 'anonymous';
+      document.head.appendChild(script);
+    } else {
+      console.warn('AdSense client ID is not set in environment variables.');
+    }
+  }, [adsenseClientId]);
 
-  return (
-    <Script
-      async
-      src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsenseClientId}`}
-      crossOrigin="anonymous"
-      strategy="afterInteractive"
-    />
-  );
+  return null;
 };
