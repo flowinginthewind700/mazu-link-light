@@ -49,7 +49,7 @@ export function Footer() {
                   className="text-sm text-muted-foreground hover:text-primary flex items-center"
                 >
                   <img 
-                    src="https://github.githubassets.com/favicons/favicon-dark.svg" 
+                    src="https://cms.llmstock.com/uploads/github_c5c03118c3.svg" 
                     className="w-5 h-5 mr-2" 
                     alt="GitHub"
                   />
