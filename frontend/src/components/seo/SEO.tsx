@@ -50,8 +50,10 @@ export const generateMetadata = ({
       images: [og.image],
     },
     verification: {
-      yandex: yandexVerificationCode,
-      baidu: baiduVerificationCode,
+      yandex: yandexVerificationCode
+    },
+    other: {
+      'baidu-site-verification': baiduVerificationCode
     }
   };
 };
