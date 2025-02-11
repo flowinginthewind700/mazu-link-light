@@ -39,8 +39,6 @@ export const generateMetadata = ({ title, description, canonical, keywords, og }
       description: og.description,
       images: [og.image],
     },
-    other: {
-      'yandex-verification': yandexVerificationCode,
-    },
+    'yandex-verification': yandexVerificationCode,
   }
 }
