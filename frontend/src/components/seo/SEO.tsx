@@ -1,5 +1,6 @@
 // components/SEO.tsx
 import { Metadata } from 'next';
+import type { OpenGraphType } from 'next/dist/lib/metadata/types/opengraph-types';
 
 interface SEOProps {
   title: string;
@@ -11,7 +12,7 @@ interface SEOProps {
     url: string;
     description: string;
     image: string;
-    type?: string; // 推荐补充的可选属性
+    type?: OpenGraphType; // 使用严格类型定义
   };
 }
 
@@ -28,22 +29,18 @@ export const generateMetadata = ({
     title,
     description,
     keywords,
-    alternates: {
-      canonical,
-    },
+    alternates: { canonical },
     openGraph: {
       title: og.title,
       description: og.description,
       url: og.url,
-      images: [
-        {
-          url: og.image,
-          width: 1200,    // 推荐添加尺寸信息
-          height: 630,    // 推荐添加尺寸信息
-          alt: og.title,
-        },
-      ],
-      type: og.type || 'website', // 添加默认值
+      images: [{
+        url: og.image,
+        width: 1200,
+        height: 630,
+        alt: og.title,
+      }],
+      type: og.type || 'website', // 确保值在允许范围内
     },
     twitter: {
       card: 'summary_large_image',
@@ -52,9 +49,7 @@ export const generateMetadata = ({
       images: [og.image],
     },
     verification: {
-      yandex: yandexVerificationCode,
-      // 可同时添加其他搜索引擎验证
-      // google: 'google-code-here',
+      yandex: yandexVerificationCode
     }
   };
 };
