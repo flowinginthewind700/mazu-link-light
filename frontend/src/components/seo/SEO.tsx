@@ -15,6 +15,7 @@ interface SEOProps {
 }
 
 export const generateMetadata = ({ title, description, canonical, keywords, og }: SEOProps): Metadata => {
+  const yandexVerificationCode = process.env.YANDEX_VERIFICATION_CODE || ''
   return {
     title,
     description,
@@ -37,6 +38,9 @@ export const generateMetadata = ({ title, description, canonical, keywords, og }
       title: og.title,
       description: og.description,
       images: [og.image],
+    },
+    other: {
+      'yandex-verification': yandexVerificationCode,
     },
   }
 }
