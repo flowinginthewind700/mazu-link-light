@@ -24,6 +24,7 @@ export const generateMetadata = ({
   og
 }: SEOProps): Metadata => {
   const yandexVerificationCode = process.env.YANDEX_VERIFICATION_CODE || '';
+  const baiduVerificationCode = process.env.BAIDU_VERIFICATION_CODE || '';
 
   return {
     title,
@@ -49,7 +50,8 @@ export const generateMetadata = ({
       images: [og.image],
     },
     verification: {
-      yandex: yandexVerificationCode
+      yandex: yandexVerificationCode,
+      baidu: baiduVerificationCode,
     }
   };
 };
