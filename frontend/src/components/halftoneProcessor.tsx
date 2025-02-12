@@ -618,21 +618,14 @@ const HalftoneProcessor: React.FC = () => {
   }, [videoElement]);
 
   return (
-    <div
-      className={`min-h-screen flex flex-col items-center justify-center p-8 ${
-        theme === "dark" ? "bg-gray-900 text-white" : "bg-gray-100 text-black"
-      }`}
-    >
-      <h1 className="text-3xl font-bold mb-6">Halftone Image Processor</h1>
+    <div className="min-h-screen flex flex-col items-center justify-center p-8 futuristic-bg-light dark:futuristic-bg-dark">
+      {/* 标题 */}
+      <h1 className="text-4xl font-bold mb-8 gradient-text">Halftone Image Processor</h1>
 
       {/* 文件上传区域 */}
       <div
-        className={`w-full max-w-2xl p-8 border-2 rounded-lg transition-all duration-300 ${
-          isDragging
-            ? "border-blue-500 bg-blue-500/10"
-            : theme === "dark"
-            ? "border-gray-700 bg-gray-800"
-            : "border-gray-300 bg-gray-200"
+        className={`w-full max-w-2xl p-8 border rounded-lg transition-all duration-300 glow-effect ${
+          isDragging ? "border-blue-500 bg-blue-500/10" : "border-border"
         }`}
         onDragOver={(e) => {
           e.preventDefault();
@@ -649,11 +642,9 @@ const HalftoneProcessor: React.FC = () => {
           if (file) handleFileUpload(file);
         }}
       >
-        <p className="text-center">
-          Drag and drop an image or video here, or click to select a file
-        </p>
+        <p className="text-center text-muted-foreground">Drag and drop an image or video here, or click to select a file</p>
         <Button
-          className="mt-4 w-full"
+          className="mt-4 w-full py-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 neon-border"
           onClick={() => fileInputRef.current?.click()}
         >
           Select File
@@ -672,8 +663,8 @@ const HalftoneProcessor: React.FC = () => {
 
       {/* 预览区域 */}
       {preview && (
-        <div className="mt-8 w-full max-w-2xl">
-          <h2 className="text-xl font-semibold mb-2">Original File:</h2>
+        <div className="mt-8 w-full max-w-2xl futuristic-card">
+          <h2 className="text-xl font-semibold mb-4 text-primary">Original File:</h2>
           {isVideo ? (
             <video
               src={preview}
@@ -691,9 +682,9 @@ const HalftoneProcessor: React.FC = () => {
       )}
 
       {/* 参数调整区域 */}
-      <div className="mt-8 w-full max-w-2xl space-y-6">
+      <div className="mt-8 w-full max-w-2xl space-y-6 futuristic-card p-6">
         <div className="flex flex-col gap-4">
-          <Label>Grid Size: {gridSize}</Label>
+          <Label className="text-primary">Grid Size: {gridSize}</Label>
           <Input
             type="range"
             min="1"
@@ -705,7 +696,7 @@ const HalftoneProcessor: React.FC = () => {
         </div>
 
         <div className="flex flex-col gap-4">
-          <Label>Brightness: {brightness}</Label>
+          <Label className="text-primary">Brightness: {brightness}</Label>
           <Input
             type="range"
             min="-100"
@@ -717,7 +708,7 @@ const HalftoneProcessor: React.FC = () => {
         </div>
 
         <div className="flex flex-col gap-4">
-          <Label>Contrast: {contrast}</Label>
+          <Label className="text-primary">Contrast: {contrast}</Label>
           <Input
             type="range"
             min="-100"
@@ -729,7 +720,7 @@ const HalftoneProcessor: React.FC = () => {
         </div>
 
         <div className="flex flex-col gap-4">
-          <Label>Gamma: {gamma.toFixed(2)}</Label>
+          <Label className="text-primary">Gamma: {gamma.toFixed(2)}</Label>
           <Input
             type="range"
             min="0.1"
@@ -742,7 +733,7 @@ const HalftoneProcessor: React.FC = () => {
         </div>
 
         <div className="flex flex-col gap-4">
-          <Label>Smoothing: {smoothing.toFixed(2)}</Label>
+          <Label className="text-primary">Smoothing: {smoothing.toFixed(2)}</Label>
           <Input
             type="range"
             min="0"
@@ -755,7 +746,7 @@ const HalftoneProcessor: React.FC = () => {
         </div>
 
         <div className="flex flex-col gap-4">
-          <Label>Dither Type</Label>
+          <Label className="text-primary">Dither Type</Label>
           <Select value={ditherType} onValueChange={setDitherType}>
             <SelectTrigger className="w-full">
               <SelectValue />
@@ -773,13 +764,13 @@ const HalftoneProcessor: React.FC = () => {
       {/* 操作按钮区域 */}
       <div className="mt-8 flex gap-4">
         <Button
-          className="flex-1 py-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-300"
+          className="flex-1 py-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 neon-border"
           onClick={handleReset}
         >
           Reset
         </Button>
         <Button
-          className="flex-1 py-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-300"
+          className="flex-1 py-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 neon-border"
           onClick={handleSave}
         >
           {isVideo ? "Save Video" : "Save Image"}
