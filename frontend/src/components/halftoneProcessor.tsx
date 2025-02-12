@@ -223,6 +223,14 @@ const HalftoneProcessor: React.FC = () => {
 
   const handleFileUpload = useCallback(
     (file: File) => {
+        // 清理旧资源
+        if (videoElement) {
+            videoElement.pause();
+            videoElement.removeAttribute('src'); // 强制清除src
+            videoElement.load(); // 触发空源加载
+            setVideoElement(null); // 立即置空
+          }
+          setIsVideo(false); // 同步设置非视频状态
       // 清理旧资源
       if (preview) URL.revokeObjectURL(preview);
       if (videoElement) {
@@ -281,11 +289,12 @@ const HalftoneProcessor: React.FC = () => {
         if (videoElement) {
           if (animationFrameId) {
             cancelAnimationFrame(animationFrameId)
+            setAnimationFrameId(null)
           }
           videoElement.pause()
           setVideoElement(null)
         }
-        setAnimationFrameId(null)
+        
         const img = new Image()
         img.src = fileURL
         img.crossOrigin = "anonymous"; 
@@ -529,6 +538,17 @@ const HalftoneProcessor: React.FC = () => {
       }
     }
   }, [preview, animationFrameId, videoElement])
+
+  useEffect(() => {
+    return () => {
+      // 强制清理所有视频资源
+      if (videoElement) {
+        videoElement.pause();
+        videoElement.src = "";
+        videoElement.load();
+      }
+    };
+  }, [videoElement]);
 
 return (
     <div className="p-4 max-w-4xl mx-auto">
