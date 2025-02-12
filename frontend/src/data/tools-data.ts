@@ -1,3 +1,4 @@
+// file: /data/tools-data.ts
 export interface Tool {
   id: string;
   name: string;
@@ -15,6 +16,44 @@ export interface Tool {
 }
 
 export const toolsData: Tool[] = [
+  {
+    id: 'halftone-processor',
+    name: 'Halftone Image Processor',
+    description: 'Convert images and videos into artistic halftone patterns with real-time adjustments',
+    image: '/images/halftone.jpg', // 确保图片路径正确
+    pricing: 'Free',
+    tags: ['Image Processing', 'Video Processing', 'Art Effects', 'Dithering'],
+    accessLink: '/tools/halftone-processor',
+    author: 'AI Tools Directory',
+    submissionDate: '2024-03-15',
+    category: 'image',
+    internalPath: '/tools/halftone-processor',
+    content: `
+# Halftone Image Processor
+
+Transform your media into retro-style halftone art with advanced controls:
+
+## Key Features
+- **Multi-Format Support**: Process both images and videos
+- **Real-Time Controls**:
+  - Adjustable grid size (5-50 pixels)
+  - Brightness/Contrast/Gamma correction
+  - Dithering algorithms (Floyd-Steinberg/Ordered/Noise)
+- **Preview & Export**:
+  - Instant processing preview
+  - Export as PNG (images) or WEBM (videos)
+  - Frame rate control (16fps optimized)
+
+## Usage Guide
+1. Drag & drop or select media file
+2. Adjust parameters using sliders
+3. Choose dithering algorithm
+4. Preview results in real-time
+5. Click "Save" to export
+
+Tips: For video processing, we recommend using short clips under 20MB for best performance.
+    `
+  },
   {
     id: 'image-compression',
     name: 'Image Compression',
