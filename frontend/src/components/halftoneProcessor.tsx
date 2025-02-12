@@ -515,6 +515,55 @@ const HalftoneProcessor: React.FC = () => {
     }, 5000);
   };
 
+  const loadDefaultVideo = useCallback(() => {
+    const videoURL = "/videos/Imgur.mp4";
+    setPreview(videoURL);
+    setIsVideo(true);
+  
+    const video = document.createElement("video");
+    video.crossOrigin = "anonymous";
+    video.playsInline = true;
+    video.src = videoURL;
+    video.autoplay = true;
+    video.loop = true;
+    video.muted = true;
+    video.setAttribute("crossOrigin", "anonymous");
+  
+    const abortController = new AbortController();
+  
+    const handleLoaded = () => {
+      setupCanvasDimensions(video.videoWidth, video.videoHeight);
+      video.play().catch((e) => console.error("播放失败:", e));
+      setVideoElement(video);
+      processVideoFrame();
+    };
+  
+    const handleError = (e: Event) => {
+      console.error("视频加载失败:", e);
+      setIsVideo(false);
+      setPreview("");
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
+      cleanup();
+    };
+  
+    const cleanup = () => {
+      video.pause();
+      video.removeEventListener("loadeddata", handleLoaded);
+      video.removeEventListener("error", handleError);
+      video.src = "";
+    };
+  
+    video.addEventListener("loadeddata", handleLoaded, { signal: abortController.signal });
+    video.addEventListener("error", handleError, { signal: abortController.signal });
+  
+    return () => {
+      abortController.abort();
+      cleanup();
+    };
+  }, [setupCanvasDimensions, processVideoFrame]);
+
   useEffect(() => {
     const init = async () => {
       try {
