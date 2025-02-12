@@ -131,7 +131,7 @@ const HalftoneProcessor: React.FC = () => {
     if (canvasRef.current) {
       generateHalftone(canvasRef.current, 1)
     }
-  }, [imageElement, videoElement, generateHalftone]), // Removed canvasRef from dependencies
+  }, [imageElement, videoElement, generateHalftone]) // Removed canvasRef from dependencies
 
   const debounce = useCallback((func: Function, wait: number) => {
     let timeout: NodeJS.Timeout
