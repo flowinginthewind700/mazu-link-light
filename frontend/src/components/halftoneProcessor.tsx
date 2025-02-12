@@ -618,110 +618,173 @@ const HalftoneProcessor: React.FC = () => {
   }, [videoElement]);
 
   return (
-    <div>
-      <h1>Halftone Image Processor</h1>
-      <input
-        type="file"
-        ref={fileInputRef}
-        style={{ display: "none" }}
-        onChange={(e) => {
-          const file = e.target.files?.[0];
+    <div
+      className={`min-h-screen flex flex-col items-center justify-center p-8 ${
+        theme === "dark" ? "bg-gray-900 text-white" : "bg-gray-100 text-black"
+      }`}
+    >
+      <h1 className="text-3xl font-bold mb-6">Halftone Image Processor</h1>
+
+      {/* 文件上传区域 */}
+      <div
+        className={`w-full max-w-2xl p-8 border-2 rounded-lg transition-all duration-300 ${
+          isDragging
+            ? "border-blue-500 bg-blue-500/10"
+            : theme === "dark"
+            ? "border-gray-700 bg-gray-800"
+            : "border-gray-300 bg-gray-200"
+        }`}
+        onDragOver={(e) => {
+          e.preventDefault();
+          setIsDragging(true);
+        }}
+        onDragLeave={(e) => {
+          e.preventDefault();
+          setIsDragging(false);
+        }}
+        onDrop={(e) => {
+          e.preventDefault();
+          setIsDragging(false);
+          const file = e.dataTransfer.files[0];
           if (file) handleFileUpload(file);
         }}
-        accept="image/*,video/*"
-      />
-      <div
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-        style={{
-          border: isDragging ? "2px dashed blue" : "2px dashed gray",
-          padding: "20px",
-          textAlign: "center",
-        }}
       >
-        Drag and drop an image or video here, or click to select a file
+        <p className="text-center">
+          Drag and drop an image or video here, or click to select a file
+        </p>
+        <Button
+          className="mt-4 w-full"
+          onClick={() => fileInputRef.current?.click()}
+        >
+          Select File
+        </Button>
+        <Input
+          type="file"
+          ref={fileInputRef}
+          style={{ display: "none" }}
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) handleFileUpload(file);
+          }}
+          accept="image/*,video/*"
+        />
       </div>
-      <Button onClick={() => fileInputRef.current?.click()}>Select File</Button>
+
+      {/* 预览区域 */}
       {preview && (
-        <div>
-          Original File:
+        <div className="mt-8 w-full max-w-2xl">
+          <h2 className="text-xl font-semibold mb-2">Original File:</h2>
           {isVideo ? (
-            <video src={preview} controls style={{ width: "100%" }} />
+            <video
+              src={preview}
+              controls
+              className="w-full rounded-lg shadow-lg"
+            />
           ) : (
-            <img src={preview} alt="Preview" style={{ width: "100%" }} />
+            <img
+              src={preview}
+              alt="Preview"
+              className="w-full rounded-lg shadow-lg"
+            />
           )}
         </div>
       )}
-      <canvas ref={canvasRef} style={{ display: "block", margin: "20px 0" }} />
-      <div>
-        <Label>Grid Size: {gridSize}</Label>
-        <Input
-          type="range"
-          min="1"
-          max="50"
-          value={gridSize}
-          onChange={(e) => setGridSize(Number.parseInt(e.target.value))}
-        />
+
+      {/* 参数调整区域 */}
+      <div className="mt-8 w-full max-w-2xl space-y-6">
+        <div className="flex flex-col gap-4">
+          <Label>Grid Size: {gridSize}</Label>
+          <Input
+            type="range"
+            min="1"
+            max="50"
+            value={gridSize}
+            onChange={(e) => setGridSize(Number.parseInt(e.target.value))}
+            className="w-full"
+          />
+        </div>
+
+        <div className="flex flex-col gap-4">
+          <Label>Brightness: {brightness}</Label>
+          <Input
+            type="range"
+            min="-100"
+            max="100"
+            value={brightness}
+            onChange={(e) => setBrightness(Number.parseInt(e.target.value))}
+            className="w-full"
+          />
+        </div>
+
+        <div className="flex flex-col gap-4">
+          <Label>Contrast: {contrast}</Label>
+          <Input
+            type="range"
+            min="-100"
+            max="100"
+            value={contrast}
+            onChange={(e) => setContrast(Number.parseInt(e.target.value))}
+            className="w-full"
+          />
+        </div>
+
+        <div className="flex flex-col gap-4">
+          <Label>Gamma: {gamma.toFixed(2)}</Label>
+          <Input
+            type="range"
+            min="0.1"
+            max="3.0"
+            step="0.01"
+            value={gamma}
+            onChange={(e) => setGamma(Number.parseFloat(e.target.value))}
+            className="w-full"
+          />
+        </div>
+
+        <div className="flex flex-col gap-4">
+          <Label>Smoothing: {smoothing.toFixed(2)}</Label>
+          <Input
+            type="range"
+            min="0"
+            max="5"
+            step="0.01"
+            value={smoothing}
+            onChange={(e) => setSmoothing(Number.parseFloat(e.target.value))}
+            className="w-full"
+          />
+        </div>
+
+        <div className="flex flex-col gap-4">
+          <Label>Dither Type</Label>
+          <Select value={ditherType} onValueChange={setDitherType}>
+            <SelectTrigger className="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="None">None</SelectItem>
+              <SelectItem value="FloydSteinberg">Floyd-Steinberg</SelectItem>
+              <SelectItem value="Ordered">Ordered</SelectItem>
+              <SelectItem value="Noise">Noise</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
-      <div>
-        <Label>Brightness: {brightness}</Label>
-        <Input
-          type="range"
-          min="-100"
-          max="100"
-          value={brightness}
-          onChange={(e) => setBrightness(Number.parseInt(e.target.value))}
-        />
+
+      {/* 操作按钮区域 */}
+      <div className="mt-8 flex gap-4">
+        <Button
+          className="flex-1 py-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-300"
+          onClick={handleReset}
+        >
+          Reset
+        </Button>
+        <Button
+          className="flex-1 py-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-300"
+          onClick={handleSave}
+        >
+          {isVideo ? "Save Video" : "Save Image"}
+        </Button>
       </div>
-      <div>
-        <Label>Contrast: {contrast}</Label>
-        <Input
-          type="range"
-          min="-100"
-          max="100"
-          value={contrast}
-          onChange={(e) => setContrast(Number.parseInt(e.target.value))}
-        />
-      </div>
-      <div>
-        <Label>Gamma: {gamma.toFixed(2)}</Label>
-        <Input
-          type="range"
-          min="0.1"
-          max="3.0"
-          step="0.01"
-          value={gamma}
-          onChange={(e) => setGamma(Number.parseFloat(e.target.value))}
-        />
-      </div>
-      <div>
-        <Label>Smoothing: {smoothing.toFixed(2)}</Label>
-        <Input
-          type="range"
-          min="0"
-          max="5"
-          step="0.01"
-          value={smoothing}
-          onChange={(e) => setSmoothing(Number.parseFloat(e.target.value))}
-        />
-      </div>
-      <div>
-        <Label>Dither Type</Label>
-        <Select value={ditherType} onValueChange={setDitherType}>
-          <SelectTrigger>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="None">None</SelectItem>
-            <SelectItem value="FloydSteinberg">Floyd-Steinberg</SelectItem>
-            <SelectItem value="Ordered">Ordered</SelectItem>
-            <SelectItem value="Noise">Noise</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-      <Button onClick={handleReset}>Reset</Button>
-      <Button onClick={handleSave}>{isVideo ? "Save Video" : "Save Image"}</Button>
     </div>
   );
 };
