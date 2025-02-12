@@ -288,12 +288,29 @@ const HalftoneProcessor: React.FC = () => {
         setAnimationFrameId(null)
         const img = new Image()
         img.src = fileURL
-        img.addEventListener("load", () => {
-          setupCanvasDimensions(img.width, img.height)
-          setImageElement(img)
-          processFrame()
-          //URL.revokeObjectURL(fileURL) 
-        })
+        img.crossOrigin = "anonymous"; 
+
+        const handleImageLoad = () => {
+            setupCanvasDimensions(img.width, img.height);
+            setImageElement(img);
+            processFrame();
+            // 延迟释放 URL 确保加载完成
+            setTimeout(() => URL.revokeObjectURL(fileURL), 1000); 
+          };
+        
+        const handleImageError = (e: ErrorEvent) => {
+            console.error("图片加载失败:", e);
+            URL.revokeObjectURL(fileURL);
+            setPreview("");
+            setImageElement(null);
+          };
+        img.addEventListener("load", handleImageLoad);
+        img.addEventListener("error", handleImageError);
+
+        return () => {
+            img.removeEventListener("load", handleImageLoad);
+            img.removeEventListener("error", handleImageError);
+          };
       }
     },
     [preview, videoElement, animationFrameId, setupCanvasDimensions, processVideoFrame]
