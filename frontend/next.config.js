@@ -4,12 +4,12 @@ const ContentSecurityPolicy = `
   default-src 'self';
   script-src 'self' 'unsafe-inline' 'unsafe-eval' https: http:;
   style-src 'self' 'unsafe-inline' https: http:;
-  img-src 'self' data: https: http:;
+  img-src 'self' data: blob: https: http:;
   font-src 'self' data: https: http:;
   frame-src 'self' https: http:;
   frame-ancestors 'self' https: http:;
   connect-src 'self' https: http: ws: wss:;
-  media-src 'self' https: http:;
+  media-src 'self' blob: https: http:;
   object-src 'none';
   base-uri 'self';
   form-action 'self';
