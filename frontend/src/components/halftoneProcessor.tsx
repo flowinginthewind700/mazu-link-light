@@ -478,7 +478,7 @@ const HalftoneProcessor: React.FC = () => {
           previewDivRef.current.innerHTML = "<p>Error loading default video. Please try uploading a file manually.</p>"
         }
       })
-  }, [handleFileUpload])
+  }, [])
 
   useEffect(() => {
     processFrame()
