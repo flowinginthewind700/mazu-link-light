@@ -143,6 +143,7 @@ async function generateSitemap() {
     '/terms',
     '/tools/image-compression',
     '/tools/favicon-downloader',
+    '/tools/halftone-processor',
   ];
 
   const staticUrls = staticPages.map((page) => ({
