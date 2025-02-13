@@ -486,8 +486,8 @@ const HalftoneProcessor: React.FC = () => {
 
   return (
     <div>
-
-      <Card className="p-4">
+      <div className="rounded-xl bg-card text-card-foreground p-0">
+      
         <div
           className="border-2 border-dashed border-gray-300 rounded-lg p-6 mb-6 text-center cursor-pointer"
           onDragOver={handleDragOver}
@@ -598,7 +598,7 @@ const HalftoneProcessor: React.FC = () => {
           <Button onClick={resetParameters}>Reset</Button>
           <Button onClick={saveResult}>Save Result</Button>
         </div>
-      </Card>
+        </div>
     </div>
   )
 }
