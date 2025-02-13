@@ -485,7 +485,8 @@ const HalftoneProcessor: React.FC = () => {
   }, [processFrame])
 
   return (
-    // <div className="p-0 max-w-4xl mx-auto">
+    <div>
+
       <Card className="p-4">
         <div
           className="border-2 border-dashed border-gray-300 rounded-lg p-6 mb-6 text-center cursor-pointer"
@@ -598,7 +599,7 @@ const HalftoneProcessor: React.FC = () => {
           <Button onClick={saveResult}>Save Result</Button>
         </div>
       </Card>
-    {/* </div> */}
+    </div>
   )
 }
 
