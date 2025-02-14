@@ -79,7 +79,17 @@ export default function Match3Game({ initialState, onStateChange, customIcons }:
 
   useEffect(() => {
     // 从 localStorage 加载图标 URL
-    const storedIcons = JSON.parse(localStorage.getItem("gameIcons") || []);
+    const storedIconsString = localStorage.getItem("gameIcons");
+    let storedIcons: string[] = [];
+  
+    if (storedIconsString) {
+      try {
+        storedIcons = JSON.parse(storedIconsString); // 确保传入的是字符串
+      } catch (error) {
+        console.error("Failed to parse gameIcons from localStorage:", error);
+      }
+    }
+  
     if (storedIcons.length >= 6) {
       setIcons(storedIcons);
       setGameName("Cute AI Icon Match 3");
