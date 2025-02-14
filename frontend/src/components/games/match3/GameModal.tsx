@@ -1,27 +1,28 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useTheme } from "next-themes"
-import Match3Game from "./Match3Game"
-import { Moon, Sun } from "lucide-react"
+import { useState, useEffect } from "react";
+import { useTheme } from "next-themes";
+import Match3Game from "./Match3Game";
+import { Moon, Sun } from "lucide-react";
+import { GameState } from "./types"; // 确保导入 GameState 类型
 
 export default function GameModal({ onClose, customIcons }: { onClose: () => void; customIcons?: string[] }) {
-  const { theme, setTheme } = useTheme()
-  const [mounted, setMounted] = useState(false)
-  const [gameState, setGameState] = useState(null)
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  const [gameState, setGameState] = useState<GameState | null>(null); // 明确类型为 GameState | null
 
   // 只在客户端加载游戏状态
   useEffect(() => {
-    const saved = localStorage.getItem("gameState")
-    setGameState(saved ? JSON.parse(saved) : null)
-    setMounted(true)
-  }, [])
+    const saved = localStorage.getItem("gameState");
+    setGameState(saved ? JSON.parse(saved) : null);
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (mounted && gameState) {
-      localStorage.setItem("gameState", JSON.stringify(gameState))
+      localStorage.setItem("gameState", JSON.stringify(gameState));
     }
-  }, [gameState, mounted])
+  }, [gameState, mounted]);
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
@@ -59,7 +60,7 @@ export default function GameModal({ onClose, customIcons }: { onClose: () => voi
         <div className="border-2 border-[#00aaff]/20 rounded-lg overflow-hidden">
           <Match3Game 
             initialState={gameState} 
-            onStateChange={setGameState} 
+            onStateChange={(state) => setGameState(state)} // 确保传递正确的类型
             customIcons={customIcons} 
           />
         </div>
@@ -68,5 +69,5 @@ export default function GameModal({ onClose, customIcons }: { onClose: () => voi
         <div className="absolute inset-0 border-2 border-[#00aaff]/10 rounded-xl pointer-events-none" />
       </div>
     </div>
-  )
+  );
 }
