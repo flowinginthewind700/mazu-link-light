@@ -117,6 +117,24 @@ export default function HomePage() {
   }, [fetchCategoriesAndTools]);
 
   useEffect(() => {
+    if (categories.length > 0 && Object.keys(toolsByCategory).length > 0) {
+      // 获取所有工具的图标 URL
+      const allIcons = Object.values(toolsByCategory)
+        .flat()
+        .map((tool) => tool.iconimage?.url)
+        .filter((url) => url); // 过滤掉无效的 URL
+  
+      // 随机选择 6 个图标 URL
+      const randomIcons = allIcons
+        .sort(() => Math.random() - 0.5)
+        .slice(0, 6);
+  
+      // 存储到 localStorage
+      localStorage.setItem('gameIcons', JSON.stringify(randomIcons));
+    }
+  }, [categories, toolsByCategory]);
+
+  useEffect(() => {
     if (categories.length > 0) {
       sectionRefs.current = categories.reduce((acc, category) => {
         acc[category.id] = React.createRef<HTMLDivElement>();
