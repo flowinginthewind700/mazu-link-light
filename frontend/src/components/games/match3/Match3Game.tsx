@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useTheme } from "next-themes"
 import IconSelector from "./IconSelector"
@@ -99,6 +99,20 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
   const [comboMultiplier, setComboMultiplier] = useState(1)
   const [showIconSelector, setShowIconSelector] = useState(false)
 
+  const handleReset = useCallback(() => {
+    setState({
+      grid: createGrid(icons.length >= 6 ? icons : DEFAULT_ICONS),
+      score: 0,
+      moves: 30,
+    })
+    setComboMultiplier(1)
+    setIsShaking(false)
+  }, [icons])
+
+  useEffect(() => {
+    handleReset()
+  }, [handleReset]) // Added handleReset to the dependency array
+
   useEffect(() => {
     const storedIconsString = localStorage.getItem("gameIcons")
     let storedIcons: string[] = []
@@ -162,16 +176,6 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
       setComboMultiplier(1)
     }
   }, [state.grid, icons, comboMultiplier])
-
-  const handleReset = () => {
-    setState({
-      grid: createGrid(icons),
-      score: 0,
-      moves: 30,
-    })
-    setComboMultiplier(1)
-    setIsShaking(false)
-  }
 
   const handleIconSelection = (selectedIcons: string[]) => {
     setIcons(selectedIcons)

@@ -14,10 +14,18 @@ export default function IconSelector({ onSelect, onClose, currentIcons }: IconSe
   const [selectedIcons, setSelectedIcons] = useState<string[]>(currentIcons)
 
   useEffect(() => {
-    const storedIcons = localStorage.getItem("iconPaths")
-    if (storedIcons) {
-      setAllIcons(JSON.parse(storedIcons))
+    const storedIconsString = localStorage.getItem("gameIcons")
+    let storedIcons: string[] = []
+
+    if (storedIconsString) {
+      try {
+        storedIcons = JSON.parse(storedIconsString)
+        setAllIcons(storedIcons)
+      } catch (error) {
+        console.error("Failed to parse gameIcons from localStorage:", error)
+      }
     }
+
   }, [])
 
   const handleIconClick = (icon: string) => {
