@@ -90,7 +90,7 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
   const [icons, setIcons] = useState<string[]>([])
   const [gameName, setGameName] = useState<string>("Cute Pet Match 3")
   const [state, setState] = useState<GameState>(() => ({
-    grid: createGrid(icons.length >= 6 ? icons : DEFAULT_ICONS),
+    grid: [],
     score: 0,
     moves: 30,
   }))
@@ -98,20 +98,19 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
   const [isShaking, setIsShaking] = useState(false)
   const [comboMultiplier, setComboMultiplier] = useState(1)
   const [showIconSelector, setShowIconSelector] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
 
   const handleReset = useCallback(() => {
-    setState({
-      grid: createGrid(icons.length >= 6 ? icons : DEFAULT_ICONS),
-      score: 0,
-      moves: 30,
-    })
-    setComboMultiplier(1)
-    setIsShaking(false)
+    if (icons.length >= 6) {
+      setState({
+        grid: createGrid(icons),
+        score: 0,
+        moves: 30,
+      })
+      setComboMultiplier(1)
+      setIsShaking(false)
+    }
   }, [icons])
-
-  useEffect(() => {
-    handleReset()
-  }, [handleReset]) // Added handleReset to the dependency array
 
   useEffect(() => {
     const storedIconsString = localStorage.getItem("gameIcons")
@@ -133,7 +132,14 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
       setIcons(DEFAULT_ICONS)
       setGameName("Cute Pet Match 3")
     }
+    setIsLoading(false)
   }, [])
+
+  useEffect(() => {
+    if (!isLoading && icons.length >= 6) {
+      handleReset()
+    }
+  }, [icons, isLoading, handleReset])
 
   useEffect(() => {
     onStateChange(state)
@@ -216,6 +222,10 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
     } else {
       setSelected([row, col])
     }
+  }
+
+  if (isLoading) {
+    return <div>Loading...</div>
   }
 
   return (
