@@ -431,3 +431,25 @@
 .dark .prose hr {
   border-color: hsl(var(--border)); /* 使用 Tailwind 变量 */
 }
+
+@keyframes walk {
+  0% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(15deg);
+  }
+  50% {
+    transform: rotate(0deg);
+  }
+  75% {
+    transform: rotate(-15deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+.walk-animation {
+  animation: walk 1s infinite ease-in-out;
+}

@@ -1,4 +1,3 @@
-// components/games/match3/GameIcon.tsx
 "use client";
 
 import { useState } from "react";
@@ -17,7 +16,7 @@ export default function GameIcon({ className }: GameIconProps) {
         onClick={() => setIsOpen(true)}
         className="font-bold py-2 px-4 rounded-full shadow-lg transform transition duration-300 hover:scale-110"
       >
-        <span className="text-2xl">🐾</span>
+        <span className="text-2xl walk-animation">🐾</span>
       </button>
       {isOpen && <GameModal onClose={() => setIsOpen(false)} />}
     </div>
