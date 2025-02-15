@@ -15,7 +15,7 @@ export default function GameIcon({ className }: GameIconProps) {
     <div className={className}>
       <button
         onClick={() => setIsOpen(true)}
-        className="bg-pink-500 hover:bg-pink-600 text-white font-bold py-2 px-4 rounded-full shadow-lg transform transition duration-300 hover:scale-110"
+        className="font-bold py-2 px-4 rounded-full shadow-lg transform transition duration-300 hover:scale-110"
       >
         <span className="text-2xl">🐾</span>
       </button>
