@@ -19,6 +19,30 @@ export default function GameIcon({ className }: GameIconProps) {
         <span className="text-2xl walk-animation">🐾</span>
       </button>
       {isOpen && <GameModal onClose={() => setIsOpen(false)} />}
+
+      <style jsx>{`
+        @keyframes walk {
+          0% {
+            transform: rotate(0deg);
+          }
+          25% {
+            transform: rotate(15deg);
+          }
+          50% {
+            transform: rotate(0deg);
+          }
+          75% {
+            transform: rotate(-15deg);
+          }
+          100% {
+            transform: rotate(0deg);
+          }
+        }
+
+        .walk-animation {
+          animation: walk 1s infinite ease-in-out;
+        }
+      `}</style>
     </div>
   );
 }
