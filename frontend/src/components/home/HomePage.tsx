@@ -118,10 +118,10 @@ export default function HomePage() {
 
   useEffect(() => {
     if (categories.length > 0 && Object.keys(toolsByCategory).length > 0) {
-      // 获取所有工具的图标 URL
+      // 获取所有工具的图标 URL，并添加域名前缀
       const allIcons = Object.values(toolsByCategory)
         .flat()
-        .map((tool) => tool.iconimage?.url)
+        .map((tool) => tool.iconimage?.url ? `${apiUrl}${tool.iconimage.url}` : null)
         .filter((url) => url); // 过滤掉无效的 URL
   
       // 随机选择 6 个图标 URL
@@ -133,6 +133,7 @@ export default function HomePage() {
       localStorage.setItem('gameIcons', JSON.stringify(allIcons));
     }
   }, [categories, toolsByCategory]);
+
 
   useEffect(() => {
     if (categories.length > 0) {
