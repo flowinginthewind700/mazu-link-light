@@ -117,6 +117,13 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
     }
   }, [])
 
+  // 首次加载时触发 reset game
+  useEffect(() => {
+    if (icons.length > 0) {
+      handleReset()
+    }
+  }, [icons]) // 依赖 icons，确保 icons 加载完成后触发
+
   useEffect(() => {
     onStateChange(state)
   }, [state, onStateChange])
@@ -235,8 +242,8 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
                   selected && selected[0] === rowIndex && selected[1] === colIndex
                     ? "bg-yellow-300"
                     : theme === "dark"
-                      ? "bg-gray-700"
-                      : "bg-white"
+                    ? "bg-gray-700"
+                    : "bg-white"
                 }`}
                 onClick={() => handleCellClick(rowIndex, colIndex)}
                 whileHover={{ scale: 1.1, rotate: 5 }}
@@ -270,4 +277,3 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
     </div>
   )
 }
-
