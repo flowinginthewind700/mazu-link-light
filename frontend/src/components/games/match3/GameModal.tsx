@@ -1,73 +1,46 @@
-"use client";
+"use client"
 
-import { useState, useEffect } from "react";
-import { useTheme } from "next-themes";
-import Match3Game from "./Match3Game";
-import { Moon, Sun } from "lucide-react";
-import { GameState } from "./types"; // 确保导入 GameState 类型
+import { useState, useEffect } from "react"
+import { useTheme } from "next-themes"
+import Match3Game from "./Match3Game"
+import { Moon, Sun } from "lucide-react"
 
-export default function GameModal({ onClose, customIcons }: { onClose: () => void; customIcons?: string[] }) {
-  const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-  const [gameState, setGameState] = useState<GameState | null>(null); // 明确类型为 GameState | null
-
-  // 只在客户端加载游戏状态
-  useEffect(() => {
-    const saved = localStorage.getItem("gameState");
-    setGameState(saved ? JSON.parse(saved) : null);
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (mounted && gameState) {
-      localStorage.setItem("gameState", JSON.stringify(gameState));
+export default function GameModal({ onClose }: { onClose: () => void }) {
+  const { theme, setTheme } = useTheme()
+  const [gameState, setGameState] = useState(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("gameState")
+      return saved ? JSON.parse(saved) : null
     }
-  }, [gameState, mounted]);
+    return null
+  })
+
+  useEffect(() => {
+    if (gameState) {
+      localStorage.setItem("gameState", JSON.stringify(gameState))
+    }
+  }, [gameState])
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className={`relative rounded-xl p-8 shadow-2xl ${theme === "dark" ? "bg-gray-900" : "bg-white"}`}>
-        {/* 标题栏 */}
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-3xl font-bold bg-gradient-to-r from-[#00aaff] to-[#00fff7] bg-clip-text text-transparent">
-            Cute Pet Match3
-          </h2>
-          
-          <div className="flex items-center gap-4">
-            {/* 主题切换按钮 */}
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className={`rounded-lg p-6 ${theme === "dark" ? "bg-gray-800 text-white" : "bg-white text-black"}`}>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-2xl font-bold">Cute Pet Match 3</h2>
+          <div className="flex items-center">
             <button
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="text-[#00aaff] hover:text-[#0099ee] transition-colors"
+              className="mr-4 p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
             >
-              {theme === "dark" ? (
-                <Sun className="w-6 h-6" strokeWidth={1.5} />
-              ) : (
-                <Moon className="w-6 h-6" strokeWidth={1.5} />
-              )}
+              {theme === "dark" ? <Sun /> : <Moon />}
             </button>
-
-            {/* 关闭按钮 */}
-            <button 
-              onClick={onClose}
-              className="text-3xl text-[#00aaff] hover:text-[#0099ee] transition-colors"
-            >
+            <button onClick={onClose} className="text-2xl">
               &times;
             </button>
           </div>
         </div>
-
-        {/* 游戏主体 */}
-        <div className="border-2 border-[#00aaff]/20 rounded-lg overflow-hidden">
-          <Match3Game 
-            initialState={gameState} 
-            onStateChange={(state) => setGameState(state)} // 确保传递正确的类型
-            customIcons={customIcons} 
-          />
-        </div>
-
-        {/* 装饰边框 */}
-        <div className="absolute inset-0 border-2 border-[#00aaff]/10 rounded-xl pointer-events-none" />
+        <Match3Game initialState={gameState} onStateChange={setGameState} />
       </div>
     </div>
-  );
+  )
 }
+

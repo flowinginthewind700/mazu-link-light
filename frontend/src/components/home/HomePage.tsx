@@ -125,12 +125,12 @@ export default function HomePage() {
         .filter((url) => url); // 过滤掉无效的 URL
   
       // 随机选择 6 个图标 URL
-      const randomIcons = allIcons
-        .sort(() => Math.random() - 0.5)
-        .slice(0, 6);
+      // const randomIcons = allIcons
+      //   .sort(() => Math.random() - 0.5)
+      //   .slice(0, 6);
   
       // 存储到 localStorage
-      localStorage.setItem('gameIcons', JSON.stringify(randomIcons));
+      localStorage.setItem('gameIcons', JSON.stringify(allIcons));
     }
   }, [categories, toolsByCategory]);
 
