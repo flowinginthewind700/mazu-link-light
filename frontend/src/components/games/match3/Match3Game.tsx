@@ -166,6 +166,7 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
       moves: 30,
     })
     setComboMultiplier(1)
+    setIsShaking(false)
   }
 
   const handleIconSelection = (selectedIcons: string[]) => {
@@ -186,11 +187,22 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
       ) {
         const newGrid = [...state.grid.map((r) => [...r])]
         ;[newGrid[selected[0]][selected[1]], newGrid[row][col]] = [newGrid[row][col], newGrid[selected[0]][selected[1]]]
-        setState((prev) => ({
-          ...prev,
-          grid: newGrid,
-          moves: prev.moves - 1,
-        }))
+
+        // Check for matches after swapping
+        const matches = checkForMatches(newGrid)
+        if (matches.length > 0) {
+          setState((prev) => ({
+            ...prev,
+            grid: newGrid,
+            moves: prev.moves - 1,
+          }))
+        } else {
+          // If no matches, swap back
+          ;[newGrid[selected[0]][selected[1]], newGrid[row][col]] = [
+            newGrid[row][col],
+            newGrid[selected[0]][selected[1]],
+          ]
+        }
       }
       setSelected(null)
     } else {
