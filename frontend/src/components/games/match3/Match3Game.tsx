@@ -233,7 +233,6 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
       className={`p-4 rounded-lg shadow-lg ${theme === "dark" ? "bg-gray-800 text-white" : "bg-pink-100 text-black"}`}
     >
       <div className="mb-4 text-center">
-        <h2 className="text-2xl font-bold">{gameName}</h2>
         <p className="text-xl">Score: {state.score}</p>
         <p className="text-lg">Moves left: {state.moves}</p>
         <p className="text-md">Combo: x{comboMultiplier.toFixed(1)}</p>
