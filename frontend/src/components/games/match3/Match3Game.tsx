@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useTheme } from "next-themes"
-import IconSelector from "./IconSelector"
 
 const DEFAULT_ICONS = ["🐶", "🐱", "🐰", "🐼", "🦊", "🐨"]
 const GRID_SIZE = 6
@@ -21,7 +20,7 @@ type Match3GameProps = {
 }
 
 const createGrid = (icons: string[]) => {
-  const iconsToUse = icons.length >= 6 ? icons : DEFAULT_ICONS
+  const iconsToUse = icons.slice(0, 6) // 只使用前6个图标
   return Array(GRID_SIZE)
     .fill(null)
     .map(() =>
@@ -81,6 +80,73 @@ const checkForDeadlock = (grid: string[][]) => {
   return true
 }
 
+const IconSelector = ({
+  onSelect,
+  onClose,
+  currentIcons,
+}: {
+  onSelect: (icons: string[]) => void
+  onClose: () => void
+  currentIcons: string[]
+}) => {
+  const [selectedIcons, setSelectedIcons] = useState<string[]>(currentIcons.slice(0, 6))
+  const allIcons = [...DEFAULT_ICONS, ...currentIcons.filter((icon) => !DEFAULT_ICONS.includes(icon))]
+
+  const handleAddIcon = (icon: string) => {
+    if (selectedIcons.length < 6 && !selectedIcons.includes(icon)) {
+      setSelectedIcons([...selectedIcons, icon])
+    }
+  }
+
+  const handleRemoveIcon = (icon: string) => {
+    setSelectedIcons(selectedIcons.filter((i) => i !== icon))
+  }
+
+  return (
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+      <div className="bg-white p-6 rounded-lg shadow-lg w-96 max-h-[80vh] overflow-y-auto">
+        <h2 className="text-xl font-bold mb-4">Select Icons</h2>
+        <div className="grid grid-cols-6 gap-2 mb-4">
+          {selectedIcons.map((icon, index) => (
+            <div
+              key={index}
+              className="w-10 h-10 flex items-center justify-center bg-gray-200 rounded-lg cursor-pointer"
+              onClick={() => handleRemoveIcon(icon)}
+            >
+              {icon}
+            </div>
+          ))}
+        </div>
+        <div className="grid grid-cols-6 gap-2">
+          {allIcons.map((icon, index) => (
+            <div
+              key={index}
+              className="w-10 h-10 flex items-center justify-center bg-gray-200 rounded-lg cursor-pointer"
+              onClick={() => handleAddIcon(icon)}
+            >
+              {icon}
+            </div>
+          ))}
+        </div>
+        <div className="mt-4 flex justify-end space-x-2">
+          <button
+            onClick={() => {
+              onSelect(selectedIcons)
+              onClose()
+            }}
+            className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+          >
+            Confirm
+          </button>
+          <button onClick={onClose} className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function Match3Game({ initialState, onStateChange }: Match3GameProps) {
   const { theme } = useTheme()
   const [icons, setIcons] = useState<string[]>([])
@@ -137,7 +203,7 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
       const matches = checkForMatches(state.grid)
       if (matches.length > 0) {
         setTimeout(() => {
-          const newGrid = removeMatches(state.grid, matches, icons)
+          const newGrid = removeMatches(state.grid, matches, icons.slice(0, 6)) // 只使用前6个图标
           setState((prev) => ({
             ...prev,
             grid: newGrid,
@@ -254,7 +320,7 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
                 exit={{ opacity: 0, scale: 0, rotate: -180 }}
                 transition={{ type: "spring", stiffness: 260, damping: 20 }}
               >
-                <img src={cell || "/placeholder.svg"} alt="icon" className="w-8 h-8 object-contain" />
+                {cell}
               </motion.button>
             )),
           )}
