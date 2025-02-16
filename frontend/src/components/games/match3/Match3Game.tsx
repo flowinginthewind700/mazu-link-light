@@ -83,23 +83,7 @@ const removeMatches = (grid: CellType[][], matches: [number, number][], icons: s
     }
   })
 
-  // Explode bombs
-  bombsToExplode.forEach(([row, col]) => {
-    const adjacentCells = [
-      [row - 1, col],
-      [row + 1, col],
-      [row, col - 1],
-      [row, col + 1],
-    ]
-
-    adjacentCells.forEach(([r, c]) => {
-      if (r >= 0 && r < GRID_SIZE && c >= 0 && c < GRID_SIZE) {
-        matches.push([r, c])
-      }
-    })
-  })
-
-  return newGrid
+  return { newGrid, bombsToExplode }
 }
 
 const checkForDeadlock = (grid: CellType[][]) => {
@@ -135,6 +119,7 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
   const [showIconSelector, setShowIconSelector] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [showFireworks, setShowFireworks] = useState(false)
+  const [explodingBombs, setExplodingBombs] = useState<[number, number][]>([])
 
   const handleReset = useCallback(() => {
     if (icons.length >= 6) {
@@ -145,6 +130,7 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
       })
       setComboMultiplier(1)
       setIsShaking(false)
+      setExplodingBombs([])
     }
   }, [icons])
 
@@ -190,7 +176,7 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
       const matches = checkForMatches(state.grid)
       if (matches.length > 0) {
         setTimeout(() => {
-          const newGrid = removeMatches(state.grid, matches, icons)
+          const { newGrid, bombsToExplode } = removeMatches(state.grid, matches, icons)
           setState((prev) => ({
             ...prev,
             grid: newGrid,
@@ -204,10 +190,28 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
             setTimeout(() => setShowFireworks(false), 5000)
           }
 
-          // 检查是否有连锁反应
-          const newMatches = checkForMatches(newGrid)
-          if (newMatches.length > 0) {
-            checkAndUpdateGrid()
+          // 处理炸弹爆炸
+          if (bombsToExplode.length > 0) {
+            setExplodingBombs(bombsToExplode)
+            setTimeout(() => {
+              setExplodingBombs([])
+              const adjacentCells = bombsToExplode.flatMap(([row, col]) => [
+                [row - 1, col],
+                [row + 1, col],
+                [row, col - 1],
+                [row, col + 1],
+              ])
+              const validAdjacentCells = adjacentCells.filter(
+                ([r, c]) => r >= 0 && r < GRID_SIZE && c >= 0 && c < GRID_SIZE,
+              )
+              checkAndUpdateGrid()
+            }, 500) // 等待爆炸动画完成
+          } else {
+            // 检查是否有连锁反应
+            const newMatches = checkForMatches(newGrid)
+            if (newMatches.length > 0) {
+              checkAndUpdateGrid()
+            }
           }
         }, 300)
         return true
@@ -345,6 +349,14 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
                       <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
                     </svg>
                   </motion.div>
+                )}
+                {explodingBombs.some(([r, c]) => r === rowIndex && c === colIndex) && (
+                  <motion.div
+                    className="absolute inset-0 bg-red-500 rounded-lg"
+                    initial={{ scale: 0 }}
+                    animate={{ scale: [0, 1.5, 0] }}
+                    transition={{ duration: 0.5 }}
+                  />
                 )}
               </motion.button>
             )),
