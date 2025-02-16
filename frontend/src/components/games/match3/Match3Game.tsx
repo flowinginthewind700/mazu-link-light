@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { useTheme } from "next-themes"
 import IconSelector from "./IconSelector"
 import Fireworks from "./Fireworks"
+import SmallFirework from "./SmallFirework"
 
 const DEFAULT_ICONS = ["🐶", "🐱", "🐰", "🐼", "🦊", "🐨"]
 const GRID_SIZE = 6
@@ -120,6 +121,8 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
   const [isLoading, setIsLoading] = useState(true)
   const [showFireworks, setShowFireworks] = useState(false)
   const [explodingBombs, setExplodingBombs] = useState<[number, number][]>([])
+  const [showSmallFirework, setShowSmallFirework] = useState(false)
+  const [fireworkPositions, setFireworkPositions] = useState<[number, number][]>([])
 
   const handleReset = useCallback(() => {
     if (icons.length >= 6) {
@@ -193,6 +196,8 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
           // 处理炸弹爆炸
           if (bombsToExplode.length > 0) {
             setExplodingBombs(bombsToExplode)
+            setFireworkPositions(bombsToExplode)
+            setShowSmallFirework(true)
             setTimeout(() => {
               setExplodingBombs([])
               const adjacentCells = bombsToExplode.flatMap(([row, col]) => [
@@ -299,6 +304,28 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
         animate={isShaking ? { x: [-5, 5, -5, 5, 0] } : {}}
         transition={{ duration: 0.5 }}
       >
+        {showSmallFirework && (
+  <AnimatePresence>
+    {fireworkPositions.map(([row, col], index) => (
+      <div
+        key={index}
+        style={{
+          position: "absolute",
+          top: `${row * 50}px`, // 根据你的网格大小调整
+          left: `${col * 50}px`, // 根据你的网格大小调整
+        }}
+      >
+        <SmallFirework
+          onComplete={() => {
+            if (index === fireworkPositions.length - 1) {
+              setShowSmallFirework(false)
+            }
+          }}
+        />
+      </div>
+    ))}
+  </AnimatePresence>
+)}
         <AnimatePresence>
           {state.grid.map((row, rowIndex) =>
             row.map((cell, colIndex) => (
