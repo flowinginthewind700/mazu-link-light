@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { useTheme } from "next-themes"
 import IconSelector from "./IconSelector"
 import Fireworks from "./Fireworks"
+import SmallFirework from "./SmallFirework"
 
 const DEFAULT_ICONS = ["🐶", "🐱", "🐰", "🐼", "🦊", "🐨"]
 const GRID_SIZE = 6
@@ -73,15 +74,15 @@ const removeMatches = (grid: CellType[][], matches: [number, number][], icons: s
   matches.forEach(([row, col]) => {
     if (newGrid[row][col].isBomb) {
       bombsToExplode.push([row, col])
+    } else {
+      setFireworks((prev) => [...prev, [row, col]])
     }
   })
 
   // Handle bomb effects
   bombsToExplode.forEach(([row, col]) => {
-    // Check if the bomb is part of a row match
     const isRowMatch = matches.some(([r, c]) => r === row && Math.abs(c - col) <= 2)
     if (isRowMatch) {
-      // Eliminate the entire row
       for (let i = 0; i < GRID_SIZE; i++) {
         newGrid[row][i] = {
           icon: icons[Math.floor(Math.random() * icons.length)],
@@ -90,10 +91,8 @@ const removeMatches = (grid: CellType[][], matches: [number, number][], icons: s
       }
     }
 
-    // Check if the bomb is part of a column match
     const isColMatch = matches.some(([r, c]) => c === col && Math.abs(r - row) <= 2)
     if (isColMatch) {
-      // Eliminate the entire column
       for (let i = 0; i < GRID_SIZE; i++) {
         newGrid[i][col] = {
           icon: icons[Math.floor(Math.random() * icons.length)],
@@ -103,7 +102,6 @@ const removeMatches = (grid: CellType[][], matches: [number, number][], icons: s
     }
   })
 
-  // Remove regular matches
   matches.forEach(([row, col]) => {
     if (!newGrid[row][col].isBomb) {
       for (let i = row; i > 0; i--) {
@@ -154,6 +152,7 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
   const [showFireworks, setShowFireworks] = useState(false)
   const [laserRows, setLaserRows] = useState<number[]>([])
   const [laserCols, setLaserCols] = useState<number[]>([])
+  const [fireworks, setFireworks] = useState<[number, number][]>([])
 
   const handleReset = useCallback(() => {
     if (icons.length >= 6) {
@@ -219,13 +218,11 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
           }))
           setComboMultiplier((prev) => Math.min(prev + 0.5, 4))
 
-          // Trigger fireworks for big matches or combos
           if (matches.length > 3 || comboMultiplier > 1) {
             setShowFireworks(true)
             setTimeout(() => setShowFireworks(false), 5000)
           }
 
-          // Handle bomb effects
           if (bombsToExplode.length > 0) {
             const rowsToLaser = new Set<number>()
             const colsToLaser = new Set<number>()
@@ -245,9 +242,8 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
               setLaserRows([])
               setLaserCols([])
               checkAndUpdateGrid()
-            }, 500) // Wait for laser animation to complete
+            }, 500)
           } else {
-            // Check for chain reactions
             const newMatches = checkForMatches(newGrid)
             if (newMatches.length > 0) {
               checkAndUpdateGrid()
@@ -294,7 +290,6 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
         const newGrid = [...state.grid.map((r) => [...r])]
         ;[newGrid[selected[0]][selected[1]], newGrid[row][col]] = [newGrid[row][col], newGrid[selected[0]][selected[1]]]
 
-        // Check for matches after swapping
         const matches = checkForMatches(newGrid)
         if (matches.length > 0) {
           setState((prev) => ({
@@ -303,7 +298,6 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
             moves: prev.moves - 1,
           }))
         } else {
-          // If no matches, swap back
           ;[newGrid[selected[0]][selected[1]], newGrid[row][col]] = [
             newGrid[row][col],
             newGrid[selected[0]][selected[1]],
@@ -361,6 +355,9 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
                 transition={{ type: "spring", stiffness: 260, damping: 20 }}
               >
                 <img src={cell.icon || "/placeholder.svg"} alt="icon" className="w-8 h-8 object-contain" />
+                {fireworks.some(([r, c]) => r === rowIndex && c === colIndex) && (
+                  <SmallFirework onComplete={() => setFireworks((prev) => prev.filter(([r, c]) => r !== rowIndex || c !== colIndex))} />
+                )}
                 {cell.isBomb && (
                   <motion.div
                     className="absolute inset-0 flex items-center justify-center"
