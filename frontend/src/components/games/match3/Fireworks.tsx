@@ -50,12 +50,14 @@ const Fireworks: React.FC = () => {
     }
 
     function createParticles() {
+      if (!canvas) return // Ensure canvas is not null
       for (let i = 0; i < 50; i++) {
         particles.push(new Particle(canvas.width, canvas.height))
       }
     }
 
     function animateParticles() {
+      if (!canvas || !ctx) return // Ensure canvas and ctx are not null
       ctx.clearRect(0, 0, canvas.width, canvas.height)
       particles.forEach((particle, index) => {
         particle.update()
@@ -81,4 +83,3 @@ const Fireworks: React.FC = () => {
 }
 
 export default Fireworks
-
