@@ -9,9 +9,15 @@ import Fireworks from "./Fireworks"
 const DEFAULT_ICONS = ["🐶", "🐱", "🐰", "🐼", "🦊", "🐨"]
 const GRID_SIZE = 6
 const MIN_MATCH = 3
+const BOMB_PROBABILITY = 0.05
+
+type CellType = {
+  icon: string
+  isBomb: boolean
+}
 
 type GameState = {
-  grid: string[][]
+  grid: CellType[][]
   score: number
   moves: number
 }
@@ -26,17 +32,20 @@ const getRandomIcons = (icons: string[], count: number) => {
   return shuffled.slice(0, count)
 }
 
-const createGrid = (icons: string[]) => {
+const createGrid = (icons: string[]): CellType[][] => {
   return Array(GRID_SIZE)
     .fill(null)
     .map(() =>
       Array(GRID_SIZE)
         .fill(null)
-        .map(() => icons[Math.floor(Math.random() * icons.length)]),
+        .map(() => ({
+          icon: icons[Math.floor(Math.random() * icons.length)],
+          isBomb: Math.random() < BOMB_PROBABILITY,
+        })),
     )
 }
 
-const checkForMatches = (grid: string[][]) => {
+const checkForMatches = (grid: CellType[][]) => {
   if (!grid || grid.length === 0 || grid[0].length === 0) {
     return []
   }
@@ -45,10 +54,10 @@ const checkForMatches = (grid: string[][]) => {
   // Check rows and columns
   for (let i = 0; i < GRID_SIZE; i++) {
     for (let j = 0; j < GRID_SIZE - 2; j++) {
-      if (grid[i][j] === grid[i][j + 1] && grid[i][j] === grid[i][j + 2]) {
+      if (grid[i][j].icon === grid[i][j + 1].icon && grid[i][j].icon === grid[i][j + 2].icon) {
         matches.push([i, j], [i, j + 1], [i, j + 2])
       }
-      if (grid[j][i] === grid[j + 1][i] && grid[j][i] === grid[j + 2][i]) {
+      if (grid[j][i].icon === grid[j + 1][i].icon && grid[j][i].icon === grid[j + 2][i].icon) {
         matches.push([j, i], [j + 1, i], [j + 2, i])
       }
     }
@@ -57,18 +66,43 @@ const checkForMatches = (grid: string[][]) => {
   return matches
 }
 
-const removeMatches = (grid: string[][], matches: [number, number][], icons: string[]) => {
+const removeMatches = (grid: CellType[][], matches: [number, number][], icons: string[]) => {
   const newGrid = [...grid]
+  const bombsToExplode: [number, number][] = []
+
   matches.forEach(([row, col]) => {
+    if (newGrid[row][col].isBomb) {
+      bombsToExplode.push([row, col])
+    }
     for (let i = row; i > 0; i--) {
       newGrid[i][col] = newGrid[i - 1][col]
     }
-    newGrid[0][col] = icons[Math.floor(Math.random() * icons.length)]
+    newGrid[0][col] = {
+      icon: icons[Math.floor(Math.random() * icons.length)],
+      isBomb: Math.random() < BOMB_PROBABILITY,
+    }
   })
+
+  // Explode bombs
+  bombsToExplode.forEach(([row, col]) => {
+    const adjacentCells = [
+      [row - 1, col],
+      [row + 1, col],
+      [row, col - 1],
+      [row, col + 1],
+    ]
+
+    adjacentCells.forEach(([r, c]) => {
+      if (r >= 0 && r < GRID_SIZE && c >= 0 && c < GRID_SIZE) {
+        matches.push([r, c])
+      }
+    })
+  })
+
   return newGrid
 }
 
-const checkForDeadlock = (grid: string[][]) => {
+const checkForDeadlock = (grid: CellType[][]) => {
   for (let i = 0; i < GRID_SIZE; i++) {
     for (let j = 0; j < GRID_SIZE; j++) {
       if (j < GRID_SIZE - 1) {
@@ -167,7 +201,7 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
           // 触发烟花效果
           if (matches.length > 3 || comboMultiplier > 1) {
             setShowFireworks(true)
-            setTimeout(() => setShowFireworks(false), 2000)
+            setTimeout(() => setShowFireworks(false), 5000)
           }
 
           // 检查是否有连锁反应
@@ -268,7 +302,7 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
                     : theme === "dark"
                       ? "bg-gray-700"
                       : "bg-white"
-                }`}
+                } ${cell.isBomb ? "relative overflow-hidden" : ""}`}
                 onClick={() => handleCellClick(rowIndex, colIndex)}
                 whileHover={{ scale: 1.1, rotate: 5 }}
                 whileTap={{ scale: 0.9 }}
@@ -278,7 +312,36 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
                 exit={{ opacity: 0, scale: 0, rotate: -180 }}
                 transition={{ type: "spring", stiffness: 260, damping: 20 }}
               >
-                <img src={cell || "/placeholder.svg"} alt="icon" className="w-8 h-8 object-contain" />
+                <img src={cell.icon || "/placeholder.svg"} alt="icon" className="w-8 h-8 object-contain" />
+                {cell.isBomb && (
+                  <motion.div
+                    className="absolute inset-0 flex items-center justify-center"
+                    initial={{ opacity: 0.7, scale: 0.8 }}
+                    animate={{
+                      opacity: [0.7, 1, 0.7],
+                      scale: [0.8, 1.1, 0.8],
+                      rotate: 360,
+                    }}
+                    transition={{
+                      duration: 3,
+                      repeat: Number.POSITIVE_INFINITY,
+                      ease: "linear",
+                    }}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="w-full h-full text-yellow-400"
+                    >
+                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                    </svg>
+                  </motion.div>
+                )}
               </motion.button>
             )),
           )}
