@@ -272,6 +272,10 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
     }
   }
 
+  const handleStopFireworks = useCallback(() => {
+    setShowFireworks(false)
+  }, [])
+
   if (isLoading) {
     return <div>Loading...</div>
   }
@@ -361,7 +365,7 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
       {showIconSelector && (
         <IconSelector onSelect={handleIconSelection} onClose={() => setShowIconSelector(false)} currentIcons={icons} />
       )}
-      {showFireworks && <Fireworks />}
+      {showFireworks && <Fireworks onStop={handleStopFireworks} />}
     </div>
   )
 }

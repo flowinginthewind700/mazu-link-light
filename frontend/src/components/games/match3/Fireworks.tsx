@@ -1,10 +1,15 @@
 "use client"
 
 import type React from "react"
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 
-const Fireworks: React.FC = () => {
+interface FireworksProps {
+  onStop: () => void
+}
+
+const Fireworks: React.FC<FireworksProps> = ({ onStop }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const [isAnimating, setIsAnimating] = useState(true)
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -94,7 +99,7 @@ const Fireworks: React.FC = () => {
     }
 
     function animateFireworks() {
-      if (!canvas || !ctx) return
+      if (!canvas || !ctx || !isAnimating) return
       ctx.fillStyle = "rgba(0, 0, 0, 0.1)"
       ctx.fillRect(0, 0, canvas.width, canvas.height)
 
@@ -106,7 +111,9 @@ const Fireworks: React.FC = () => {
         }
       })
 
-      requestAnimationFrame(animateFireworks)
+      if (isAnimating) {
+        requestAnimationFrame(animateFireworks)
+      }
     }
 
     // Create initial fireworks
@@ -118,10 +125,25 @@ const Fireworks: React.FC = () => {
 
     const interval = setInterval(createFirework, 1000)
 
+    const handleMouseMove = () => {
+      setIsAnimating(false)
+      onStop()
+    }
+
+    const handleClick = () => {
+      setIsAnimating(false)
+      onStop()
+    }
+
+    window.addEventListener("mousemove", handleMouseMove)
+    window.addEventListener("click", handleClick)
+
     return () => {
       clearInterval(interval)
+      window.removeEventListener("mousemove", handleMouseMove)
+      window.removeEventListener("click", handleClick)
     }
-  }, [])
+  }, [isAnimating, onStop])
 
   return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-50" />
 }
