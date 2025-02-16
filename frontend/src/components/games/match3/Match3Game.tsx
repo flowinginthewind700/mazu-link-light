@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useTheme } from "next-themes"
 import IconSelector from "./IconSelector"
+import Fireworks from "./Fireworks"
 
 const DEFAULT_ICONS = ["🐶", "🐱", "🐰", "🐼", "🦊", "🐨"]
 const GRID_SIZE = 6
@@ -99,6 +100,7 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
   const [comboMultiplier, setComboMultiplier] = useState(1)
   const [showIconSelector, setShowIconSelector] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [showFireworks, setShowFireworks] = useState(false)
 
   const handleReset = useCallback(() => {
     if (icons.length >= 6) {
@@ -161,6 +163,18 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
             score: prev.score + matches.length * comboMultiplier * 10,
           }))
           setComboMultiplier((prev) => Math.min(prev + 0.5, 4))
+
+          // 触发烟花效果
+          if (matches.length > 3 || comboMultiplier > 1) {
+            setShowFireworks(true)
+            setTimeout(() => setShowFireworks(false), 2000)
+          }
+
+          // 检查是否有连锁反应
+          const newMatches = checkForMatches(newGrid)
+          if (newMatches.length > 0) {
+            checkAndUpdateGrid()
+          }
         }, 300)
         return true
       }
@@ -284,6 +298,7 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
       {showIconSelector && (
         <IconSelector onSelect={handleIconSelection} onClose={() => setShowIconSelector(false)} currentIcons={icons} />
       )}
+      {showFireworks && <Fireworks />}
     </div>
   )
 }
