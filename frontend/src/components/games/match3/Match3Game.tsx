@@ -126,6 +126,10 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
   const [isLoading, setIsLoading] = useState(true)
   const [showFireworks, setShowFireworks] = useState(false)
   const [explodingBombs, setExplodingBombs] = useState<[number, number][]>([])
+  
+  // New state variables to track affected rows and columns
+  const [affectedRows, setAffectedRows] = useState<Set<number>>(new Set())
+  const [affectedCols, setAffectedCols] = useState<Set<number>>(new Set())
 
   const handleReset = useCallback(() => {
     if (icons.length >= 6) {
@@ -182,7 +186,7 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
       const matches = checkForMatches(state.grid)
       if (matches.length > 0) {
         setTimeout(() => {
-          const { newGrid, bombsToExplode, affectedRows, affectedCols } = removeMatches(state.grid, matches, icons)
+          const { newGrid, bombsToExplode, affectedRows: newAffectedRows, affectedCols: newAffectedCols } = removeMatches(state.grid, matches, icons)
           setState((prev) => ({
             ...prev,
             grid: newGrid,
@@ -219,6 +223,10 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
               checkAndUpdateGrid()
             }
           }
+
+          // Set the affected rows and columns for laser effect
+          setAffectedRows(newAffectedRows)
+          setAffectedCols(newAffectedCols)
         }, 300)
         return true
       }
