@@ -70,37 +70,36 @@ const removeMatches = (grid: CellType[][], matches: [number, number][], icons: s
   const newGrid = [...grid]
   const bombsToExplode: [number, number][] = []
 
-  const affectedRows: Set<number> = new Set()
-  const affectedCols: Set<number> = new Set()
-
   matches.forEach(([row, col]) => {
     if (newGrid[row][col].isBomb) {
       bombsToExplode.push([row, col])
     }
   })
 
-  // Handle bomb effects and mark affected rows/columns
+  // Handle bomb effects
   bombsToExplode.forEach(([row, col]) => {
+    // Check if the bomb is part of a row match
     const isRowMatch = matches.some(([r, c]) => r === row && Math.abs(c - col) <= 2)
     if (isRowMatch) {
+      // Eliminate the entire row
       for (let i = 0; i < GRID_SIZE; i++) {
         newGrid[row][i] = {
           icon: icons[Math.floor(Math.random() * icons.length)],
           isBomb: Math.random() < BOMB_PROBABILITY,
         }
       }
-      affectedRows.add(row)
     }
 
+    // Check if the bomb is part of a column match
     const isColMatch = matches.some(([r, c]) => c === col && Math.abs(r - row) <= 2)
     if (isColMatch) {
+      // Eliminate the entire column
       for (let i = 0; i < GRID_SIZE; i++) {
         newGrid[i][col] = {
           icon: icons[Math.floor(Math.random() * icons.length)],
           isBomb: Math.random() < BOMB_PROBABILITY,
         }
       }
-      affectedCols.add(col)
     }
   })
 
@@ -117,7 +116,7 @@ const removeMatches = (grid: CellType[][], matches: [number, number][], icons: s
     }
   })
 
-  return { newGrid, bombsToExplode, affectedRows, affectedCols }
+  return { newGrid, bombsToExplode }
 }
 
 const checkForDeadlock = (grid: CellType[][]) => {
@@ -153,11 +152,8 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
   const [showIconSelector, setShowIconSelector] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [showFireworks, setShowFireworks] = useState(false)
-  const [explodingBombs, setExplodingBombs] = useState<[number, number][]>([])
-
-  // State to track affected rows and columns for laser effect
-  const [affectedRows, setAffectedRows] = useState<Set<number>>(new Set())
-  const [affectedCols, setAffectedCols] = useState<Set<number>>(new Set())
+  const [laserRows, setLaserRows] = useState<number[]>([])
+  const [laserCols, setLaserCols] = useState<number[]>([])
 
   const handleReset = useCallback(() => {
     if (icons.length >= 6) {
@@ -168,7 +164,8 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
       })
       setComboMultiplier(1)
       setIsShaking(false)
-      setExplodingBombs([])
+      setLaserRows([])
+      setLaserCols([])
     }
   }, [icons])
 
@@ -214,7 +211,7 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
       const matches = checkForMatches(state.grid)
       if (matches.length > 0) {
         setTimeout(() => {
-          const { newGrid, bombsToExplode, affectedRows: newAffectedRows, affectedCols: newAffectedCols } = removeMatches(state.grid, matches, icons)
+          const { newGrid, bombsToExplode } = removeMatches(state.grid, matches, icons)
           setState((prev) => ({
             ...prev,
             grid: newGrid,
@@ -222,28 +219,33 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
           }))
           setComboMultiplier((prev) => Math.min(prev + 0.5, 4))
 
-          // Trigger fireworks effect
+          // Trigger fireworks for big matches or combos
           if (matches.length > 3 || comboMultiplier > 1) {
             setShowFireworks(true)
             setTimeout(() => setShowFireworks(false), 5000)
           }
 
-          // Handle bomb explosions
+          // Handle bomb effects
           if (bombsToExplode.length > 0) {
-            setExplodingBombs(bombsToExplode)
+            const rowsToLaser = new Set<number>()
+            const colsToLaser = new Set<number>()
+
+            bombsToExplode.forEach(([row, col]) => {
+              const isRowMatch = matches.some(([r, c]) => r === row && Math.abs(c - col) <= 2)
+              const isColMatch = matches.some(([r, c]) => c === col && Math.abs(r - row) <= 2)
+
+              if (isRowMatch) rowsToLaser.add(row)
+              if (isColMatch) colsToLaser.add(col)
+            })
+
+            setLaserRows([...rowsToLaser])
+            setLaserCols([...colsToLaser])
+
             setTimeout(() => {
-              setExplodingBombs([])
-              const adjacentCells = bombsToExplode.flatMap(([row, col]) => [
-                [row - 1, col],
-                [row + 1, col],
-                [row, col - 1],
-                [row, col + 1],
-              ])
-              const validAdjacentCells = adjacentCells.filter(
-                ([r, c]) => r >= 0 && r < GRID_SIZE && c >= 0 && c < GRID_SIZE,
-              )
+              setLaserRows([])
+              setLaserCols([])
               checkAndUpdateGrid()
-            }, 500) // Wait for bomb explosion animation to complete
+            }, 500) // Wait for laser animation to complete
           } else {
             // Check for chain reactions
             const newMatches = checkForMatches(newGrid)
@@ -251,10 +253,6 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
               checkAndUpdateGrid()
             }
           }
-
-          // Update affected rows and columns for laser effect
-          setAffectedRows(newAffectedRows)
-          setAffectedCols(newAffectedCols)
         }, 300)
         return true
       }
@@ -392,23 +390,20 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
                     </svg>
                   </motion.div>
                 )}
-                {/* Laser effect for row or column explosions */}
-                {(affectedRows.has(rowIndex) || affectedCols.has(colIndex)) && (
+                {laserRows.includes(rowIndex) && (
                   <motion.div
-                    className="absolute inset-0 bg-transparent border-l-4 border-r-4 border-t-4 border-b-4 border-red-500"
-                    animate={{
-                      opacity: 1,
-                      scaleX: 1,
-                      scaleY: 1,
-                      rotate: 0,
-                    }}
-                    initial={{
-                      opacity: 0,
-                      scaleX: 0,
-                      scaleY: 0,
-                      rotate: -180,
-                    }}
-                    transition={{ type: "spring", stiffness: 150, damping: 30 }}
+                    className="absolute inset-0 bg-red-500 opacity-50"
+                    initial={{ scaleX: 0 }}
+                    animate={{ scaleX: 1 }}
+                    transition={{ duration: 0.3 }}
+                  />
+                )}
+                {laserCols.includes(colIndex) && (
+                  <motion.div
+                    className="absolute inset-0 bg-blue-500 opacity-50"
+                    initial={{ scaleY: 0 }}
+                    animate={{ scaleY: 1 }}
+                    transition={{ duration: 0.3 }}
                   />
                 )}
               </motion.button>
