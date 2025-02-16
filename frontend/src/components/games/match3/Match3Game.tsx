@@ -69,6 +69,8 @@ const checkForMatches = (grid: CellType[][]) => {
 const removeMatches = (grid: CellType[][], matches: [number, number][], icons: string[]) => {
   const newGrid = [...grid]
   const bombsToExplode: [number, number][] = []
+  const affectedRows: Set<number> = new Set()
+  const affectedCols: Set<number> = new Set()
 
   matches.forEach(([row, col]) => {
     if (newGrid[row][col].isBomb) {
@@ -78,7 +80,6 @@ const removeMatches = (grid: CellType[][], matches: [number, number][], icons: s
 
   // Handle bomb effects
   bombsToExplode.forEach(([row, col]) => {
-    // Check if the bomb is part of a row match
     const isRowMatch = matches.some(([r, c]) => r === row && Math.abs(c - col) <= 2)
     if (isRowMatch) {
       // Eliminate the entire row
@@ -88,9 +89,9 @@ const removeMatches = (grid: CellType[][], matches: [number, number][], icons: s
           isBomb: Math.random() < BOMB_PROBABILITY,
         }
       }
+      affectedRows.add(row)
     }
 
-    // Check if the bomb is part of a column match
     const isColMatch = matches.some(([r, c]) => c === col && Math.abs(r - row) <= 2)
     if (isColMatch) {
       // Eliminate the entire column
@@ -100,6 +101,7 @@ const removeMatches = (grid: CellType[][], matches: [number, number][], icons: s
           isBomb: Math.random() < BOMB_PROBABILITY,
         }
       }
+      affectedCols.add(col)
     }
   })
 
@@ -116,7 +118,7 @@ const removeMatches = (grid: CellType[][], matches: [number, number][], icons: s
     }
   })
 
-  return { newGrid, bombsToExplode }
+  return { newGrid, bombsToExplode, affectedRows, affectedCols }
 }
 
 const checkForDeadlock = (grid: CellType[][]) => {
@@ -153,6 +155,10 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
   const [isLoading, setIsLoading] = useState(true)
   const [showFireworks, setShowFireworks] = useState(false)
   const [explodingBombs, setExplodingBombs] = useState<[number, number][]>([])
+  
+  // State to track affected rows and columns for laser effect
+  const [affectedRows, setAffectedRows] = useState<Set<number>>(new Set())
+  const [affectedCols, setAffectedCols] = useState<Set<number>>(new Set())
 
   const handleReset = useCallback(() => {
     if (icons.length >= 6) {
@@ -209,7 +215,7 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
       const matches = checkForMatches(state.grid)
       if (matches.length > 0) {
         setTimeout(() => {
-          const { newGrid, bombsToExplode } = removeMatches(state.grid, matches, icons)
+          const { newGrid, bombsToExplode, affectedRows: newAffectedRows, affectedCols: newAffectedCols } = removeMatches(state.grid, matches, icons)
           setState((prev) => ({
             ...prev,
             grid: newGrid,
@@ -217,13 +223,13 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
           }))
           setComboMultiplier((prev) => Math.min(prev + 0.5, 4))
 
-          // 触发烟花效果
+          // Trigger fireworks effect
           if (matches.length > 3 || comboMultiplier > 1) {
             setShowFireworks(true)
             setTimeout(() => setShowFireworks(false), 5000)
           }
 
-          // 处理炸弹爆炸
+          // Handle bomb explosions
           if (bombsToExplode.length > 0) {
             setExplodingBombs(bombsToExplode)
             setTimeout(() => {
@@ -238,14 +244,18 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
                 ([r, c]) => r >= 0 && r < GRID_SIZE && c >= 0 && c < GRID_SIZE,
               )
               checkAndUpdateGrid()
-            }, 500) // 等待爆炸动画完成
+            }, 500) // Wait for bomb explosion animation to complete
           } else {
-            // 检查是否有连锁反应
+            // Check for chain reactions
             const newMatches = checkForMatches(newGrid)
             if (newMatches.length > 0) {
               checkAndUpdateGrid()
             }
           }
+
+          // Update affected rows and columns for laser effect
+          setAffectedRows(newAffectedRows)
+          setAffectedCols(newAffectedCols)
         }, 300)
         return true
       }
@@ -389,6 +399,25 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
                     initial={{ scale: 0 }}
                     animate={{ scale: [0, 1.5, 0] }}
                     transition={{ duration: 0.5 }}
+                  />
+                )}
+                {/* Laser effect for row or column explosions */}
+                {(affectedRows.has(rowIndex) || affectedCols.has(colIndex)) && (
+                  <motion.div
+                    className="absolute inset-0 bg-transparent border-l-4 border-r-4 border-t-4 border-b-4 border-red-500"
+                    animate={{
+                      opacity: 1,
+                      scaleX: 1,
+                      scaleY: 1,
+                      rotate: 0,
+                    }}
+                    initial={{
+                      opacity: 0,
+                      scaleX: 0,
+                      scaleY: 0,
+                      rotate: -180,
+                    }}
+                    transition={{ type: "spring", stiffness: 150, damping: 30 }}
                   />
                 )}
               </motion.button>
