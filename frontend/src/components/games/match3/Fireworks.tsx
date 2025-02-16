@@ -26,9 +26,9 @@ const Fireworks: React.FC = () => {
       speedY: number
       color: string
 
-      constructor() {
-        this.x = Math.random() * canvas.width
-        this.y = canvas.height
+      constructor(canvasWidth: number, canvasHeight: number) {
+        this.x = Math.random() * canvasWidth
+        this.y = canvasHeight
         this.size = Math.random() * 2 + 1
         this.speedX = Math.random() * 6 - 3
         this.speedY = Math.random() * -15
@@ -41,8 +41,7 @@ const Fireworks: React.FC = () => {
         if (this.size > 0.1) this.size -= 0.1
       }
 
-      draw() {
-        if (!ctx) return
+      draw(ctx: CanvasRenderingContext2D) {
         ctx.fillStyle = this.color
         ctx.beginPath()
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2)
@@ -52,16 +51,15 @@ const Fireworks: React.FC = () => {
 
     function createParticles() {
       for (let i = 0; i < 50; i++) {
-        particles.push(new Particle())
+        particles.push(new Particle(canvas.width, canvas.height))
       }
     }
 
     function animateParticles() {
-      if (!ctx) return
       ctx.clearRect(0, 0, canvas.width, canvas.height)
       particles.forEach((particle, index) => {
         particle.update()
-        particle.draw()
+        particle.draw(ctx)
         if (particle.size <= 0.1) {
           particles.splice(index, 1)
         }
