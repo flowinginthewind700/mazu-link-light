@@ -69,6 +69,7 @@ const checkForMatches = (grid: CellType[][]) => {
 const removeMatches = (grid: CellType[][], matches: [number, number][], icons: string[]) => {
   const newGrid = [...grid]
   const bombsToExplode: [number, number][] = []
+
   const affectedRows: Set<number> = new Set()
   const affectedCols: Set<number> = new Set()
 
@@ -78,11 +79,10 @@ const removeMatches = (grid: CellType[][], matches: [number, number][], icons: s
     }
   })
 
-  // Handle bomb effects
+  // Handle bomb effects and mark affected rows/columns
   bombsToExplode.forEach(([row, col]) => {
     const isRowMatch = matches.some(([r, c]) => r === row && Math.abs(c - col) <= 2)
     if (isRowMatch) {
-      // Eliminate the entire row
       for (let i = 0; i < GRID_SIZE; i++) {
         newGrid[row][i] = {
           icon: icons[Math.floor(Math.random() * icons.length)],
@@ -94,7 +94,6 @@ const removeMatches = (grid: CellType[][], matches: [number, number][], icons: s
 
     const isColMatch = matches.some(([r, c]) => c === col && Math.abs(r - row) <= 2)
     if (isColMatch) {
-      // Eliminate the entire column
       for (let i = 0; i < GRID_SIZE; i++) {
         newGrid[i][col] = {
           icon: icons[Math.floor(Math.random() * icons.length)],
@@ -155,7 +154,7 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
   const [isLoading, setIsLoading] = useState(true)
   const [showFireworks, setShowFireworks] = useState(false)
   const [explodingBombs, setExplodingBombs] = useState<[number, number][]>([])
-  
+
   // State to track affected rows and columns for laser effect
   const [affectedRows, setAffectedRows] = useState<Set<number>>(new Set())
   const [affectedCols, setAffectedCols] = useState<Set<number>>(new Set())
@@ -392,14 +391,6 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
                       <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
                     </svg>
                   </motion.div>
-                )}
-                {explodingBombs.some(([r, c]) => r === rowIndex && c === colIndex) && (
-                  <motion.div
-                    className="absolute inset-0 bg-red-500 rounded-lg"
-                    initial={{ scale: 0 }}
-                    animate={{ scale: [0, 1.5, 0] }}
-                    transition={{ duration: 0.5 }}
-                  />
                 )}
                 {/* Laser effect for row or column explosions */}
                 {(affectedRows.has(rowIndex) || affectedCols.has(colIndex)) && (
