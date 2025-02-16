@@ -67,74 +67,6 @@ const checkForMatches = (grid: CellType[][]) => {
   return matches
 }
 
-const removeMatches = (grid: CellType[][], matches: [number, number][], icons: string[]) => {
-  const newGrid = [...grid]
-  const bombsToExplode: [number, number][] = []
-
-  matches.forEach(([row, col]) => {
-    if (newGrid[row][col].isBomb) {
-      bombsToExplode.push([row, col])
-    } else {
-      setFireworks((prev) => [...prev, [row, col]])
-    }
-  })
-
-  // Handle bomb effects
-  bombsToExplode.forEach(([row, col]) => {
-    const isRowMatch = matches.some(([r, c]) => r === row && Math.abs(c - col) <= 2)
-    if (isRowMatch) {
-      for (let i = 0; i < GRID_SIZE; i++) {
-        newGrid[row][i] = {
-          icon: icons[Math.floor(Math.random() * icons.length)],
-          isBomb: Math.random() < BOMB_PROBABILITY,
-        }
-      }
-    }
-
-    const isColMatch = matches.some(([r, c]) => c === col && Math.abs(r - row) <= 2)
-    if (isColMatch) {
-      for (let i = 0; i < GRID_SIZE; i++) {
-        newGrid[i][col] = {
-          icon: icons[Math.floor(Math.random() * icons.length)],
-          isBomb: Math.random() < BOMB_PROBABILITY,
-        }
-      }
-    }
-  })
-
-  matches.forEach(([row, col]) => {
-    if (!newGrid[row][col].isBomb) {
-      for (let i = row; i > 0; i--) {
-        newGrid[i][col] = newGrid[i - 1][col]
-      }
-      newGrid[0][col] = {
-        icon: icons[Math.floor(Math.random() * icons.length)],
-        isBomb: Math.random() < BOMB_PROBABILITY,
-      }
-    }
-  })
-
-  return { newGrid, bombsToExplode }
-}
-
-const checkForDeadlock = (grid: CellType[][]) => {
-  for (let i = 0; i < GRID_SIZE; i++) {
-    for (let j = 0; j < GRID_SIZE; j++) {
-      if (j < GRID_SIZE - 1) {
-        const tempGrid = [...grid.map((row) => [...row])]
-        ;[tempGrid[i][j], tempGrid[i][j + 1]] = [tempGrid[i][j + 1], tempGrid[i][j]]
-        if (checkForMatches(tempGrid).length > 0) return false
-      }
-      if (i < GRID_SIZE - 1) {
-        const tempGrid = [...grid.map((row) => [...row])]
-        ;[tempGrid[i][j], tempGrid[i + 1][j]] = [tempGrid[i + 1][j], tempGrid[i][j]]
-        if (checkForMatches(tempGrid).length > 0) return false
-      }
-    }
-  }
-  return true
-}
-
 export default function Match3Game({ initialState, onStateChange }: Match3GameProps) {
   const { theme } = useTheme()
   const [icons, setIcons] = useState<string[]>([])
@@ -167,6 +99,56 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
       setLaserCols([])
     }
   }, [icons])
+
+  const removeMatches = (grid: CellType[][], matches: [number, number][], icons: string[]) => {
+    const newGrid = [...grid]
+    const bombsToExplode: [number, number][] = []
+
+    matches.forEach(([row, col]) => {
+      if (newGrid[row][col].isBomb) {
+        bombsToExplode.push([row, col])
+      } else {
+        setFireworks((prev) => [...prev, [row, col]])
+      }
+    })
+
+    // Handle bomb effects
+    bombsToExplode.forEach(([row, col]) => {
+      const isRowMatch = matches.some(([r, c]) => r === row && Math.abs(c - col) <= 2)
+      if (isRowMatch) {
+        for (let i = 0; i < GRID_SIZE; i++) {
+          newGrid[row][i] = {
+            icon: icons[Math.floor(Math.random() * icons.length)],
+            isBomb: Math.random() < BOMB_PROBABILITY,
+          }
+        }
+      }
+
+      const isColMatch = matches.some(([r, c]) => c === col && Math.abs(r - row) <= 2)
+      if (isColMatch) {
+        for (let i = 0; i < GRID_SIZE; i++) {
+          newGrid[i][col] = {
+            icon: icons[Math.floor(Math.random() * icons.length)],
+            isBomb: Math.random() < BOMB_PROBABILITY,
+          }
+        }
+      }
+    })
+
+    matches.forEach(([row, col]) => {
+      if (!newGrid[row][col].isBomb) {
+        for (let i = row; i > 0; i--) {
+          newGrid[i][col] = newGrid[i - 1][col]
+        }
+        newGrid[0][col] = {
+          icon: icons[Math.floor(Math.random() * icons.length)],
+          isBomb: Math.random() < BOMB_PROBABILITY,
+        }
+      }
+    })
+
+    return { newGrid, bombsToExplode }
+  }
 
   useEffect(() => {
     const storedIconsString = localStorage.getItem("gameIcons")
