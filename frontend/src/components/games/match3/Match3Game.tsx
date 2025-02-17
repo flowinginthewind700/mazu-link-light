@@ -67,9 +67,14 @@ const checkForMatches = (grid: CellType[][]) => {
   return matches
 }
 
-const removeMatches = (grid: CellType[][], matches: [number, number][], icons: string[]) => {
+const removeMatches = (
+  grid: CellType[][],
+  matches: [number, number][],
+  icons: string[],
+): { newGrid: CellType[][]; bombEffects: { row?: number; col?: number }[] } => {
   const newGrid = [...grid]
   const bombsToExplode: [number, number][] = []
+  const bombEffects: { row?: number; col?: number }[] = []
 
   matches.forEach(([row, col]) => {
     if (newGrid[row][col].isBomb) {
@@ -77,12 +82,12 @@ const removeMatches = (grid: CellType[][], matches: [number, number][], icons: s
     }
   })
 
-  // Handle bomb effects
   bombsToExplode.forEach(([row, col]) => {
-    // Check if the bomb is part of a row match
     const isRowMatch = matches.some(([r, c]) => r === row && Math.abs(c - col) <= 2)
+    const isColMatch = matches.some(([r, c]) => c === col && Math.abs(r - row) <= 2)
+
     if (isRowMatch) {
-      // Eliminate the entire row
+      bombEffects.push({ row })
       for (let i = 0; i < GRID_SIZE; i++) {
         newGrid[row][i] = {
           icon: icons[Math.floor(Math.random() * icons.length)],
@@ -90,11 +95,8 @@ const removeMatches = (grid: CellType[][], matches: [number, number][], icons: s
         }
       }
     }
-
-    // Check if the bomb is part of a column match
-    const isColMatch = matches.some(([r, c]) => c === col && Math.abs(r - row) <= 2)
     if (isColMatch) {
-      // Eliminate the entire column
+      bombEffects.push({ col })
       for (let i = 0; i < GRID_SIZE; i++) {
         newGrid[i][col] = {
           icon: icons[Math.floor(Math.random() * icons.length)],
@@ -117,7 +119,7 @@ const removeMatches = (grid: CellType[][], matches: [number, number][], icons: s
     }
   })
 
-  return { newGrid, bombsToExplode }
+  return { newGrid, bombEffects }
 }
 
 const checkForDeadlock = (grid: CellType[][]) => {
@@ -210,7 +212,7 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
       const matches = checkForMatches(state.grid)
       if (matches.length > 0) {
         setTimeout(() => {
-          const { newGrid, bombsToExplode } = removeMatches(state.grid, matches, icons)
+          const { newGrid, bombEffects } = removeMatches(state.grid, matches, icons)
           setState((prev) => ({
             ...prev,
             grid: newGrid,
@@ -225,19 +227,16 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
           }
 
           // Handle bomb effects
-          if (bombsToExplode.length > 0) {
+          if (bombEffects.length > 0) {
             const cellsToAnimate: [number, number][] = []
 
-            bombsToExplode.forEach(([row, col]) => {
-              const isRowMatch = matches.some(([r, c]) => r === row && Math.abs(c - col) <= 2)
-              const isColMatch = matches.some(([r, c]) => c === col && Math.abs(r - row) <= 2)
-
-              if (isRowMatch) {
+            bombEffects.forEach(({ row, col }) => {
+              if (row !== undefined) {
                 for (let i = 0; i < GRID_SIZE; i++) {
                   cellsToAnimate.push([row, i])
                 }
               }
-              if (isColMatch) {
+              if (col !== undefined) {
                 for (let i = 0; i < GRID_SIZE; i++) {
                   cellsToAnimate.push([i, col])
                 }
@@ -420,3 +419,4 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
     </div>
   )
 }
+
