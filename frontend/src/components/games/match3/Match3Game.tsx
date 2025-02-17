@@ -156,6 +156,7 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
   const [isLoading, setIsLoading] = useState(true)
   const [showFireworks, setShowFireworks] = useState(false)
   const [fireworkCells, setFireworkCells] = useState<[number, number][]>([])
+  const [showSmallFireworks, setShowSmallFireworks] = useState(false)
 
   const handleReset = useCallback(() => {
     if (icons.length >= 6) {
@@ -211,8 +212,16 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
     const checkAndUpdateGrid = () => {
       const matches = checkForMatches(state.grid)
       if (matches.length > 0) {
+        const { newGrid, affectedCells } = removeMatches(state.grid, matches, icons)
+
+        // 触发小烟花效果
+        if (affectedCells.length > 0) {
+          setFireworkCells(affectedCells)
+          setShowSmallFireworks(true)
+        }
+
+        // 延迟更新网格，给小烟花效果一些显示时间
         setTimeout(() => {
-          const { newGrid, affectedCells } = removeMatches(state.grid, matches, icons)
           setState((prev) => ({
             ...prev,
             grid: newGrid,
@@ -220,28 +229,22 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
           }))
           setComboMultiplier((prev) => Math.min(prev + 0.5, 4))
 
-          // Trigger fireworks for big matches or combos
+          // 触发大烟花效果
           if (matches.length > 3 || comboMultiplier > 1) {
             setShowFireworks(true)
             setTimeout(() => setShowFireworks(false), 5000)
           }
 
-          // Handle bomb effects
-          if (affectedCells.length > 0) {
-            setFireworkCells(affectedCells)
-
-            setTimeout(() => {
-              setFireworkCells([])
-              checkAndUpdateGrid()
-            }, 1000) // Wait for firework animation to complete
+          // 检查连锁反应
+          const newMatches = checkForMatches(newGrid)
+          if (newMatches.length > 0) {
+            checkAndUpdateGrid()
           } else {
-            // Check for chain reactions
-            const newMatches = checkForMatches(newGrid)
-            if (newMatches.length > 0) {
-              checkAndUpdateGrid()
-            }
+            setShowSmallFireworks(false)
+            setFireworkCells([])
           }
-        }, 300)
+        }, 1000) // 给小烟花效果1秒的显示时间
+
         return true
       }
       return false
@@ -307,6 +310,23 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
   const handleStopFireworks = useCallback(() => {
     setShowFireworks(false)
   }, [])
+
+  useEffect(() => {
+    const handleInterrupt = () => {
+      if (showSmallFireworks) {
+        setShowSmallFireworks(false)
+        setFireworkCells([])
+      }
+    }
+
+    window.addEventListener("mousemove", handleInterrupt)
+    window.addEventListener("click", handleInterrupt)
+
+    return () => {
+      window.removeEventListener("mousemove", handleInterrupt)
+      window.removeEventListener("click", handleInterrupt)
+    }
+  }, [showSmallFireworks])
 
   if (isLoading) {
     return <div>Loading...</div>
@@ -378,7 +398,7 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
                     </svg>
                   </motion.div>
                 )}
-                {fireworkCells.some(([r, c]) => r === rowIndex && c === colIndex) && (
+                {showSmallFireworks && fireworkCells.some(([r, c]) => r === rowIndex && c === colIndex) && (
                   <SmallFirework onComplete={() => {}} />
                 )}
               </motion.button>
