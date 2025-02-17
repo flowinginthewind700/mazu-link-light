@@ -6,6 +6,7 @@ import { useTheme } from "next-themes"
 import IconSelector from "./IconSelector"
 import Fireworks from "./Fireworks"
 import SmallFirework from "./SmallFirework" // 导入 SmallFirework 组件
+import { Heart, Star, Zap } from "lucide-react"
 
 const DEFAULT_ICONS = ["🐶", "🐱", "🐰", "🐼", "🦊", "🐨"]
 const GRID_SIZE = 6
@@ -332,22 +333,36 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
     return <div>Loading...</div>
   }
 
-  const cellSize = typeof window !== "undefined" && window.innerWidth < 640 ? "w-8 h-8" : "w-12 h-12"
+  const cellSize = typeof window !== "undefined" ? (window.innerWidth < 640 ? "w-8 h-8" : "w-12 h-12") : "w-12 h-12"
 
   return (
     <div
       className={`p-4 rounded-lg shadow-lg ${theme === "dark" ? "bg-gray-800 text-white" : "bg-pink-100 text-black"} max-w-full overflow-hidden`}
     >
-      <div className="mb-4 text-center flex flex-col sm:flex-row sm:justify-between items-center">
-        <p className="text-xl mb-2 sm:mb-0">Score: {state.score}</p>
-        <p className="text-lg mb-2 sm:mb-0">Moves left: {state.moves}</p>
-        <p className="text-md">Combo: x{comboMultiplier.toFixed(1)}</p>
+      <div className="mb-4 text-center flex flex-col items-center">
+        <div className="grid grid-cols-3 gap-4 w-full max-w-xs">
+          <div className="flex flex-col items-center">
+            <Star className="w-6 h-6 text-yellow-400 mb-1" />
+            <p className="text-lg font-bold">{state.score}</p>
+            <p className="text-xs">Score</p>
+          </div>
+          <div className="flex flex-col items-center">
+            <Heart className="w-6 h-6 text-red-400 mb-1" />
+            <p className="text-lg font-bold">{state.moves}</p>
+            <p className="text-xs">Moves</p>
+          </div>
+          <div className="flex flex-col items-center">
+            <Zap className="w-6 h-6 text-blue-400 mb-1" />
+            <p className="text-lg font-bold">x{comboMultiplier.toFixed(1)}</p>
+            <p className="text-xs">Combo</p>
+          </div>
+        </div>
       </div>
       <motion.div
         className="grid gap-1 mx-auto"
         style={{
           gridTemplateColumns: `repeat(${GRID_SIZE}, 1fr)`,
-          maxWidth: typeof window !== "undefined" && window.innerWidth < 640 ? "300px" : "400px",
+          maxWidth: typeof window !== "undefined" ? (window.innerWidth < 640 ? "300px" : "400px") : "400px",
         }}
         animate={isShaking ? { x: [-5, 5, -5, 5, 0] } : {}}
         transition={{ duration: 0.5 }}
@@ -363,7 +378,7 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
                     : theme === "dark"
                       ? "bg-gray-700"
                       : "bg-white"
-                } `${cell.isBomb ? "relative overflow-hidden" : ""}`}
+                } ${cell.isBomb ? "relative overflow-hidden" : ""}`}
                 onClick={() => handleCellClick(rowIndex, colIndex)}
                 whileHover={{ scale: 1.1, rotate: 5 }}
                 whileTap={{ scale: 0.9 }}
@@ -415,15 +430,18 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
           )}
         </AnimatePresence>
       </motion.div>
-      <div className="mt-4 flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:space-x-4">
-        <button onClick={handleReset} className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-          Reset Game
+      <div className="mt-6 flex flex-col sm:flex-row justify-center space-y-3 sm:space-y-0 sm:space-x-4">
+        <button
+          onClick={handleReset}
+          className="px-6 py-3 bg-pink-500 text-white rounded-full hover:bg-pink-600 transform transition duration-200 hover:scale-105 shadow-lg"
+        >
+          🌟 New Adventure! 🌟
         </button>
         <button
           onClick={() => setShowIconSelector(true)}
-          className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+          className="px-6 py-3 bg-purple-500 text-white rounded-full hover:bg-purple-600 transform transition duration-200 hover:scale-105 shadow-lg"
         >
-          Select Icons
+          🎨 Choose Cute Icons! 🎨
         </button>
       </div>
       {showIconSelector && (
