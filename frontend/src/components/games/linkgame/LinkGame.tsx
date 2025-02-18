@@ -97,6 +97,7 @@ export default function LinkGame({ onClose }: LinkGameProps) {
   const [selected, setSelected] = useState<[number, number] | null>(null)
   const [showIconSelector, setShowIconSelector] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [linkingEffect, setLinkingEffect] = useState<{ start: [number, number]; end: [number, number] } | null>(null)
 
   useEffect(() => {
     const storedIconsString = localStorage.getItem("gameIcons") || localStorage.getItem("iconPaths")
@@ -148,6 +149,8 @@ export default function LinkGame({ onClose }: LinkGameProps) {
           score: prev.score + 10,
         }))
         setSelected(null)
+        setLinkingEffect({ start: selected, end: [row, col] })
+        setTimeout(() => setLinkingEffect(null), 500)
       } else {
         setSelected([row, col])
       }
@@ -270,6 +273,23 @@ export default function LinkGame({ onClose }: LinkGameProps) {
           )}
         </AnimatePresence>
       </motion.div>
+      {linkingEffect && (
+        <motion.div
+          className="absolute"
+          style={{
+            top: `${linkingEffect.start[0] * 12}%`,
+            left: `${linkingEffect.start[1] * 12}%`,
+            width: `${Math.abs(linkingEffect.start[0] - linkingEffect.end[0]) * 12}%`,
+            height: `${Math.abs(linkingEffect.start[1] - linkingEffect.end[1]) * 12}%`,
+            transformOrigin: "center",
+          }}
+          animate={{ opacity: 0, scale: 1.2 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <div className="absolute w-full h-full bg-gradient-to-br from-yellow-200 to-yellow-600 rounded-lg" />
+        </motion.div>
+      )}
       <div className="mt-4 sm:mt-8 flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:space-x-6">
         <motion.button
           onClick={handleReset}
