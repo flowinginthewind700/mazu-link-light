@@ -3,11 +3,15 @@
 import { useState } from "react";
 import LinkGameModal from "./LinkGameModal";
 
-export default function LinkGameIcon() {
+interface LinkGameIconProps {
+  className?: string; // 添加 className 属性
+}
+
+export default function LinkGameIcon({ className }: LinkGameIconProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div>
+    <div className={className}> {/* 将 className 应用到根元素 */}
       <button
         onClick={() => setIsOpen(true)}
         className="font-bold py-2 px-4 rounded-full shadow-lg transform transition duration-300 hover:scale-110 bg-purple-500 hover:bg-purple-600 text-white"
