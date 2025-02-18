@@ -6,8 +6,8 @@ import { useTheme } from "next-themes"
 import { Star, Clock, Zap } from "lucide-react"
 import IconSelector from "../IconSelector"
 
-const GRID_SIZE = 8
-const ICON_TYPES = 16
+const GRID_SIZE = 6
+const ICON_TYPES = 6
 const EMPTY_CELL = null
 
 type CellType = string | null
