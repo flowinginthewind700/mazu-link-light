@@ -36,38 +36,56 @@ const createGrid = (icons: string[]): CellType[][] => {
     .map(() => shuffled.splice(0, GRID_SIZE))
 }
 
-// Updated pathfinding algorithm to check for adjacency and valid corner connections
+// Updated pathfinding algorithm to check for up to 3 line connections
 const isValidPath = (grid: CellType[][], start: [number, number], end: [number, number]): boolean => {
   const [startRow, startCol] = start
   const [endRow, endCol] = end
+  
+  // Helper function to check if a path is valid (no obstruction in between)
+  const checkPath = (path: [number, number][], direction: string): boolean => {
+    for (let [row, col] of path) {
+      if (grid[row][col] !== EMPTY_CELL) return false
+    }
+    return true
+  }
 
-  // Check if directly adjacent (horizontally or vertically)
+  // Case 1: Directly adjacent (1 line)
   if (Math.abs(startRow - endRow) + Math.abs(startCol - endCol) === 1) {
     return true
   }
 
-  // Check straight line
+  // Case 2: Straight line (1 line)
   if (startRow === endRow) {
     const minCol = Math.min(startCol, endCol)
     const maxCol = Math.max(startCol, endCol)
-    for (let col = minCol + 1; col < maxCol; col++) {
-      if (grid[startRow][col] !== EMPTY_CELL) return false
+    if (checkPath(Array.from({ length: maxCol - minCol - 1 }, (_, i) => [startRow, minCol + i + 1]), "horizontal")) {
+      return true
     }
-    return true
   }
 
   if (startCol === endCol) {
     const minRow = Math.min(startRow, endRow)
     const maxRow = Math.max(startRow, endRow)
-    for (let row = minRow + 1; row < maxRow; row++) {
-      if (grid[row][startCol] !== EMPTY_CELL) return false
+    if (checkPath(Array.from({ length: maxRow - minRow - 1 }, (_, i) => [minRow + i + 1, startCol]), "vertical")) {
+      return true
     }
-    return true
   }
 
-  // Check one-corner path (L-shaped path)
-  if (grid[startRow][endCol] === EMPTY_CELL && isValidPath(grid, [startRow, endCol], end)) return true
-  if (grid[endRow][startCol] === EMPTY_CELL && isValidPath(grid, [endRow, startCol], end)) return true
+  // Case 3: One corner (L-shape - 2 lines)
+  const canGoThroughCorner = (row: number, col: number) => {
+    const path1 = checkPath(
+      Array.from({ length: Math.abs(startRow - row) }, (_, i) => [startRow + i, col]),
+      "vertical"
+    )
+    const path2 = checkPath(
+      Array.from({ length: Math.abs(col - endCol) }, (_, i) => [row, col + i]),
+      "horizontal"
+    )
+    return path1 && path2
+  }
+
+  if (grid[startRow][endCol] === EMPTY_CELL && canGoThroughCorner(startRow, endCol)) return true
+  if (grid[endRow][startCol] === EMPTY_CELL && canGoThroughCorner(endRow, startCol)) return true
 
   return false
 }
@@ -103,7 +121,7 @@ export default function LinkGame({ onClose }: LinkGameProps) {
   const [selected, setSelected] = useState<[number, number] | null>(null)
   const [showIconSelector, setShowIconSelector] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
-  const [linkingEffect, setLinkingEffect] = useState<{ start: [number, number]; end: [number, number] } | null>(null)
+  const [linkingEffect, setLinkingEffect] = useState<{ start: [number, number]; end: [number, number]; path: [number, number][] } | null>(null)
 
   useEffect(() => {
     const storedIconsString = localStorage.getItem("gameIcons") || localStorage.getItem("iconPaths")
@@ -154,14 +172,42 @@ export default function LinkGame({ onClose }: LinkGameProps) {
           score: prev.score + 10,
         }))
         setSelected(null)
-        setLinkingEffect({ start: selected, end: [row, col] })
-        setTimeout(() => setLinkingEffect(null), 500)
+
+        // Create a path effect for the connection between the two icons
+        const path = getPathBetweenPoints(selected, [row, col])
+        setLinkingEffect({ start: selected, end: [row, col], path })
+        setTimeout(() => setLinkingEffect(null), 1000)
       } else {
         setSelected([row, col])
       }
     } else {
       setSelected([row, col])
     }
+  }
+
+  // Function to find the path between two points (start and end)
+  const getPathBetweenPoints = (start: [number, number], end: [number, number]): [number, number][] => {
+    const path: [number, number][] = []
+    const [startRow, startCol] = start
+    const [endRow, endCol] = end
+
+    // Generate horizontal and vertical paths
+    if (startRow === endRow) {
+      const minCol = Math.min(startCol, endCol)
+      const maxCol = Math.max(startCol, endCol)
+      for (let col = minCol + 1; col < maxCol; col++) {
+        path.push([startRow, col])
+      }
+    } else if (startCol === endCol) {
+      const minRow = Math.min(startRow, endRow)
+      const maxRow = Math.max(startRow, endRow)
+      for (let row = minRow + 1; row < maxRow; row++) {
+        path.push([row, startCol])
+      }
+    } else {
+      path.push([startRow, startCol], [endRow, endCol])
+    }
+    return path
   }
 
   const handleReset = useCallback(() => {
@@ -278,6 +324,8 @@ export default function LinkGame({ onClose }: LinkGameProps) {
           )}
         </AnimatePresence>
       </motion.div>
+      
+      {/* Draw connection line */}
       {linkingEffect && (
         <motion.div
           className="absolute"
@@ -295,6 +343,7 @@ export default function LinkGame({ onClose }: LinkGameProps) {
           <div className="absolute w-full h-full bg-gradient-to-br from-yellow-200 to-yellow-600 rounded-lg" />
         </motion.div>
       )}
+
       <div className="mt-4 sm:mt-8 flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:space-x-6">
         <motion.button
           onClick={handleReset}
