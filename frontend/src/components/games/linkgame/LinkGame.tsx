@@ -99,7 +99,7 @@ export default function LinkGame({ onClose }: LinkGameProps) {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    const storedIconsString = localStorage.getItem("linkGameIcons") || localStorage.getItem("iconPaths")
+    const storedIconsString = localStorage.getItem("gameIcons") || localStorage.getItem("iconPaths")
     let storedIcons: string[] = []
 
     if (storedIconsString) {
