@@ -5,8 +5,8 @@ import { motion, AnimatePresence } from "framer-motion"
 import { useTheme } from "next-themes"
 import IconSelector from "./IconSelector"
 import Fireworks from "./Fireworks"
-import SmallFirework from "./SmallFirework" // 导入 SmallFirework 组件
-import { Heart, Star, Zap } from "lucide-react"
+import SmallFirework from "./SmallFirework"
+import { Heart, Zap, Star, RefreshCw, Palette } from "lucide-react"
 
 const DEFAULT_ICONS = ["🐶", "🐱", "🐰", "🐼", "🦊", "🐨"]
 const GRID_SIZE = 6
@@ -333,115 +333,108 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
     return <div>Loading...</div>
   }
 
-  const cellSize = typeof window !== "undefined" ? (window.innerWidth < 640 ? "w-8 h-8" : "w-12 h-12") : "w-12 h-12"
-
   return (
     <div
-      className={`p-4 rounded-lg shadow-lg ${theme === "dark" ? "bg-gray-800 text-white" : "bg-pink-100 text-black"} max-w-full overflow-hidden`}
+      className={`p-4 rounded-2xl shadow-lg ${theme === "dark" ? "bg-gray-800 text-white" : "bg-pink-100 text-black"}`}
     >
-      <div className="mb-4 text-center flex flex-col items-center">
-        <div className="grid grid-cols-3 gap-4 w-full max-w-xs">
-          <div className="flex flex-col items-center">
-            <Star className="w-6 h-6 text-yellow-400 mb-1" />
-            <p className="text-lg font-bold">{state.score}</p>
-            <p className="text-xs">Score</p>
+      <div className="mb-6 text-center">
+        <h2 className="text-3xl font-bold mb-4 text-pink-500 dark:text-pink-300">Cute Pet Match 3</h2>
+        <div className="flex justify-center space-x-6">
+          <div className="flex items-center">
+            <Heart className="w-6 h-6 mr-2 text-red-500" />
+            <p className="text-xl font-semibold">Score: {state.score}</p>
           </div>
-          <div className="flex flex-col items-center">
-            <Heart className="w-6 h-6 text-red-400 mb-1" />
-            <p className="text-lg font-bold">{state.moves}</p>
-            <p className="text-xs">Moves</p>
+          <div className="flex items-center">
+            <Zap className="w-6 h-6 mr-2 text-yellow-500" />
+            <p className="text-xl font-semibold">Moves: {state.moves}</p>
           </div>
-          <div className="flex flex-col items-center">
-            <Zap className="w-6 h-6 text-blue-400 mb-1" />
-            <p className="text-lg font-bold">x{comboMultiplier.toFixed(1)}</p>
-            <p className="text-xs">Combo</p>
+          <div className="flex items-center">
+            <Star className="w-6 h-6 mr-2 text-purple-500" />
+            <p className="text-xl font-semibold">Combo: x{comboMultiplier.toFixed(1)}</p>
           </div>
         </div>
       </div>
-      <motion.div
-        className="grid gap-1 mx-auto"
-        style={{
-          gridTemplateColumns: `repeat(${GRID_SIZE}, 1fr)`,
-          maxWidth: typeof window !== "undefined" ? (window.innerWidth < 640 ? "300px" : "400px") : "400px",
-        }}
-        animate={isShaking ? { x: [-5, 5, -5, 5, 0] } : {}}
-        transition={{ duration: 0.5 }}
-      >
-        <AnimatePresence>
-          {state.grid.map((row, rowIndex) =>
-            row.map((cell, colIndex) => (
-              <motion.button
-                key={`${rowIndex}-${colIndex}`}
-                className={`${cellSize} flex items-center justify-center rounded-lg ${
-                  selected && selected[0] === rowIndex && selected[1] === colIndex
-                    ? "bg-yellow-300"
-                    : theme === "dark"
-                      ? "bg-gray-700"
-                      : "bg-white"
-                } ${cell.isBomb ? "relative overflow-hidden" : ""}`}
-                onClick={() => handleCellClick(rowIndex, colIndex)}
-                whileHover={{ scale: 1.1, rotate: 5 }}
-                whileTap={{ scale: 0.9 }}
-                layout
-                initial={{ opacity: 0, scale: 0, rotate: 180 }}
-                animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                exit={{ opacity: 0, scale: 0, rotate: -180 }}
-                transition={{ type: "spring", stiffness: 260, damping: 20 }}
-              >
-                <img
-                  src={cell.icon || "/placeholder.svg"}
-                  alt="icon"
-                  className="w-6 h-6 sm:w-8 sm:h-8 object-contain"
-                />
-                {cell.isBomb && (
-                  <motion.div
-                    className="absolute inset-0 flex items-center justify-center"
-                    initial={{ opacity: 0.7, scale: 0.8 }}
-                    animate={{
-                      opacity: [0.7, 1, 0.7],
-                      scale: [0.8, 1.1, 0.8],
-                      rotate: 360,
-                    }}
-                    transition={{
-                      duration: 3,
-                      repeat: Number.POSITIVE_INFINITY,
-                      ease: "linear",
-                    }}
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="w-full h-full text-yellow-400"
+      <div className="w-full max-w-md mx-auto mb-6">
+        <motion.div
+          className="grid mb-6"
+          style={{ gridTemplateColumns: `repeat(${GRID_SIZE}, 1fr)` }}
+          animate={isShaking ? { x: [-5, 5, -5, 5, 0] } : {}}
+          transition={{ duration: 0.5 }}
+        >
+          <AnimatePresence>
+            {state.grid.map((row, rowIndex) =>
+              row.map((cell, colIndex) => (
+                <motion.button
+                  key={`${rowIndex}-${colIndex}`}
+                  className={`w-full h-full aspect-square flex items-center justify-center ${
+                    selected && selected[0] === rowIndex && selected[1] === colIndex
+                      ? "bg-yellow-300"
+                      : theme === "dark"
+                        ? "bg-gray-700"
+                        : "bg-white"
+                  } ${cell.isBomb ? "relative overflow-hidden" : ""}`}
+                  onClick={() => handleCellClick(rowIndex, colIndex)}
+                  whileHover={{ scale: 1.1, rotate: 5 }}
+                  whileTap={{ scale: 0.9 }}
+                  layout
+                  initial={{ opacity: 0, scale: 0, rotate: 180 }}
+                  animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                  exit={{ opacity: 0, scale: 0, rotate: -180 }}
+                  transition={{ type: "spring", stiffness: 260, damping: 20 }}
+                >
+                  <img src={cell.icon || "/placeholder.svg"} alt="icon" className="w-full h-full object-contain" />
+                  {cell.isBomb && (
+                    <motion.div
+                      className="absolute inset-0 flex items-center justify-center"
+                      initial={{ opacity: 0.7, scale: 0.8 }}
+                      animate={{
+                        opacity: [0.7, 1, 0.7],
+                        scale: [0.8, 1.1, 0.8],
+                        rotate: 360,
+                      }}
+                      transition={{
+                        duration: 3,
+                        repeat: Number.POSITIVE_INFINITY,
+                        ease: "linear",
+                      }}
                     >
-                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                    </svg>
-                  </motion.div>
-                )}
-                {showSmallFireworks && fireworkCells.some(([r, c]) => r === rowIndex && c === colIndex) && (
-                  <SmallFirework onComplete={() => {}} />
-                )}
-              </motion.button>
-            )),
-          )}
-        </AnimatePresence>
-      </motion.div>
-      <div className="mt-6 flex flex-col sm:flex-row justify-center space-y-3 sm:space-y-0 sm:space-x-4">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="w-full h-full text-yellow-400"
+                      >
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                      </svg>
+                    </motion.div>
+                  )}
+                  {showSmallFireworks && fireworkCells.some(([r, c]) => r === rowIndex && c === colIndex) && (
+                    <SmallFirework onComplete={() => {}} />
+                  )}
+                </motion.button>
+              )),
+            )}
+          </AnimatePresence>
+        </motion.div>
+      </div>
+      <div className="flex justify-center space-x-4">
         <button
           onClick={handleReset}
-          className="px-6 py-3 bg-pink-500 text-white rounded-full hover:bg-pink-600 transform transition duration-200 hover:scale-105 shadow-lg"
+          className="px-6 py-3 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors duration-300 flex items-center font-semibold text-lg shadow-md hover:shadow-lg"
         >
-          🌟 New Adventure! 🌟
+          <RefreshCw className="w-5 h-5 mr-2" />
+          Reset Game
         </button>
         <button
           onClick={() => setShowIconSelector(true)}
-          className="px-6 py-3 bg-purple-500 text-white rounded-full hover:bg-purple-600 transform transition duration-200 hover:scale-105 shadow-lg"
+          className="px-6 py-3 bg-green-500 text-white rounded-full hover:bg-green-600 transition-colors duration-300 flex items-center font-semibold text-lg shadow-md hover:shadow-lg"
         >
-          🎨 Choose Cute Icons! 🎨
+          <Palette className="w-5 h-5 mr-2" />
+          Select Icons
         </button>
       </div>
       {showIconSelector && (
