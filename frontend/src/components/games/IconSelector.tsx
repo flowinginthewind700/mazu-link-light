@@ -12,7 +12,9 @@ type IconSelectorProps = {
 
 export default function IconSelector({ onSelect, onClose, currentIcons, iconCount }: IconSelectorProps) {
   const [allIcons, setAllIcons] = useState<string[]>([])
-  const [selectedIcons, setSelectedIcons] = useState<string[]>(currentIcons)
+  const [selectedIcons, setSelectedIcons] = useState<Array<string | null>>(
+    Array(iconCount).fill(null).map((_, i) => currentIcons[i] || null)
+  )
 
   useEffect(() => {
     const storedIcons = localStorage.getItem("gameIcons")
@@ -21,30 +23,28 @@ export default function IconSelector({ onSelect, onClose, currentIcons, iconCoun
     }
   }, [])
 
-  useEffect(() => {
-    // Ensure selectedIcons always has the correct length
-    if (selectedIcons.length < iconCount) {
-      const additionalIcons = allIcons.filter((icon) => !selectedIcons.includes(icon))
-      const newSelectedIcons = [...selectedIcons, ...additionalIcons.slice(0, iconCount - selectedIcons.length)]
-      setSelectedIcons(newSelectedIcons)
-    } else if (selectedIcons.length > iconCount) {
-      setSelectedIcons(selectedIcons.slice(0, iconCount))
-    }
-  }, [selectedIcons, iconCount, allIcons])
+  const handleSelectedSlotClick = (index: number) => {
+    const newSelected = [...selectedIcons]
+    newSelected[index] = null
+    setSelectedIcons(newSelected)
+  }
 
-  const handleIconClick = (icon: string) => {
-    if (selectedIcons.includes(icon)) {
-      setSelectedIcons(selectedIcons.filter((i) => i !== icon))
-    } else if (selectedIcons.length < iconCount) {
-      setSelectedIcons([...selectedIcons, icon])
+  const handleAvailableIconClick = (icon: string) => {
+    const firstEmptyIndex = selectedIcons.findIndex(i => i === null)
+    if (firstEmptyIndex !== -1) {
+      const newSelected = [...selectedIcons]
+      newSelected[firstEmptyIndex] = icon
+      setSelectedIcons(newSelected)
     }
   }
 
   const handleSubmit = () => {
-    if (selectedIcons.length === iconCount) {
-      onSelect(selectedIcons)
+    if (selectedIcons.every(icon => icon !== null)) {
+      onSelect(selectedIcons.filter(Boolean) as string[])
     }
   }
+
+  const isIconSelected = (icon: string) => selectedIcons.includes(icon)
 
   return (
     <motion.div
@@ -55,50 +55,75 @@ export default function IconSelector({ onSelect, onClose, currentIcons, iconCoun
       onClick={onClose}
     >
       <div className="bg-white dark:bg-gray-800 p-6 rounded-lg max-w-md w-full" onClick={(e) => e.stopPropagation()}>
-        <h2 className="text-2xl font-bold mb-4">Select {iconCount} Icons</h2>
+        <h2 className="text-2xl font-bold mb-2">Select {iconCount} Icons</h2>
+        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+          Click selected icons to remove them, then choose new ones from below
+        </p>
+
+        {/* Selected Icons Grid */}
         <div className="grid grid-cols-8 gap-2 mb-4">
           {selectedIcons.map((icon, index) => (
-            <button key={index} onClick={() => handleIconClick(icon)} className="p-2 bg-blue-500 rounded-lg">
-              <img src={icon || "/placeholder.svg"} alt={`Selected Icon ${index + 1}`} className="w-8 h-8" />
+            <button
+              key={index}
+              onClick={() => handleSelectedSlotClick(index)}
+              className={`p-2 rounded-lg transition-colors ${
+                icon ? "bg-blue-500 hover:bg-blue-600" : "bg-gray-200 dark:bg-gray-700"
+              }`}
+            >
+              {icon ? (
+                <img src={icon} alt={`Selected Icon ${index + 1}`} className="w-8 h-8" />
+              ) : (
+                <div className="w-8 h-8 bg-gray-300 dark:bg-gray-600 rounded" />
+              )}
             </button>
           ))}
-          {Array(Math.max(0, iconCount - selectedIcons.length))
-            .fill(null)
-            .map((_, index) => (
-              <div key={`empty-${index}`} className="p-2 bg-gray-200 rounded-lg w-10 h-10" />
-            ))}
         </div>
-        <div className="h-64 overflow-y-auto">
+
+        {/* Available Icons List */}
+        <div className="h-64 overflow-y-auto mb-4">
           <div className="grid grid-cols-8 gap-2">
             {allIcons.map((icon, index) => (
               <button
                 key={index}
-                onClick={() => handleIconClick(icon)}
-                className={`p-2 rounded-lg ${
-                  selectedIcons.includes(icon) ? "bg-blue-500" : "bg-gray-200 dark:bg-gray-600"
+                onClick={() => handleAvailableIconClick(icon)}
+                disabled={isIconSelected(icon)}
+                className={`p-2 rounded-lg transition-colors ${
+                  isIconSelected(icon)
+                    ? "bg-blue-500 cursor-not-allowed"
+                    : "bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
                 }`}
               >
-                <img src={icon || "/placeholder.svg"} alt={`Icon ${index + 1}`} className="w-8 h-8" />
+                <img
+                  src={icon}
+                  alt={`Icon ${index + 1}`}
+                  className={`w-8 h-8 ${isIconSelected(icon) ? "opacity-50" : ""}`}
+                />
               </button>
             ))}
           </div>
         </div>
-        <div className="mt-4 flex justify-end space-x-4">
-          <button onClick={onClose} className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">
+
+        {/* Action Buttons */}
+        <div className="flex justify-end space-x-4">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors"
+          >
             Cancel
           </button>
           <button
             onClick={handleSubmit}
-            disabled={selectedIcons.length !== iconCount}
-            className={`px-4 py-2 text-white rounded ${
-              selectedIcons.length === iconCount ? "bg-green-500 hover:bg-green-600" : "bg-gray-400 cursor-not-allowed"
+            disabled={selectedIcons.some(icon => icon === null)}
+            className={`px-4 py-2 text-white rounded transition-colors ${
+              selectedIcons.every(icon => icon !== null)
+                ? "bg-green-500 hover:bg-green-600"
+                : "bg-gray-400 cursor-not-allowed"
             }`}
           >
-            Confirm
+            Confirm Selection
           </button>
         </div>
       </div>
     </motion.div>
   )
 }
-
