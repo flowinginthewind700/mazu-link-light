@@ -434,7 +434,7 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
         </button>
       </div>
       {showIconSelector && (
-        <IconSelector onSelect={handleIconSelection} onClose={() => setShowIconSelector(false)} currentIcons={icons} />
+        <IconSelector onSelect={handleIconSelection} onClose={() => setShowIconSelector(false)} currentIcons={icons} iconCount={6}/>
       )}
       {showFireworks && <Fireworks onStop={handleStopFireworks} />}
     </div>

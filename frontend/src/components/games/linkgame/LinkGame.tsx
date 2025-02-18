@@ -29,7 +29,7 @@ const getRandomIcons = (icons: string[], count: number) => {
 }
 
 const createGrid = (icons: string[]): CellType[][] => {
-  const allIcons = [...icons, ...icons] // Double the icons to ensure pairs
+  const allIcons = icons.flatMap((icon) => [icon, icon, icon, icon]) // Each icon appears 4 times
   const shuffled = allIcons.sort(() => 0.5 - Math.random())
   return Array(GRID_SIZE)
     .fill(null)
@@ -66,6 +66,25 @@ const isValidPath = (grid: CellType[][], start: [number, number], end: [number, 
   return false
 }
 
+const isDeadlock = (grid: CellType[][]) => {
+  for (let i = 0; i < GRID_SIZE; i++) {
+    for (let j = 0; j < GRID_SIZE; j++) {
+      if (grid[i][j] !== EMPTY_CELL) {
+        for (let x = 0; x < GRID_SIZE; x++) {
+          for (let y = 0; y < GRID_SIZE; y++) {
+            if (grid[x][y] !== EMPTY_CELL && (i !== x || j !== y) && grid[i][j] === grid[x][y]) {
+              if (isValidPath(grid, [i, j], [x, y])) {
+                return false
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  return true
+}
+
 export default function LinkGame({ onClose }: LinkGameProps) {
   const { theme } = useTheme()
   const [icons, setIcons] = useState<string[]>([])
@@ -80,20 +99,19 @@ export default function LinkGame({ onClose }: LinkGameProps) {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    const storedIconsString = localStorage.getItem("gameIcons")
+    const storedIconsString = localStorage.getItem("linkGameIcons") || localStorage.getItem("iconPaths")
     let storedIcons: string[] = []
 
     if (storedIconsString) {
       try {
         storedIcons = JSON.parse(storedIconsString)
       } catch (error) {
-        console.error("Failed to parse iconPaths from localStorage:", error)
+        console.error("Failed to parse icons from localStorage:", error)
       }
     }
 
     if (storedIcons.length >= ICON_TYPES) {
-      const selectedIcons = getRandomIcons(storedIcons, ICON_TYPES)
-      setIcons(selectedIcons)
+      setIcons(storedIcons.slice(0, ICON_TYPES))
     } else {
       // Fallback to default icons if not enough stored icons
       setIcons(Array.from({ length: ICON_TYPES }, (_, i) => `/icons/icon${i + 1}.svg`))
@@ -139,8 +157,13 @@ export default function LinkGame({ onClose }: LinkGameProps) {
   }
 
   const handleReset = useCallback(() => {
+    let newGrid
+    do {
+      newGrid = createGrid(icons)
+    } while (isDeadlock(newGrid))
+
     setState({
-      grid: createGrid(icons),
+      grid: newGrid,
       score: 0,
       timeLeft: 180,
       hints: 3,
@@ -149,7 +172,7 @@ export default function LinkGame({ onClose }: LinkGameProps) {
 
   const handleIconSelection = (selectedIcons: string[]) => {
     setIcons(selectedIcons)
-    localStorage.setItem("gameIcons", JSON.stringify(selectedIcons))
+    localStorage.setItem("linkGameIcons", JSON.stringify(selectedIcons))
     setState((prev) => ({
       ...prev,
       grid: createGrid(selectedIcons),
@@ -260,7 +283,12 @@ export default function LinkGame({ onClose }: LinkGameProps) {
         </motion.button>
       </div>
       {showIconSelector && (
-        <IconSelector onSelect={handleIconSelection} onClose={() => setShowIconSelector(false)} currentIcons={icons} />
+        <IconSelector
+          onSelect={handleIconSelection}
+          onClose={() => setShowIconSelector(false)}
+          currentIcons={icons}
+          iconCount={ICON_TYPES}
+        />
       )}
     </div>
   )
