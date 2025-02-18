@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useTheme } from "next-themes"
 import { Star, Clock, Zap } from "lucide-react"
-import IconSelector from "../IconSelector"
+import IconSelector from "./IconSelector"
 
 const GRID_SIZE = 8
 const ICON_TYPES = 16
@@ -80,7 +80,7 @@ export default function LinkGame({ onClose }: LinkGameProps) {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    const storedIconsString = localStorage.getItem("iconPaths")
+    const storedIconsString = localStorage.getItem("gameIcons")
     let storedIcons: string[] = []
 
     if (storedIconsString) {
