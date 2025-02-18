@@ -36,9 +36,15 @@ const createGrid = (icons: string[]): CellType[][] => {
     .map(() => shuffled.splice(0, GRID_SIZE))
 }
 
+// Updated pathfinding algorithm to check for adjacency and valid corner connections
 const isValidPath = (grid: CellType[][], start: [number, number], end: [number, number]): boolean => {
   const [startRow, startCol] = start
   const [endRow, endCol] = end
+
+  // Check if directly adjacent (horizontally or vertically)
+  if (Math.abs(startRow - endRow) + Math.abs(startCol - endCol) === 1) {
+    return true
+  }
 
   // Check straight line
   if (startRow === endRow) {
@@ -59,7 +65,7 @@ const isValidPath = (grid: CellType[][], start: [number, number], end: [number, 
     return true
   }
 
-  // Check one-corner path
+  // Check one-corner path (L-shaped path)
   if (grid[startRow][endCol] === EMPTY_CELL && isValidPath(grid, [startRow, endCol], end)) return true
   if (grid[endRow][startCol] === EMPTY_CELL && isValidPath(grid, [endRow, startCol], end)) return true
 
@@ -114,7 +120,6 @@ export default function LinkGame({ onClose }: LinkGameProps) {
     if (storedIcons.length >= ICON_TYPES) {
       setIcons(storedIcons.slice(0, ICON_TYPES))
     } else {
-      // Fallback to default icons if not enough stored icons
       setIcons(Array.from({ length: ICON_TYPES }, (_, i) => `/icons/icon${i + 1}.svg`))
     }
     setIsLoading(false)
