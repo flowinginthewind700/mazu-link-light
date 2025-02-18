@@ -241,87 +241,87 @@ export default function LinkGame({ onClose }: LinkGameProps) {
     }
   }
 
-  // Function to find the path between two points (start and end)
-  const getPathBetweenPoints = (start: [number, number], end: [number, number], grid: CellType[][]): [number, number][] => {
-    const path: [number, number][] = [];
-    const [startRow, startCol] = start;
-    const [endRow, endCol] = end;
-  
-    // 直接直线连接
-    if (checkStraightLine(start, end, grid)) {
-      if (startRow === endRow) {
-        const minCol = Math.min(startCol, endCol);
-        const maxCol = Math.max(startCol, endCol);
-        for (let col = minCol; col <= maxCol; col++) {
-          path.push([startRow, col]);
-        }
-      } else {
-        const minRow = Math.min(startRow, endRow);
-        const maxRow = Math.max(startRow, endRow);
-        for (let row = minRow; row <= maxRow; row++) {
-          path.push([row, startCol]);
-        }
+    // Function to find the path between two points (start and end)
+const getPathBetweenPoints = (start: [number, number], end: [number, number], grid: CellType[][]): [number, number][] => {
+  const path: [number, number][] = [];
+  const [startRow, startCol] = start;
+  const [endRow, endCol] = end;
+
+  // 直接直线连接
+  if (checkStraightLine(start, end, grid)) {
+    if (startRow === endRow) {
+      const minCol = Math.min(startCol, endCol);
+      const maxCol = Math.max(startCol, endCol);
+      for (let col = minCol; col <= maxCol; col++) {
+        path.push([startRow, col]);
       }
-      return path;
-    }
-  
-    // 单拐角连接
-    if (checkOneCorner(start, end, grid)) {
-      let corner: [number, number];
-      if (grid[startRow][endCol] === EMPTY_CELL) {
-        corner = [startRow, endCol];
-      } else {
-        corner = [endRow, startCol];
-      }
-      // 从起点到拐点
-      const path1 = getPathBetweenPoints(start, corner, grid);
-      // 从拐点到终点，排除拐点重复
-      const path2 = getPathBetweenPoints(corner, end, grid).slice(1);
-      return [...path1, ...path2];
-    }
-  
-    // 双拐角连接，这里需要找到实际的路径
-    // 这里简化处理，假设路径是通过横向或纵向扩展
-    // 实际实现可能需要更复杂的逻辑，这里仅作示例
-    // 例如，横向扩展的情况
-    for (let col = 0; col < GRID_SIZE; col++) {
-      const corner1 = [startRow, col];
-      const corner2 = [endRow, col];
-      if (
-        col !== startCol &&
-        col !== endCol &&
-        checkStraightLine(start, corner1, grid) &&
-        checkStraightLine(corner1, corner2, grid) &&
-        checkStraightLine(corner2, end, grid)
-      ) {
-        const path1 = getPathBetweenPoints(start, corner1, grid);
-        const path2 = getPathBetweenPoints(corner1, corner2, grid).slice(1);
-        const path3 = getPathBetweenPoints(corner2, end, grid).slice(1);
-        return [...path1, ...path2, ...path3];
+    } else {
+      const minRow = Math.min(startRow, endRow);
+      const maxRow = Math.max(startRow, endRow);
+      for (let row = minRow; row <= maxRow; row++) {
+        path.push([row, startCol]);
       }
     }
-  
-    // 纵向扩展的情况
-    for (let row = 0; row < GRID_SIZE; row++) {
-      const corner1 = [row, startCol];
-      const corner2 = [row, endCol];
-      if (
-        row !== startRow &&
-        row !== endRow &&
-        checkStraightLine(start, corner1, grid) &&
-        checkStraightLine(corner1, corner2, grid) &&
-        checkStraightLine(corner2, end, grid)
-      ) {
-        const path1 = getPathBetweenPoints(start, corner1, grid);
-        const path2 = getPathBetweenPoints(corner1, corner2, grid).slice(1);
-        const path3 = getPathBetweenPoints(corner2, end, grid).slice(1);
-        return [...path1, ...path2, ...path3];
-      }
+    return path;
+  }
+
+  // 单拐角连接
+  if (checkOneCorner(start, end, grid)) {
+    let corner: [number, number];
+    if (grid[startRow][endCol] === EMPTY_CELL) {
+      corner = [startRow, endCol];
+    } else {
+      corner = [endRow, startCol];
     }
-  
-    // 如果未找到路径，返回空（理论上不会发生，因为isValidPath已通过）
-    return [];
-  };
+    // 从起点到拐点
+    const path1 = getPathBetweenPoints(start, corner, grid);
+    // 从拐点到终点，排除拐点重复
+    const path2 = getPathBetweenPoints(corner, end, grid).slice(1);
+    return [...path1, ...path2];
+  }
+
+  // 双拐角连接
+  // 横向扩展
+  for (let col = 0; col < GRID_SIZE; col++) {
+    if (col === startCol || col === endCol) continue;
+    const corner1: [number, number] = [startRow, col]; // 显式声明为 [number, number]
+    const corner2: [number, number] = [endRow, col]; // 显式声明为 [number, number]
+    if (
+      grid[corner1[0]][corner1[1]] === EMPTY_CELL &&
+      grid[corner2[0]][corner2[1]] === EMPTY_CELL &&
+      checkStraightLine(start, corner1, grid) &&
+      checkStraightLine(corner1, corner2, grid) &&
+      checkStraightLine(corner2, end, grid)
+    ) {
+      const path1 = getPathBetweenPoints(start, corner1, grid);
+      const path2 = getPathBetweenPoints(corner1, corner2, grid).slice(1);
+      const path3 = getPathBetweenPoints(corner2, end, grid).slice(1);
+      return [...path1, ...path2, ...path3];
+    }
+  }
+
+  // 纵向扩展
+  for (let row = 0; row < GRID_SIZE; row++) {
+    if (row === startRow || row === endRow) continue;
+    const corner1: [number, number] = [row, startCol]; // 显式声明为 [number, number]
+    const corner2: [number, number] = [row, endCol]; // 显式声明为 [number, number]
+    if (
+      grid[corner1[0]][corner1[1]] === EMPTY_CELL &&
+      grid[corner2[0]][corner2[1]] === EMPTY_CELL &&
+      checkStraightLine(start, corner1, grid) &&
+      checkStraightLine(corner1, corner2, grid) &&
+      checkStraightLine(corner2, end, grid)
+    ) {
+      const path1 = getPathBetweenPoints(start, corner1, grid);
+      const path2 = getPathBetweenPoints(corner1, corner2, grid).slice(1);
+      const path3 = getPathBetweenPoints(corner2, end, grid).slice(1);
+      return [...path1, ...path2, ...path3];
+    }
+  }
+
+  // 如果未找到路径，返回空（理论上不会发生，因为 isValidPath 已通过）
+  return [];
+};
   
 
   const handleReset = useCallback(() => {
