@@ -5,8 +5,8 @@ import { motion, AnimatePresence } from "framer-motion"
 import { useTheme } from "next-themes"
 import IconSelector from "./IconSelector"
 import Fireworks from "./Fireworks"
-import SmallFirework from "./SmallFirework" // 导入 SmallFirework 组件
-import { Heart, Star, Zap } from "lucide-react"
+import SmallFirework from "./SmallFirework"
+import { Heart, Zap, Star, RefreshCw, Palette } from "lucide-react"
 
 const DEFAULT_ICONS = ["🐶", "🐱", "🐰", "🐼", "🦊", "🐨"]
 const GRID_SIZE = 6
@@ -333,125 +333,105 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
     return <div>Loading...</div>
   }
 
-  const cellSize = typeof window !== "undefined" ? (window.innerWidth < 640 ? "w-10 h-10" : "w-12 h-12") : "w-12 h-12"
-
   return (
     <div
-      className={`p-4 sm:p-6 rounded-2xl sm:rounded-3xl shadow-lg ${theme === "dark" ? "bg-gray-800 text-white" : "bg-pink-100 text-black"} max-w-full overflow-hidden`}
+      className={`p-4 rounded-2xl shadow-lg ${theme === "dark" ? "bg-gray-800 text-white" : "bg-pink-100 text-black"}`}
     >
-      <div className="mb-4 sm:mb-6 text-center">
-        
-        <div className="flex justify-center space-x-4 sm:space-x-6">
-          <div className="flex flex-col items-center">
-            <div className="bg-yellow-200 dark:bg-yellow-700 rounded-full p-3 mb-2">
-              <Star className="w-6 h-6 text-yellow-600 dark:text-yellow-300" />
-            </div>
-            <p className="text-lg font-bold">{state.score}</p>
-            <p className="text-xs">Score</p>
+      <div className="mb-6 text-center">
+       
+        <div className="flex justify-center space-x-6">
+          <div className="flex items-center">
+            <Heart className="w-6 h-6 mr-2 text-red-500" />
+            <p className="text-xl font-semibold">Score: {state.score}</p>
           </div>
-          <div className="flex flex-col items-center">
-            <div className="bg-red-200 dark:bg-red-700 rounded-full p-3 mb-2">
-              <Heart className="w-6 h-6 text-red-600 dark:text-red-300" />
-            </div>
-            <p className="text-lg font-bold">{state.moves}</p>
-            <p className="text-xs">Moves</p>
+          <div className="flex items-center">
+            <Zap className="w-6 h-6 mr-2 text-yellow-500" />
+            <p className="text-xl font-semibold">Moves: {state.moves}</p>
           </div>
-          <div className="flex flex-col items-center">
-            <div className="bg-blue-200 dark:bg-blue-700 rounded-full p-3 mb-2">
-              <Zap className="w-6 h-6 text-blue-600 dark:text-blue-300" />
-            </div>
-            <p className="text-lg font-bold">x{comboMultiplier.toFixed(1)}</p>
-            <p className="text-xs">Combo</p>
+          <div className="flex items-center">
+            <Star className="w-6 h-6 mr-2 text-purple-500" />
+            <p className="text-xl font-semibold">Combo: x{comboMultiplier.toFixed(1)}</p>
           </div>
         </div>
       </div>
-      <motion.div
-        className="grid gap-3 mx-auto"
-        style={{
-          gridTemplateColumns: `repeat(${GRID_SIZE}, 1fr)`,
-          maxWidth: typeof window !== "undefined" ? (window.innerWidth < 640 ? "280px" : "400px") : "400px",
-        }}
-        animate={isShaking ? { x: [-5, 5, -5, 5, 0] } : {}}
-        transition={{ duration: 0.5 }}
-      >
-        <AnimatePresence>
-          {state.grid.map((row, rowIndex) =>
-            row.map((cell, colIndex) => (
-              <motion.button
-                key={`${rowIndex}-${colIndex}`}
-                className={`${cellSize} flex items-center justify-center rounded-2xl ${
-                  selected && selected[0] === rowIndex && selected[1] === colIndex
-                    ? "bg-yellow-300 dark:bg-yellow-600"
-                    : theme === "dark"
-                      ? "bg-gray-700"
-                      : "bg-white"
-                } ${cell.isBomb ? "relative overflow-hidden" : ""} shadow-md hover:shadow-lg transition-shadow duration-300`}
-                onClick={() => handleCellClick(rowIndex, colIndex)}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                layout
-                initial={{ opacity: 0, scale: 0, rotate: 180 }}
-                animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                exit={{ opacity: 0, scale: 0, rotate: -180 }}
-                transition={{ type: "spring", stiffness: 260, damping: 20 }}
-              >
-                <div className="w-full h-full rounded-2xl overflow-hidden flex items-center justify-center bg-gradient-to-br from-pink-200 to-purple-200 dark:from-pink-800 dark:to-purple-800">
-                  <img src={cell.icon || "/placeholder.svg"} alt="icon" className="w-3/4 h-3/4 object-contain" />
-                </div>
-                {cell.isBomb && (
-                  <motion.div
-                    className="absolute inset-0 flex items-center justify-center"
-                    initial={{ opacity: 0.7, scale: 0.8 }}
-                    animate={{
-                      opacity: [0.7, 1, 0.7],
-                      scale: [0.8, 1.1, 0.8],
-                      rotate: 360,
-                    }}
-                    transition={{
-                      duration: 3,
-                      repeat: Number.POSITIVE_INFINITY,
-                      ease: "linear",
-                    }}
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="w-full h-full text-yellow-400 dark:text-yellow-300"
+      <div className="w-full max-w-[100vw] px-2 mx-auto mb-6">
+        <motion.div
+          className="grid gap-[1px] mb-6"
+          style={{ gridTemplateColumns: `repeat(${GRID_SIZE}, 1fr)` }}
+          animate={isShaking ? { x: [-5, 5, -5, 5, 0] } : {}}
+          transition={{ duration: 0.5 }}
+        >
+          <AnimatePresence>
+            {state.grid.map((row, rowIndex) =>
+              row.map((cell, colIndex) => (
+                <motion.button
+                  key={`${rowIndex}-${colIndex}`}
+                  className={`w-full h-full aspect-square flex items-center justify-center ${
+                    selected && selected[0] === rowIndex && selected[1] === colIndex ? "bg-yellow-300" : ""
+                  } ${cell.isBomb ? "relative overflow-hidden" : ""}`}
+                  onClick={() => handleCellClick(rowIndex, colIndex)}
+                  whileHover={{ scale: 1.1, rotate: 5 }}
+                  whileTap={{ scale: 0.9 }}
+                  layout
+                  initial={{ opacity: 0, scale: 0, rotate: 180 }}
+                  animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                  exit={{ opacity: 0, scale: 0, rotate: -180 }}
+                  transition={{ type: "spring", stiffness: 260, damping: 20 }}
+                >
+                  <img src={cell.icon || "/placeholder.svg"} alt="icon" className="w-full h-full object-contain" />
+                  {cell.isBomb && (
+                    <motion.div
+                      className="absolute inset-0 flex items-center justify-center"
+                      initial={{ opacity: 0.7, scale: 0.8 }}
+                      animate={{
+                        opacity: [0.7, 1, 0.7],
+                        scale: [0.8, 1.1, 0.8],
+                        rotate: 360,
+                      }}
+                      transition={{
+                        duration: 3,
+                        repeat: Number.POSITIVE_INFINITY,
+                        ease: "linear",
+                      }}
                     >
-                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                    </svg>
-                  </motion.div>
-                )}
-                {showSmallFireworks && fireworkCells.some(([r, c]) => r === rowIndex && c === colIndex) && (
-                  <SmallFirework onComplete={() => {}} />
-                )}
-              </motion.button>
-            )),
-          )}
-        </AnimatePresence>
-      </motion.div>
-      <div className="mt-4 sm:mt-8 flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:space-x-6">
-        <motion.button
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="w-full h-full text-yellow-400"
+                      >
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                      </svg>
+                    </motion.div>
+                  )}
+                  {showSmallFireworks && fireworkCells.some(([r, c]) => r === rowIndex && c === colIndex) && (
+                    <SmallFirework onComplete={() => {}} />
+                  )}
+                </motion.button>
+              )),
+            )}
+          </AnimatePresence>
+        </motion.div>
+      </div>
+      <div className="flex justify-center space-x-4">
+        <button
           onClick={handleReset}
-          className="px-6 py-3 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-full hover:from-pink-600 hover:to-purple-600 transform transition duration-200 shadow-lg"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
+          className="px-6 py-3 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors duration-300 flex items-center font-semibold text-lg shadow-md hover:shadow-lg"
         >
-          🌟 New Adventure! 🌟
-        </motion.button>
-        <motion.button
+          <RefreshCw className="w-5 h-5 mr-2" />
+          Reset Game
+        </button>
+        <button
           onClick={() => setShowIconSelector(true)}
-          className="px-6 py-3 bg-gradient-to-r from-green-500 to-blue-500 text-white rounded-full hover:from-green-600 hover:to-blue-600 transform transition duration-200 shadow-lg"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
+          className="px-6 py-3 bg-green-500 text-white rounded-full hover:bg-green-600 transition-colors duration-300 flex items-center font-semibold text-lg shadow-md hover:shadow-lg"
         >
-          🎨 Choose Cute Icons! 🎨
-        </motion.button>
+          <Palette className="w-5 h-5 mr-2" />
+          Select Icons
+        </button>
       </div>
       {showIconSelector && (
         <IconSelector onSelect={handleIconSelection} onClose={() => setShowIconSelector(false)} currentIcons={icons} />
