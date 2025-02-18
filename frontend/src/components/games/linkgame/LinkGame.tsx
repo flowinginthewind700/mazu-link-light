@@ -6,8 +6,8 @@ import { useTheme } from "next-themes"
 import { Star, Clock, Zap } from "lucide-react"
 import IconSelector from "../IconSelector"
 
-const GRID_SIZE = 6
-const ICON_TYPES = 6
+const GRID_SIZE = 8 // 增加格子大小
+const ICON_TYPES = 8 // 增加图标种类
 const EMPTY_CELL = null
 
 type CellType = string | null
@@ -255,9 +255,15 @@ export default function LinkGame({ onClose }: LinkGameProps) {
                 transition={{ type: "spring", stiffness: 260, damping: 20 }}
               >
                 {cell && (
-                  <div className="w-full h-full rounded-lg overflow-hidden flex items-center justify-center bg-gradient-to-br from-pink-200 to-purple-200 dark:from-pink-800 dark:to-purple-800">
+                  <motion.div
+                    className="w-full h-full rounded-lg overflow-hidden flex items-center justify-center bg-gradient-to-br from-pink-200 to-purple-200 dark:from-pink-800 dark:to-purple-800"
+                    initial={{ opacity: 1 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
                     <img src={cell || "/placeholder.svg"} alt="icon" className="w-3/4 h-3/4 object-contain" />
-                  </div>
+                  </motion.div>
                 )}
               </motion.button>
             )),
@@ -293,4 +299,3 @@ export default function LinkGame({ onClose }: LinkGameProps) {
     </div>
   )
 }
-

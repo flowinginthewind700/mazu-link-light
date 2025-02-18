@@ -15,7 +15,7 @@ export default function IconSelector({ onSelect, onClose, currentIcons, iconCoun
   const [selectedIcons, setSelectedIcons] = useState<string[]>(currentIcons)
 
   useEffect(() => {
-    const storedIcons = localStorage.getItem("iconPaths")
+    const storedIcons = localStorage.getItem("gameIcons")
     if (storedIcons) {
       setAllIcons(JSON.parse(storedIcons))
     }
