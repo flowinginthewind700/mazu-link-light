@@ -11,6 +11,7 @@ import { BackgroundGradient } from '@/components/ui/background-gradient';
 import AGIEntryLogo from '@/components/ui/AGIEntryLogo';
 import AGILogo from "@/components/ui/agi-logo";
 import GameIcon from "@/components/games/match3/GameIcon"; // 导入 GameIcon 组件
+import LinkGameIcon from '@/components/games/linkgame/LinkGameIcon';
 
 // 定义 HeroSearchProps 接口
 interface HeroSearchProps {
@@ -221,6 +222,7 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
         <div className="flex items-center justify-center space-x-4">
           <AGILogo width={160} height={110} />
           <GameIcon className="h-16" /> {/* 设置 GameIcon 的高度与 AGILogo 一致 */}
+          <LinkGameIcon className="h-16" />
         </div>
         {/* </BackgroundGradient> */}
       </div>

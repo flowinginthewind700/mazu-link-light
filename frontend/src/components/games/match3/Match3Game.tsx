@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useTheme } from "next-themes"
-import IconSelector from "./IconSelector"
+import IconSelector from "../IconSelector"
 import Fireworks from "./Fireworks"
 import SmallFirework from "./SmallFirework"
 import { Heart, Zap, Star, RefreshCw, Palette } from "lucide-react"
