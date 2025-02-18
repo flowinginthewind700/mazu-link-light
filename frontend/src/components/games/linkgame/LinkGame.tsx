@@ -87,14 +87,14 @@ const checkOneCorner = (start: [number, number], end: [number, number], grid: Ce
   const [endRow, endCol] = end;
 
   // 拐点1：同一行或同一列
-  const corner1 = [startRow, endCol] as [number, number];
+  const corner1: [number, number] = [startRow, endCol];
   if (grid[corner1[0]][corner1[1]] === EMPTY_CELL) {
     if (checkStraightLine(start, corner1, grid) && checkStraightLine(corner1, end, grid)) {
       return true;
     }
   }
 
-  const corner2 = [endRow, startCol] as [number, number];
+  const corner2: [number, number] = [endRow, startCol];
   if (grid[corner2[0]][corner2[1]] === EMPTY_CELL) {
     if (checkStraightLine(start, corner2, grid) && checkStraightLine(corner2, end, grid)) {
       return true;
@@ -114,8 +114,8 @@ const checkTwoCorners = (start: [number, number], end: [number, number], grid: C
   // 横向扩展
   for (let col = 0; col < GRID_SIZE; col++) {
     if (col === startCol || col === endCol) continue;
-    const corner1 = [startRow, col] as [number, number];
-    const corner2 = [endRow, col] as [number, number];
+    const corner1: [number, number] = [startRow, col];
+    const corner2: [number, number] = [endRow, col];
     if (
       grid[corner1[0]][corner1[1]] === EMPTY_CELL &&
       grid[corner2[0]][corner2[1]] === EMPTY_CELL &&
@@ -130,8 +130,8 @@ const checkTwoCorners = (start: [number, number], end: [number, number], grid: C
   // 纵向扩展
   for (let row = 0; row < GRID_SIZE; row++) {
     if (row === startRow || row === endRow) continue;
-    const corner1 = [row, startCol] as [number, number];
-    const corner2 = [row, endCol] as [number, number];
+    const corner1: [number, number] = [row, startCol];
+    const corner2: [number, number] = [row, endCol];
     if (
       grid[corner1[0]][corner1[1]] === EMPTY_CELL &&
       grid[corner2[0]][corner2[1]] === EMPTY_CELL &&
@@ -282,8 +282,7 @@ export default function LinkGame({ onClose }: LinkGameProps) {
   
     // 双拐角连接，这里需要找到实际的路径
     // 这里简化处理，假设路径是通过横向或纵向扩展
-    // 实际实现可能需要更复杂的路径查找，但为示例，这里假设存在两个拐点
-    // 注意：这部分可能需要更复杂的逻辑，这里仅作示例
+    // 实际实现可能需要更复杂的逻辑，这里仅作示例
     // 例如，横向扩展的情况
     for (let col = 0; col < GRID_SIZE; col++) {
       const corner1 = [startRow, col];
@@ -439,7 +438,7 @@ export default function LinkGame({ onClose }: LinkGameProps) {
           )}
         </AnimatePresence>
       </motion.div>
-      
+
       {/* Draw connection line */}
       {linkingEffect && (
         <motion.div
