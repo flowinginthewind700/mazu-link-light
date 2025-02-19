@@ -14,9 +14,9 @@ export default function LinkGameIcon({ className }: LinkGameIconProps) {
     <div className={className}> {/* 将 className 应用到根元素 */}
       <button
         onClick={() => setIsOpen(true)}
-        className="font-bold py-2 px-4 rounded-full shadow-lg transform transition duration-300 hover:scale-110"
+        className="font-bold py-1 px-1 rounded-full shadow-lg transform transition duration-300 hover:scale-110"
       >
-        <span className="text-2xl walk-animation mr-2">🔗</span>
+        <span className="text-2xl walk-animation">🔗</span>
       </button>
       {isOpen && <LinkGameModal onClose={() => setIsOpen(false)} />}
 
