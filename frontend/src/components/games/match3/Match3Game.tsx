@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useTheme } from "next-themes"
-import IconSelector from "../IconSelector"
+import IconSelector from "./IconSelector"
 import Fireworks from "./Fireworks"
 import SmallFirework from "./SmallFirework"
 import { Heart, Zap, Star, RefreshCw, Palette } from "lucide-react"
@@ -337,27 +337,43 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
     <div
       className={`p-4 rounded-2xl shadow-lg ${theme === "dark" ? "bg-gray-800 text-white" : "bg-pink-100 text-black"}`}
     >
+      {/* Score, Moves, Combo Section */}
       <div className="mb-6 text-center">
-       
         <div className="flex justify-center space-x-6">
-          <div className="flex items-center">
-            <Heart className="w-6 h-6 mr-2 text-red-500" />
-            <p className="text-xl font-semibold">Score: {state.score}</p>
+          {/* Score */}
+          <div className="flex flex-col items-center">
+            <button className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center shadow-md hover:shadow-lg transition-shadow duration-300">
+              <Heart className="w-6 h-6 text-red-500" />
+            </button>
+            <p className="text-sm mt-2 font-semibold">Score: {state.score}</p>
           </div>
-          <div className="flex items-center">
-            <Zap className="w-6 h-6 mr-2 text-yellow-500" />
-            <p className="text-xl font-semibold">Moves: {state.moves}</p>
+
+          {/* Moves Left */}
+          <div className="flex flex-col items-center">
+            <button className="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center shadow-md hover:shadow-lg transition-shadow duration-300">
+              <Zap className="w-6 h-6 text-yellow-500" />
+            </button>
+            <p className="text-sm mt-2 font-semibold">Moves: {state.moves}</p>
           </div>
-          <div className="flex items-center">
-            <Star className="w-6 h-6 mr-2 text-purple-500" />
-            <p className="text-xl font-semibold">Combo: x{comboMultiplier.toFixed(1)}</p>
+
+          {/* Combo */}
+          <div className="flex flex-col items-center">
+            <button className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center shadow-md hover:shadow-lg transition-shadow duration-300">
+              <Star className="w-6 h-6 text-purple-500" />
+            </button>
+            <p className="text-sm mt-2 font-semibold">Combo: x{comboMultiplier.toFixed(1)}</p>
           </div>
         </div>
       </div>
-      <div className="w-full max-w-[100vw] px-2 mx-auto mb-6">
+
+      {/* Grid Section */}
+      <div className="w-full max-w-full overflow-hidden px-2 mx-auto mb-6">
         <motion.div
-          className="grid gap-[1px] mb-6"
-          style={{ gridTemplateColumns: `repeat(${GRID_SIZE}, 1fr)` }}
+          className="grid gap-1 sm:gap-2" // Responsive gap
+          style={{
+            gridTemplateColumns: `repeat(${GRID_SIZE}, 1fr)`,
+            maxWidth: "100%", // Ensure it doesn't exceed parent width
+          }}
           animate={isShaking ? { x: [-5, 5, -5, 5, 0] } : {}}
           transition={{ duration: 0.5 }}
         >
@@ -366,7 +382,7 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
               row.map((cell, colIndex) => (
                 <motion.button
                   key={`${rowIndex}-${colIndex}`}
-                  className={`w-full h-full aspect-square flex items-center justify-center ${
+                  className={`w-full aspect-square flex items-center justify-center ${
                     selected && selected[0] === rowIndex && selected[1] === colIndex ? "bg-yellow-300" : ""
                   } ${cell.isBomb ? "relative overflow-hidden" : ""}`}
                   onClick={() => handleCellClick(rowIndex, colIndex)}
@@ -378,7 +394,7 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
                   exit={{ opacity: 0, scale: 0, rotate: -180 }}
                   transition={{ type: "spring", stiffness: 260, damping: 20 }}
                 >
-                  <img src={cell.icon || "/placeholder.svg"} alt="icon" className="w-full h-full object-contain" />
+                  <img src={cell.icon || "/placeholder.svg"} alt="icon" className="w-3/4 h-3/4 object-contain" />
                   {cell.isBomb && (
                     <motion.div
                       className="absolute inset-0 flex items-center justify-center"
@@ -417,6 +433,8 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
           </AnimatePresence>
         </motion.div>
       </div>
+
+      {/* Buttons Section */}
       <div className="flex justify-center space-x-4">
         <button
           onClick={handleReset}
@@ -433,12 +451,18 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
           Select Icons
         </button>
       </div>
+
+      {/* Icon Selector and Fireworks */}
       {showIconSelector && (
-        <IconSelector onSelect={handleIconSelection} onClose={() => setShowIconSelector(false)} currentIcons={icons} iconCount={6}/>
+        <IconSelector
+          onSelect={handleIconSelection}
+          onClose={() => setShowIconSelector(false)}
+          currentIcons={icons}
+          iconCount={6}
+        />
       )}
       {showFireworks && <Fireworks onStop={handleStopFireworks} />}
     </div>
   )
 }
-
 
