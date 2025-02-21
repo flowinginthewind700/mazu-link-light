@@ -1,7 +1,7 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ExternalLink, Info } from 'lucide-react';
+import { SquareArrowOutUpRight } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Tool } from './types';
 import { motion } from 'framer-motion';
@@ -16,9 +16,7 @@ export const ToolCard: React.FC<ToolCardProps> = ({ tool, apiUrl, loading }) => 
   const handleExternalClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (tool.accessLink) {
-      window.open(tool.accessLink, '_blank', 'noopener,noreferrer');
-    }
+    window.open(tool.accessLink, '_blank', 'noopener,noreferrer');
   };
 
   if (loading) {
@@ -45,17 +43,16 @@ export const ToolCard: React.FC<ToolCardProps> = ({ tool, apiUrl, loading }) => 
 
   return (
     <motion.div
-      whileHover={{ scale: 1.02 }}
+      whileHover={{ scale: 1.05 }}
       transition={{ type: "spring", stiffness: 300 }}
-      className="relative rounded-lg bg-white dark:bg-gray-800 p-4 hover:shadow-xl transition-all group"
+      className="relative overflow-hidden rounded-lg bg-white dark:bg-gray-800 p-4 hover:shadow-lg transition-all group cursor-pointer"
     >
-      {/* 移除了外层的 overflow-hidden，避免影响 Tooltip */}
       <Link href={`/agitool/${tool.id}`} passHref>
-        <div className="flex items-center gap-4 cursor-pointer relative z-10">
+        <div className="flex items-center gap-4">
           <motion.div 
             whileHover={{ rotate: 360 }} 
             transition={{ duration: 0.5 }}
-            className="relative w-16 h-16 rounded-lg overflow-hidden shadow-md"
+            className="relative w-16 h-16 rounded-lg overflow-hidden shadow-md z-10"
           >
             <Image
               src={`${apiUrl}${tool.iconimage.formats?.thumbnail?.url || tool.iconimage.url}`}
@@ -67,62 +64,46 @@ export const ToolCard: React.FC<ToolCardProps> = ({ tool, apiUrl, loading }) => 
             />
           </motion.div>
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <h3 className="font-medium text-foreground group-hover:text-gray-900 dark:group-hover:text-gray-100 truncate">
-                {tool.name}
-              </h3>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Info className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Click to view details</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
+            <h3 className="font-medium text-foreground group-hover:text-gray-900 dark:group-hover:text-gray-100 truncate">
+              {tool.name}
+            </h3>
             <p className="text-sm text-muted-foreground group-hover:text-gray-700 dark:group-hover:text-gray-300 line-clamp-2">
               {tool.Description}
             </p>
           </div>
         </div>
       </Link>
-
       {tool.accessLink && !tool.internalPath && (
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
               <motion.button
-                initial={{ scale: 0.9 }}
-                whileHover={{ 
-                  scale: 1.1,
-                  boxShadow: "0 4px 15px rgba(0, 0, 0, 0.1)"
-                }}
-                whileTap={{ scale: 0.95 }}
+                whileHover={{ scale: 1.2 }}
+                whileTap={{ scale: 0.9 }}
                 onClick={handleExternalClick}
-                className="absolute top-0 right-2 w-8 h-8 flex items-center justify-center rounded-full text-muted-foreground transition-all duration-300 shadow-md group-hover:opacity-100 opacity-70 bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 group-hover:from-green-600 group-hover:to-green-400 dark:group-hover:from-green-700 dark:group-hover:to-green-500 hover:from-green-500 hover:to-green-300 dark:hover:from-green-600 dark:hover:to-green-400 z-20"
+                className="absolute top-4 right-4 p-1 rounded-full bg-background/80 hover:bg-background transition-colors z-10"
               >
-                <ExternalLink className="w-5 h-5" />
+                <SquareArrowOutUpRight className="w-4 h-4 text-muted-foreground" />
               </motion.button>
             </TooltipTrigger>
-            <TooltipContent side="left" className="bg-gray-900 text-white z-30">
-              <p>Visit external tool</p>
+            <TooltipContent>
+              <p>Access External Tool</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
       )}
-
       {/* Border Animation */}
       <div className="absolute inset-0 pointer-events-none">
-        <motion.div
-          className="absolute inset-0 border-2 border-transparent rounded-lg"
-          whileHover={{
-            borderColor: "rgba(108, 117, 125, 0.5)",
-          }}
-          transition={{ duration: 0.3 }}
+        {/* Top Border */}
+        <div
+          className="absolute top-0 left-0 w-0 h-[3px] bg-gray-600 dark:bg-white transition-all duration-300 group-hover:w-full"
+          style={{ boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)' }}
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-gray-200/10 to-transparent animate-[shine_3s_infinite]" />
+        {/* Bottom Border */}
+        <div
+          className="absolute bottom-0 right-0 w-0 h-[3px] bg-gray-600 dark:bg-white transition-all duration-300 group-hover:w-full"
+          style={{ boxShadow: '0 -2px 4px rgba(0, 0, 0, 0.1)' }}
+        />
       </div>
     </motion.div>
   );
