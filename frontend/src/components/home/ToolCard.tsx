@@ -16,7 +16,9 @@ export const ToolCard: React.FC<ToolCardProps> = ({ tool, apiUrl, loading }) => 
   const handleExternalClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    window.open(tool.accessLink, '_blank', 'noopener,noreferrer');
+    if (tool.accessLink) {
+      window.open(tool.accessLink, '_blank', 'noopener,noreferrer');
+    }
   };
 
   if (loading) {
@@ -45,8 +47,9 @@ export const ToolCard: React.FC<ToolCardProps> = ({ tool, apiUrl, loading }) => 
     <motion.div
       whileHover={{ scale: 1.02 }}
       transition={{ type: "spring", stiffness: 300 }}
-      className="relative overflow-hidden rounded-lg bg-white dark:bg-gray-800 p-4 hover:shadow-xl transition-all group"
+      className="relative rounded-lg bg-white dark:bg-gray-800 p-4 hover:shadow-xl transition-all group"
     >
+      {/* 移除了外层的 overflow-hidden，避免影响 Tooltip */}
       <Link href={`/agitool/${tool.id}`} passHref>
         <div className="flex items-center gap-4 cursor-pointer relative z-10">
           <motion.div 
@@ -98,12 +101,12 @@ export const ToolCard: React.FC<ToolCardProps> = ({ tool, apiUrl, loading }) => 
                 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={handleExternalClick}
-                className="absolute top-2 right-2 w-10 h-10 flex items-center justify-center rounded-full text-muted-foreground transition-all duration-300 shadow-md group-hover:opacity-100 opacity-70 bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 group-hover:from-green-600 group-hover:to-green-400 dark:group-hover:from-green-700 dark:group-hover:to-green-500 hover:from-green-500 hover:to-green-300 dark:hover:from-green-600 dark:hover:to-green-400"
+                className="absolute top-2 right-2 w-10 h-10 flex items-center justify-center rounded-full text-muted-foreground transition-all duration-300 shadow-md group-hover:opacity-100 opacity-70 bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 group-hover:from-green-600 group-hover:to-green-400 dark:group-hover:from-green-700 dark:group-hover:to-green-500 hover:from-green-500 hover:to-green-300 dark:hover:from-green-600 dark:hover:to-green-400 z-20"
               >
                 <ExternalLink className="w-5 h-5" />
               </motion.button>
             </TooltipTrigger>
-            <TooltipContent side="left" className="bg-gray-900 text-white">
+            <TooltipContent side="left" className="bg-gray-900 text-white z-30">
               <p>Visit external tool</p>
             </TooltipContent>
           </Tooltip>
