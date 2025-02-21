@@ -101,7 +101,7 @@ export const ToolCard: React.FC<ToolCardProps> = ({ tool, apiUrl, loading }) => 
                 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={handleExternalClick}
-                className="absolute top-2 right-2 w-10 h-10 flex items-center justify-center rounded-full text-muted-foreground transition-all duration-300 shadow-md group-hover:opacity-100 opacity-70 bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 group-hover:from-green-600 group-hover:to-green-400 dark:group-hover:from-green-700 dark:group-hover:to-green-500 hover:from-green-500 hover:to-green-300 dark:hover:from-green-600 dark:hover:to-green-400 z-20"
+                className="absolute top-0 right-2 w-8 h-8 flex items-center justify-center rounded-full text-muted-foreground transition-all duration-300 shadow-md group-hover:opacity-100 opacity-70 bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 group-hover:from-green-600 group-hover:to-green-400 dark:group-hover:from-green-700 dark:group-hover:to-green-500 hover:from-green-500 hover:to-green-300 dark:hover:from-green-600 dark:hover:to-green-400 z-20"
               >
                 <ExternalLink className="w-5 h-5" />
               </motion.button>
