@@ -47,7 +47,7 @@ export const ToolCard: React.FC<ToolCardProps> = ({ tool, apiUrl, loading }) => 
       transition={{ type: "spring", stiffness: 300 }}
       className="relative overflow-hidden rounded-lg bg-white dark:bg-gray-800 p-4 hover:shadow-lg transition-all group cursor-pointer"
     >
-      <Link href={`/agitool/${tool.id}`} passHref>
+      <Link href={`/tool/${tool.id}`} passHref>
         <div className="flex items-center gap-4">
           <motion.div 
             whileHover={{ rotate: 360 }} 
@@ -81,9 +81,9 @@ export const ToolCard: React.FC<ToolCardProps> = ({ tool, apiUrl, loading }) => 
                 whileHover={{ scale: 1.2 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={handleExternalClick}
-                className="absolute top-4 right-4 p-1 rounded-full bg-background/80 hover:bg-background transition-colors z-10"
+                className="absolute top-4 right-4 p-1 rounded-full bg-background/80 hover:bg-green-500 transition-colors z-10 group-hover:bg-green-500"
               >
-                <SquareArrowOutUpRight className="w-4 h-4 text-muted-foreground" />
+                <SquareArrowOutUpRight className="w-4 h-4 text-muted-foreground group-hover:text-white" />
               </motion.button>
             </TooltipTrigger>
             <TooltipContent>
