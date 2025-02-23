@@ -47,7 +47,7 @@ export const ToolCard: React.FC<ToolCardProps> = ({ tool, apiUrl, loading }) => 
       transition={{ type: "spring", stiffness: 300 }}
       className="relative overflow-hidden rounded-lg bg-white dark:bg-gray-800 p-4 hover:shadow-lg transition-all group cursor-pointer"
     >
-      <Link href={`/tool/${tool.id}`} passHref>
+      <Link href={`/agitool/${tool.id}`} passHref>
         <div className="flex items-center gap-4">
           <motion.div 
             whileHover={{ rotate: 360 }} 
