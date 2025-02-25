@@ -226,23 +226,48 @@ export default function HomePage() {
                 />
               ))
             : allTools.map((tool) => (
-                <div key={tool.id} className="flex flex-col items-center gap-2">
-                  <div className="w-16 h-16 relative">
-                    <Image
-                      src={
-                        tool.iconimage?.formats?.thumbnail?.url
-                          ? `${apiUrl}${tool.iconimage.formats.thumbnail.url}`
-                          : `${apiUrl}${tool.iconimage?.url || '/placeholder.svg'}`
-                      }
-                      alt={tool.name}
-                      fill // Use `fill` instead of `layout="fill"` for newer Next.js versions
-                      style={{ objectFit: 'cover' }} // Replace `objectFit="cover"` with `style`
-                      className="rounded-lg"
-                      loading="lazy"
-                    />
+                <TooltipProvider key={tool.id}>
+                  <div className="flex flex-col items-center gap-2">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={() => tool.accessLink && window.open(tool.accessLink, '_blank', 'noopener,noreferrer')}
+                          className="w-16 h-16 relative group"
+                        >
+                          <Image
+                            src={
+                              tool.iconimage?.formats?.thumbnail?.url
+                                ? `${apiUrl}${tool.iconimage.formats.thumbnail.url}`
+                                : `${apiUrl}${tool.iconimage?.url || '/placeholder.svg'}`
+                            }
+                            alt={tool.name}
+                            fill
+                            style={{ objectFit: 'cover' }}
+                            className="rounded-lg transition-transform group-hover:scale-110"
+                            loading="lazy"
+                          />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Visit {tool.name} <ExternalLink className="w-4 h-4 inline ml-1" /></p>
+                      </TooltipContent>
+                    </Tooltip>
+                    
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <a
+                          href={`/agitool/${tool.id}`}
+                          className="text-sm text-center truncate w-20 hover:text-primary transition-colors"
+                        >
+                          {tool.name}
+                        </a>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>View details for {tool.name} <Info className="w-4 h-4 inline ml-1" /></p>
+                      </TooltipContent>
+                    </Tooltip>
                   </div>
-                  <p className="text-sm text-center truncate w-20">{tool.name}</p>
-                </div>
+                </TooltipProvider>
               ))}
         </div>
       </div>
@@ -396,15 +421,30 @@ export default function HomePage() {
                 setSelectedFeatureTab={setSelectedFeatureTab}
               />
   
-              <div className="flex justify-end mb-4">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setIsMinimalView(!isMinimalView)}
-                  className="w-32"
+  <div className="flex justify-end mb-4">
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                 >
-                  {isMinimalView ? 'Detailed View' : 'Minimal View'}
-                </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsMinimalView(!isMinimalView)}
+                    className="w-32 flex items-center justify-center gap-2"
+                  >
+                    {isMinimalView ? (
+                      <>
+                        <Info className="w-4 h-4" />
+                        Detailed
+                      </>
+                    ) : (
+                      <>
+                        <ExternalLink className="w-4 h-4" />
+                        Minimal
+                      </>
+                    )}
+                  </Button>
+                </motion.div>
               </div>
   
               {isMinimalView ? renderMinimalView() : renderDetailedView()}
