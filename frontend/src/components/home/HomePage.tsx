@@ -13,6 +13,7 @@ import { Category, Tool } from './types';
 import { Navigation } from '@/components/navigation';
 import { WavyBackground } from '@/components/ui/wavy-background';
 import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
 
 const apiUrl = process.env.NEXT_PUBLIC_CMS_API_BASE_URL;
 const TOOLS_PER_CATEGORY = 24;
@@ -27,6 +28,7 @@ export default function HomePage() {
   const [toolsByCategory, setToolsByCategory] = useState<Record<string, Tool[]>>({});
   const [selectedFeatureTab, setSelectedFeatureTab] = useState('agi-tools');
   const [loading, setLoading] = useState<boolean>(true);
+  const [isMinimalView, setIsMinimalView] = useState(false); 
 
   const sectionRefs = useRef<Record<string, React.RefObject<HTMLDivElement>>>({});
 
@@ -199,6 +201,133 @@ export default function HomePage() {
       observers.forEach(observer => observer.disconnect());
     };
   }, [categories]);
+  
+  const renderMinimalView = () => {
+    const allTools = Object.values(toolsByCategory).flat();
+    
+    return (
+      <div className="space-y-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+          {loading
+            ? Array.from({ length: 12 }).map((_, index) => (
+                <ToolCard
+                  key={index}
+                  tool={{
+                    id: index.toString(),
+                    name: 'Loading...',
+                    Description: '',
+                    iconimage: { url: '/placeholder.svg' },
+                    accessLink: '',
+                    internalPath: '',
+                  }}
+                  apiUrl={apiUrl || ''}
+                  loading={true}
+                />
+              ))
+            : allTools.map((tool) => (
+                <div key={tool.id} className="flex flex-col items-center gap-2">
+                  <div className="w-16 h-16 relative">
+                    <Image
+                      src={`${apiUrl}${tool.iconimage?.formats?.thumbnail?.url || tool.iconimage?.url}`}
+                      alt={tool.name}
+                      layout="fill"
+                      objectFit="cover"
+                      className="rounded-lg"
+                      loading="lazy"
+                    />
+                  </div>
+                  <p className="text-sm text-center truncate w-20">{tool.name}</p>
+                </div>
+              ))}
+        </div>
+      </div>
+    );
+  };
+
+  const renderDetailedView = () => (
+    <>
+      {categories.map((category) => (
+        <div
+          key={category.id}
+          ref={sectionRefs.current[category.id]}
+          className="relative space-y-4 scroll-mt-24"
+        >
+          {/* Animation effect */}
+          {animatingSection === category.id && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.5 }}
+              className="absolute inset-0 pointer-events-none"
+              style={{ top: 0 }}
+            >
+              <div className="relative flex w-full flex-1 scale-y-125 items-center justify-center isolate z-0">
+                <motion.div
+                  initial={{ opacity: 0.5, width: "15rem" }}
+                  animate={{ opacity: 1, width: "30rem" }}
+                  transition={{
+                    delay: 0.3,
+                    duration: 0.8,
+                    ease: "easeInOut",
+                  }}
+                  style={{
+                    backgroundImage: `conic-gradient(var(--conic-position), var(--tw-gradient-stops))`,
+                  }}
+                  className="absolute inset-auto right-1/2 h-56 overflow-visible w-[30rem] bg-gradient-conic from-cyan-500 via-transparent to-transparent text-white [--conic-position:from_70deg_at_center_top]"
+                >
+                  <div className="absolute w-[100%] left-0 bg-background h-40 bottom-0 z-20 [mask-image:linear-gradient(to_top,white,transparent)]" />
+                  <div className="absolute w-40 h-[100%] left-0 bg-background bottom-0 z-20 [mask-image:linear-gradient(to_right,white,transparent)]" />
+                </motion.div>
+                <motion.div
+                  initial={{ opacity: 0.5, width: "15rem" }}
+                  animate={{ opacity: 1, width: "30rem" }}
+                  transition={{
+                    delay: 0.3,
+                    duration: 0.8,
+                    ease: "easeInOut",
+                  }}
+                  style={{
+                    backgroundImage: `conic-gradient(var(--conic-position), var(--tw-gradient-stops))`,
+                  }}
+                  className="absolute inset-auto left-1/2 h-56 w-[30rem] bg-gradient-conic from-transparent via-transparent to-cyan-500 text-white [--conic-position:from_290deg_at_center_top]"
+                >
+                  <div className="absolute w-40 h-[100%] right-0 bg-background bottom-0 z-20 [mask-image:linear-gradient(to_left,white,transparent)]" />
+                  <div className="absolute w-[100%] right-0 bg-background h-40 bottom-0 z-20 [mask-image:linear-gradient(to_top,white,transparent)]" />
+                </motion.div>
+              </div>
+            </motion.div>
+          )}
+  
+          <AnimatedSectionTitle
+            title={category.name}
+            isActive={animatingSection === category.id}
+          />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {loading
+              ? Array.from({ length: 6 }).map((_, index) => (
+                  <ToolCard
+                    key={index}
+                    tool={{
+                      id: index.toString(),
+                      name: 'Loading AI tool...',
+                      Description: 'Loading AI tool...',
+                      iconimage: { url: '/placeholder.svg' },
+                      accessLink: '',
+                      internalPath: '',
+                    }}
+                    apiUrl={apiUrl || ''}
+                    loading={true}
+                  />
+                ))
+              : toolsByCategory[category.id]?.map((tool) => (
+                  <ToolCard key={tool.id} tool={tool} apiUrl={apiUrl || ''} />
+                ))}
+          </div>
+        </div>
+      ))}
+    </>
+  );
 
   return (
     <>
@@ -247,7 +376,7 @@ export default function HomePage() {
                 ))}
               </nav>
             </aside>
-
+  
             {/* Main Content */}
             <main className="flex-1 space-y-6">
               <HeroSearch
@@ -256,92 +385,24 @@ export default function HomePage() {
                 onTopTabChange={setSelectedTopTab}
                 onEngineChange={setSelectedEngine}
               />
-
+  
               <FeaturedSection
                 selectedFeatureTab={selectedFeatureTab}
                 setSelectedFeatureTab={setSelectedFeatureTab}
               />
-
-              {categories.map((category) => (
-                <div
-                  key={category.id}
-                  ref={sectionRefs.current[category.id]}
-                  className="relative space-y-4 scroll-mt-24"
+  
+              <div className="flex justify-end mb-4">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsMinimalView(!isMinimalView)}
+                  className="w-32"
                 >
-                  {/* 添加光照效果 */}
-                  {animatingSection === category.id && (
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.5 }}
-                      className="absolute inset-0 pointer-events-none"
-                      style={{ top: 0 }} // 将光照效果的上边缘与 section 上边缘对齐
-                    >
-                      <div className="relative flex w-full flex-1 scale-y-125 items-center justify-center isolate z-0">
-                        <motion.div
-                          initial={{ opacity: 0.5, width: "15rem" }}
-                          animate={{ opacity: 1, width: "30rem" }}
-                          transition={{
-                            delay: 0.3,
-                            duration: 0.8,
-                            ease: "easeInOut",
-                          }}
-                          style={{
-                            backgroundImage: `conic-gradient(var(--conic-position), var(--tw-gradient-stops))`,
-                          }}
-                          className="absolute inset-auto right-1/2 h-56 overflow-visible w-[30rem] bg-gradient-conic from-cyan-500 via-transparent to-transparent text-white [--conic-position:from_70deg_at_center_top]"
-                        >
-                          <div className="absolute w-[100%] left-0 bg-background h-40 bottom-0 z-20 [mask-image:linear-gradient(to_top,white,transparent)]" />
-                          <div className="absolute w-40 h-[100%] left-0 bg-background bottom-0 z-20 [mask-image:linear-gradient(to_right,white,transparent)]" />
-                        </motion.div>
-                        <motion.div
-                          initial={{ opacity: 0.5, width: "15rem" }}
-                          animate={{ opacity: 1, width: "30rem" }}
-                          transition={{
-                            delay: 0.3,
-                            duration: 0.8,
-                            ease: "easeInOut",
-                          }}
-                          style={{
-                            backgroundImage: `conic-gradient(var(--conic-position), var(--tw-gradient-stops))`,
-                          }}
-                          className="absolute inset-auto left-1/2 h-56 w-[30rem] bg-gradient-conic from-transparent via-transparent to-cyan-500 text-white [--conic-position:from_290deg_at_center_top]"
-                        >
-                          <div className="absolute w-40 h-[100%] right-0 bg-background bottom-0 z-20 [mask-image:linear-gradient(to_left,white,transparent)]" />
-                          <div className="absolute w-[100%] right-0 bg-background h-40 bottom-0 z-20 [mask-image:linear-gradient(to_top,white,transparent)]" />
-                        </motion.div>
-                      </div>
-                    </motion.div>
-                  )}
-
-                  <AnimatedSectionTitle
-                    title={category.name}
-                    isActive={animatingSection === category.id}
-                  />
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {loading
-                      ? Array.from({ length: 6 }).map((_, index) => (
-                          <ToolCard
-                            key={index}
-                            tool={{
-                              id: index.toString(),
-                              name: 'Loading AI tool...',
-                              Description: 'Loading AI tool...',
-                              iconimage: { url: '/placeholder.svg' },
-                              accessLink: '',
-                              internalPath: '',
-                            }}
-                            apiUrl={apiUrl || ''}
-                            loading={true}
-                          />
-                        ))
-                      : toolsByCategory[category.id]?.map((tool) => (
-                          <ToolCard key={tool.id} tool={tool} apiUrl={apiUrl || ''} />
-                        ))}
-                  </div>
-                </div>
-              ))}
+                  {isMinimalView ? 'Detailed View' : 'Minimal View'}
+                </Button>
+              </div>
+  
+              {isMinimalView ? renderMinimalView() : renderDetailedView()}
             </main>
           </div>
         </div>
