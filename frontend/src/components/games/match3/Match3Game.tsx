@@ -335,10 +335,10 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
 
   return (
     <div
-      className={`p-4 rounded-2xl shadow-lg ${theme === "dark" ? "bg-gray-800 text-white" : "bg-pink-100 text-black"}`}
+      className={`p-4 rounded-2xl shadow-lg ${theme === "dark" ? "bg-gray-800 text-white" : "bg-pink-100 text-black"} flex flex-col h-full`}
     >
       {/* Score, Moves, Combo Section */}
-      <div className="mb-6 text-center">
+      <div className="mb-6 text-center shrink-0">
         <div className="flex justify-center space-x-6">
           {/* Score */}
           <div className="flex flex-col items-center">
@@ -347,7 +347,7 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
             </button>
             <p className="text-sm mt-2 font-semibold">Score: {state.score}</p>
           </div>
-
+  
           {/* Moves Left */}
           <div className="flex flex-col items-center">
             <button className="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center shadow-md hover:shadow-lg transition-shadow duration-300">
@@ -355,7 +355,7 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
             </button>
             <p className="text-sm mt-2 font-semibold">Moves: {state.moves}</p>
           </div>
-
+  
           {/* Combo */}
           <div className="flex flex-col items-center">
             <button className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center shadow-md hover:shadow-lg transition-shadow duration-300">
@@ -365,14 +365,15 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
           </div>
         </div>
       </div>
-
+  
       {/* Grid Section */}
-      <div className="w-full max-w-full overflow-hidden px-2 mx-auto mb-6">
+      <div className="flex-1 flex justify-center items-center overflow-hidden mb-6">
         <motion.div
-          className="grid gap-1 sm:gap-2" // Responsive gap
+          className="grid gap-1 sm:gap-2 w-full h-full"
           style={{
-            gridTemplateColumns: `repeat(${GRID_SIZE}, 1fr)`,
-            maxWidth: "100%", // Ensure it doesn't exceed parent width
+            gridTemplateColumns: `repeat(${GRID_SIZE}, minmax(0, 1fr))`,
+            gridAutoRows: `minmax(0, 1fr)`, // 确保行高自适应
+            maxHeight: "100%", // 限制网格高度
           }}
           animate={isShaking ? { x: [-5, 5, -5, 5, 0] } : {}}
           transition={{ duration: 0.5 }}
@@ -382,7 +383,7 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
               row.map((cell, colIndex) => (
                 <motion.button
                   key={`${rowIndex}-${colIndex}`}
-                  className={`w-full aspect-square flex items-center justify-center ${
+                  className={`w-full h-full flex items-center justify-center ${
                     selected && selected[0] === rowIndex && selected[1] === colIndex ? "bg-yellow-300" : ""
                   } ${cell.isBomb ? "relative overflow-hidden" : ""}`}
                   onClick={() => handleCellClick(rowIndex, colIndex)}
@@ -433,9 +434,9 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
           </AnimatePresence>
         </motion.div>
       </div>
-
+  
       {/* Buttons Section */}
-      <div className="flex justify-center space-x-4">
+      <div className="flex justify-center space-x-4 shrink-0">
         <button
           onClick={handleReset}
           className="px-6 py-3 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors duration-300 flex items-center font-semibold text-lg shadow-md hover:shadow-lg"
@@ -451,7 +452,7 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
           Select Icons
         </button>
       </div>
-
+  
       {/* Icon Selector and Fireworks */}
       {showIconSelector && (
         <IconSelector
@@ -463,6 +464,6 @@ export default function Match3Game({ initialState, onStateChange }: Match3GamePr
       )}
       {showFireworks && <Fireworks onStop={handleStopFireworks} />}
     </div>
-  )
+  );
 }
 
