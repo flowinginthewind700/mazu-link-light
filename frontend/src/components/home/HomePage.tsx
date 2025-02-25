@@ -252,7 +252,7 @@ export default function HomePage() {
                         </button>
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p>Visit {tool.name} <ExternalLink className="w-4 h-4 inline ml-1" /></p>
+                        <p>Visit {tool.name}</p>
                       </TooltipContent>
                     </Tooltip>
                     
@@ -266,7 +266,7 @@ export default function HomePage() {
                         </a>
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p>View details for {tool.name} <Info className="w-4 h-4 inline ml-1" /></p>
+                        <p>View details for {tool.name}</p>
                       </TooltipContent>
                     </Tooltip>
                   </div>
