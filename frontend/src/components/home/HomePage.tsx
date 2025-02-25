@@ -15,6 +15,9 @@ import { WavyBackground } from '@/components/ui/wavy-background';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Minimize2 } from 'lucide-react';
+import { Maximize2 } from 'lucide-react';
 
 const apiUrl = process.env.NEXT_PUBLIC_CMS_API_BASE_URL;
 const TOOLS_PER_CATEGORY = 24;
@@ -434,12 +437,12 @@ export default function HomePage() {
                   >
                     {isMinimalView ? (
                       <>
-                        <Info className="w-4 h-4" />
+                        <Maximize2 className="w-4 h-4" />
                         Detailed
                       </>
                     ) : (
                       <>
-                        <ExternalLink className="w-4 h-4" />
+                        <Minimize2 className="w-4 h-4" />
                         Minimal
                       </>
                     )}
