@@ -14,6 +14,7 @@ import { Navigation } from '@/components/navigation';
 import { WavyBackground } from '@/components/ui/wavy-background';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
+import Image from 'next/image';
 
 const apiUrl = process.env.NEXT_PUBLIC_CMS_API_BASE_URL;
 const TOOLS_PER_CATEGORY = 24;
@@ -204,7 +205,7 @@ export default function HomePage() {
   
   const renderMinimalView = () => {
     const allTools = Object.values(toolsByCategory).flat();
-    
+  
     return (
       <div className="space-y-4">
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
@@ -228,10 +229,14 @@ export default function HomePage() {
                 <div key={tool.id} className="flex flex-col items-center gap-2">
                   <div className="w-16 h-16 relative">
                     <Image
-                      src={`${apiUrl}${tool.iconimage?.formats?.thumbnail?.url || tool.iconimage?.url}`}
+                      src={
+                        tool.iconimage?.formats?.thumbnail?.url
+                          ? `${apiUrl}${tool.iconimage.formats.thumbnail.url}`
+                          : `${apiUrl}${tool.iconimage?.url || '/placeholder.svg'}`
+                      }
                       alt={tool.name}
-                      layout="fill"
-                      objectFit="cover"
+                      fill // Use `fill` instead of `layout="fill"` for newer Next.js versions
+                      style={{ objectFit: 'cover' }} // Replace `objectFit="cover"` with `style`
                       className="rounded-lg"
                       loading="lazy"
                     />
