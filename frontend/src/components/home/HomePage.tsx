@@ -32,7 +32,8 @@ export default function HomePage() {
   const [toolsByCategory, setToolsByCategory] = useState<Record<string, Tool[]>>({});
   const [selectedFeatureTab, setSelectedFeatureTab] = useState('agi-tools');
   const [loading, setLoading] = useState<boolean>(true);
-  const [isMinimalView, setIsMinimalView] = useState(false); 
+  const [isMinimalView, setIsMinimalView] = useState(false);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   const sectionRefs = useRef<Record<string, React.RefObject<HTMLDivElement>>>({});
 
@@ -206,10 +207,9 @@ export default function HomePage() {
     };
   }, [categories]);
   
-  const renderMinimalView = () => {
+  onst renderMinimalView = () => {
     const allTools = Object.values(toolsByCategory).flat();
-    const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-  
+
     return (
       <div className="space-y-4">
         <div 
@@ -233,16 +233,15 @@ export default function HomePage() {
                 />
               ))
             : allTools.map((tool, index) => {
-                // 计算放大系数，基于鼠标位置的距离
                 let scale = 1;
                 if (hoveredIndex !== null) {
                   const distance = Math.abs(index - hoveredIndex);
-                  scale = distance === 0 ? 1.5 : // 鼠标正上方的图标放大1.5倍
-                          distance === 1 ? 1.3 : // 相邻图标放大1.3倍
-                          distance === 2 ? 1.1 : // 相隔一个的图标放大1.1倍
-                          1; // 其他保持原大小
+                  scale = distance === 0 ? 1.5 :
+                          distance === 1 ? 1.3 :
+                          distance === 2 ? 1.1 :
+                          1;
                 }
-  
+
                 return (
                   <TooltipProvider key={tool.id}>
                     <motion.div 
