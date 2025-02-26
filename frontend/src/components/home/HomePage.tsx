@@ -207,7 +207,7 @@ export default function HomePage() {
     };
   }, [categories]);
   
-  onst renderMinimalView = () => {
+  const renderMinimalView = () => {
     const allTools = Object.values(toolsByCategory).flat();
 
     return (
