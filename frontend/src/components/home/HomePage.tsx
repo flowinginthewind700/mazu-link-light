@@ -208,10 +208,14 @@ export default function HomePage() {
   
   const renderMinimalView = () => {
     const allTools = Object.values(toolsByCategory).flat();
+    const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   
     return (
       <div className="space-y-4">
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+        <div 
+          className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4"
+          onMouseLeave={() => setHoveredIndex(null)}
+        >
           {loading
             ? Array.from({ length: 12 }).map((_, index) => (
                 <ToolCard
@@ -228,50 +232,72 @@ export default function HomePage() {
                   loading={true}
                 />
               ))
-            : allTools.map((tool) => (
-                <TooltipProvider key={tool.id}>
-                  <div className="flex flex-col items-center gap-2">
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <button
-                          onClick={() => tool.accessLink && window.open(tool.accessLink, '_blank', 'noopener,noreferrer')}
-                          className="w-16 h-16 relative group"
-                        >
-                          <Image
-                            src={
-                              tool.iconimage?.formats?.thumbnail?.url
-                                ? `${apiUrl}${tool.iconimage.formats.thumbnail.url}`
-                                : `${apiUrl}${tool.iconimage?.url || '/placeholder.svg'}`
-                            }
-                            alt={tool.name}
-                            fill
-                            style={{ objectFit: 'cover' }}
-                            className="rounded-lg transition-transform group-hover:scale-110"
-                            loading="lazy"
-                          />
-                        </button>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Visit {tool.name}</p>
-                      </TooltipContent>
-                    </Tooltip>
-                    
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <a
-                          href={`/agitool/${tool.id}`}
-                          className="text-sm text-center truncate w-20 hover:text-primary transition-colors"
-                        >
-                          {tool.name}
-                        </a>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>View details for {tool.name}</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </div>
-                </TooltipProvider>
-              ))}
+            : allTools.map((tool, index) => {
+                // 计算放大系数，基于鼠标位置的距离
+                let scale = 1;
+                if (hoveredIndex !== null) {
+                  const distance = Math.abs(index - hoveredIndex);
+                  scale = distance === 0 ? 1.5 : // 鼠标正上方的图标放大1.5倍
+                          distance === 1 ? 1.3 : // 相邻图标放大1.3倍
+                          distance === 2 ? 1.1 : // 相隔一个的图标放大1.1倍
+                          1; // 其他保持原大小
+                }
+  
+                return (
+                  <TooltipProvider key={tool.id}>
+                    <motion.div 
+                      className="flex flex-col items-center gap-2"
+                      animate={{ scale }}
+                      transition={{ 
+                        type: "spring",
+                        stiffness: 300,
+                        damping: 20,
+                        mass: 0.5
+                      }}
+                      onMouseEnter={() => setHoveredIndex(index)}
+                    >
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button
+                            onClick={() => tool.accessLink && window.open(tool.accessLink, '_blank', 'noopener,noreferrer')}
+                            className="w-16 h-16 relative group"
+                          >
+                            <Image
+                              src={
+                                tool.iconimage?.formats?.thumbnail?.url
+                                  ? `${apiUrl}${tool.iconimage.formats.thumbnail.url}`
+                                  : `${apiUrl}${tool.iconimage?.url || '/placeholder.svg'}`
+                              }
+                              alt={tool.name}
+                              fill
+                              style={{ objectFit: 'cover' }}
+                              className="rounded-lg transition-transform"
+                              loading="lazy"
+                            />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Visit {tool.name}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                      
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <a
+                            href={`/agitool/${tool.id}`}
+                            className="text-sm text-center truncate w-20 hover:text-primary transition-colors"
+                          >
+                            {tool.name}
+                          </a>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>View details for {tool.name}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </motion.div>
+                  </TooltipProvider>
+                );
+              })}
         </div>
       </div>
     );
