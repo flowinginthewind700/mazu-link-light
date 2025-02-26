@@ -33,6 +33,7 @@ export default function HomePage() {
   const [loading, setLoading] = useState<boolean>(true);
   const [isMinimalView, setIsMinimalView] = useState(false);
   const [mouseX, setMouseX] = useState<number | null>(null);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null); // Moved to top level
   const toolRefs = useRef<React.RefObject<HTMLDivElement>[]>([]);
 
   const sectionRefs = useRef<Record<string, React.RefObject<HTMLDivElement>>>({});
@@ -196,7 +197,6 @@ export default function HomePage() {
 
   const renderMinimalView = () => {
     const allTools = Object.values(toolsByCategory).flat();
-    const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
     const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
       setMouseX(e.clientX);
