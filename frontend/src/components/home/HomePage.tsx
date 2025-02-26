@@ -212,23 +212,20 @@ export default function HomePage() {
   const renderMinimalView = () => {
     const allTools = Object.values(toolsByCategory).flat();
 
-    // 处理鼠标移动事件
     const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
       setMouseX(e.clientX);
     };
 
-    // 计算缩放比例的函数（基于距离的高斯衰减）
     const calculateScale = (ref: HTMLDivElement | null) => {
-      if (!ref || mouseX === null) return 1; // 默认缩放比例
+      if (!ref || mouseX === null) return 1;
 
       const rect = ref.getBoundingClientRect();
       const iconCenterX = rect.left + rect.width / 2;
       const distance = Math.abs(mouseX - iconCenterX);
 
-      // 使用高斯函数计算缩放，最大 1.5 倍，最小 1 倍
       const maxScale = 1.5;
       const minScale = 1;
-      const spread = 100; // 控制放大范围（可调整）
+      const spread = 100;
       const scale = minScale + (maxScale - minScale) * Math.exp(-distance * distance / (2 * spread * spread));
       
       return scale;
@@ -260,16 +257,16 @@ export default function HomePage() {
             : allTools.map((tool, index) => (
                 <TooltipProvider key={tool.id}>
                   <motion.div
-                    ref={(el) => (toolRefs.current[index] = el)}
+                    ref={toolRefs.current[index]} // 使用预创建的 RefObject
                     className="flex flex-col items-center gap-2"
                     animate={{ 
-                      scale: calculateScale(toolRefs.current[index]),
+                      scale: calculateScale(toolRefs.current[index]?.current),
                     }}
                     transition={{ 
                       type: "spring",
-                      stiffness: 400, // 提高弹性以更快响应
-                      damping: 25,   // 稍高的阻尼避免震荡
-                      mass: 0.3      // 较小的质量以加快反应
+                      stiffness: 400,
+                      damping: 25,
+                      mass: 0.3
                     }}
                   >
                     <Tooltip>
