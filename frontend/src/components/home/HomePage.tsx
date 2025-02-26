@@ -16,8 +16,7 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Minimize2 } from 'lucide-react';
-import { Maximize2 } from 'lucide-react';
+import { Minimize2, Maximize2 } from 'lucide-react';
 
 const apiUrl = process.env.NEXT_PUBLIC_CMS_API_BASE_URL;
 const TOOLS_PER_CATEGORY = 24;
@@ -33,9 +32,10 @@ export default function HomePage() {
   const [selectedFeatureTab, setSelectedFeatureTab] = useState('agi-tools');
   const [loading, setLoading] = useState<boolean>(true);
   const [isMinimalView, setIsMinimalView] = useState(false);
-  // 用于存储鼠标位置和每个图标的 ref
   const [mouseX, setMouseX] = useState<number | null>(null);
-  const toolRefs = useRef<(HTMLDivElement | null)[]>([]);
+  
+  // 正确定义 toolRefs 为 RefObject 数组
+  const toolRefs = useRef<React.RefObject<HTMLDivElement>[]>([]);
 
   const sectionRefs = useRef<Record<string, React.RefObject<HTMLDivElement>>>({});
 
@@ -127,22 +127,13 @@ export default function HomePage() {
 
   useEffect(() => {
     if (categories.length > 0 && Object.keys(toolsByCategory).length > 0) {
-      // 获取所有工具的图标 URL，并添加域名前缀
       const allIcons = Object.values(toolsByCategory)
         .flat()
         .map((tool) => tool.iconimage?.url ? `${apiUrl}${tool.iconimage.url}` : null)
-        .filter((url) => url); // 过滤掉无效的 URL
-  
-      // 随机选择 6 个图标 URL
-      // const randomIcons = allIcons
-      //   .sort(() => Math.random() - 0.5)
-      //   .slice(0, 6);
-  
-      // 存储到 localStorage
+        .filter((url) => url);
       localStorage.setItem('gameIcons', JSON.stringify(allIcons));
     }
   }, [categories, toolsByCategory]);
-
 
   useEffect(() => {
     if (categories.length > 0) {
@@ -153,6 +144,12 @@ export default function HomePage() {
     }
   }, [categories]);
 
+  // 初始化 toolRefs
+  useEffect(() => {
+    const allTools = Object.values(toolsByCategory).flat();
+    toolRefs.current = allTools.map(() => React.createRef<HTMLDivElement>());
+  }, [toolsByCategory]);
+
   const scrollToSection = useCallback((sectionId: string) => {
     const sectionElement = sectionRefs.current[sectionId]?.current;
     if (sectionElement) {
@@ -160,22 +157,17 @@ export default function HomePage() {
         behavior: 'smooth',
         block: 'start',
       });
-
-      // Check if the section is in view after a delay
       setTimeout(() => {
         const rect = sectionElement.getBoundingClientRect();
         const isInView = rect.top >= 0 && rect.bottom <= window.innerHeight;
-
         if (!isInView) {
-          // If not in view, retry scrolling
           sectionElement.scrollIntoView({
             behavior: 'smooth',
             block: 'start',
           });
         }
-      }, 1000); // Adjust the delay as needed
+      }, 1000);
     }
-
     setAnimatingSection(sectionId);
     setTimeout(() => setAnimatingSection(''), 1000);
   }, []);
@@ -196,19 +188,16 @@ export default function HomePage() {
         },
         { threshold: 0.5 }
       );
-
       if (sectionRefs.current[category.id]?.current) {
         observer.observe(sectionRefs.current[category.id].current!);
       }
-
       return observer;
     });
-
     return () => {
       observers.forEach(observer => observer.disconnect());
     };
   }, [categories]);
-  
+
   const renderMinimalView = () => {
     const allTools = Object.values(toolsByCategory).flat();
 
@@ -257,7 +246,7 @@ export default function HomePage() {
             : allTools.map((tool, index) => (
                 <TooltipProvider key={tool.id}>
                   <motion.div
-                    ref={toolRefs.current[index]} // 使用预创建的 RefObject
+                    ref={toolRefs.current[index]} // 使用 RefObject
                     className="flex flex-col items-center gap-2"
                     animate={{ 
                       scale: calculateScale(toolRefs.current[index]?.current),
@@ -323,7 +312,6 @@ export default function HomePage() {
           ref={sectionRefs.current[category.id]}
           className="relative space-y-4 scroll-mt-24"
         >
-          {/* Animation effect */}
           {animatingSection === category.id && (
             <motion.div
               initial={{ opacity: 0 }}
@@ -369,7 +357,6 @@ export default function HomePage() {
               </div>
             </motion.div>
           )}
-  
           <AnimatedSectionTitle
             title={category.name}
             isActive={animatingSection === category.id}
@@ -433,7 +420,6 @@ export default function HomePage() {
       <div className="min-h-screen bg-background text-foreground pb-20">
         <div className="container mx-auto px-4 py-2">
           <div className="lg:flex lg:gap-2">
-            {/* Sidebar */}
             <aside className="hidden lg:block w-48 space-y-4 sticky top-24 h-fit">
               <nav className="space-y-2">
                 {categories.map((category) => (
@@ -447,8 +433,6 @@ export default function HomePage() {
                 ))}
               </nav>
             </aside>
-  
-            {/* Main Content */}
             <main className="flex-1 space-y-6">
               <HeroSearch
                 selectedTopTab={selectedTopTab}
@@ -456,13 +440,11 @@ export default function HomePage() {
                 onTopTabChange={setSelectedTopTab}
                 onEngineChange={setSelectedEngine}
               />
-  
               <FeaturedSection
                 selectedFeatureTab={selectedFeatureTab}
                 setSelectedFeatureTab={setSelectedFeatureTab}
               />
-  
-  <div className="flex justify-end mb-4">
+              <div className="flex justify-end mb-4">
                 <motion.div
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -487,7 +469,6 @@ export default function HomePage() {
                   </Button>
                 </motion.div>
               </div>
-  
               {isMinimalView ? renderMinimalView() : renderDetailedView()}
             </main>
           </div>
