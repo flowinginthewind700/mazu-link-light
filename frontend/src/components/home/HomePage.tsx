@@ -33,8 +33,6 @@ export default function HomePage() {
   const [loading, setLoading] = useState<boolean>(true);
   const [isMinimalView, setIsMinimalView] = useState(false);
   const [mouseX, setMouseX] = useState<number | null>(null);
-  
-  // 正确定义 toolRefs 为 RefObject 数组
   const toolRefs = useRef<React.RefObject<HTMLDivElement>[]>([]);
 
   const sectionRefs = useRef<Record<string, React.RefObject<HTMLDivElement>>>({});
@@ -112,7 +110,6 @@ export default function HomePage() {
 
       setCategories(fetchedCategories);
       setToolsByCategory(newToolsByCategory);
-
       saveToCache({ categories: fetchedCategories, toolsByCategory: newToolsByCategory });
     } catch (error) {
       console.error('Error fetching categories and tools:', error);
@@ -144,7 +141,6 @@ export default function HomePage() {
     }
   }, [categories]);
 
-  // 初始化 toolRefs
   useEffect(() => {
     const allTools = Object.values(toolsByCategory).flat();
     toolRefs.current = allTools.map(() => React.createRef<HTMLDivElement>());
@@ -200,6 +196,7 @@ export default function HomePage() {
 
   const renderMinimalView = () => {
     const allTools = Object.values(toolsByCategory).flat();
+    const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
     const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
       setMouseX(e.clientX);
@@ -216,16 +213,57 @@ export default function HomePage() {
       const minScale = 1;
       const spread = 100;
       const scale = minScale + (maxScale - minScale) * Math.exp(-distance * distance / (2 * spread * spread));
-      
       return scale;
     };
 
     return (
       <div className="space-y-4">
+        <style jsx>{`
+          .icon-wrapper {
+            position: relative;
+            width: 64px;
+            height: 64px;
+          }
+          .glow-tail {
+            position: absolute;
+            top: -4px;
+            left: -4px;
+            width: 72px;
+            height: 72px;
+            border-radius: 12px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+          }
+          .icon-wrapper:hover .glow-tail {
+            opacity: 1;
+          }
+          .glow-tail::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 12px;
+            background: linear-gradient(45deg, rgba(0, 255, 128, 0.6), rgba(0, 255, 128, 0));
+            animation: rotateGlow 1.5s infinite linear reverse;
+            filter: blur(8px);
+          }
+          @keyframes rotateGlow {
+            0% {
+              transform: rotate(0deg);
+            }
+            100% {
+              transform: rotate(360deg);
+            }
+          }
+        `}</style>
         <div
           className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4"
           onMouseMove={handleMouseMove}
-          onMouseLeave={() => setMouseX(null)}
+          onMouseLeave={() => {
+            setMouseX(null);
+            setHoveredIndex(null);
+          }}
         >
           {loading
             ? Array.from({ length: 12 }).map((_, index) => (
@@ -246,7 +284,7 @@ export default function HomePage() {
             : allTools.map((tool, index) => (
                 <TooltipProvider key={tool.id}>
                   <motion.div
-                    ref={toolRefs.current[index]} // 使用 RefObject
+                    ref={toolRefs.current[index]}
                     className="flex flex-col items-center gap-2"
                     animate={{ 
                       scale: calculateScale(toolRefs.current[index]?.current),
@@ -257,32 +295,36 @@ export default function HomePage() {
                       damping: 25,
                       mass: 0.3
                     }}
+                    onMouseEnter={() => setHoveredIndex(index)}
+                    onMouseLeave={() => setHoveredIndex(null)}
                   >
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <button
-                          onClick={() => tool.accessLink && window.open(tool.accessLink, '_blank', 'noopener,noreferrer')}
-                          className="w-16 h-16 relative group"
-                        >
-                          <Image
-                            src={
-                              tool.iconimage?.formats?.thumbnail?.url
-                                ? `${apiUrl}${tool.iconimage.formats.thumbnail.url}`
-                                : `${apiUrl}${tool.iconimage?.url || '/placeholder.svg'}`
-                            }
-                            alt={tool.name}
-                            fill
-                            style={{ objectFit: 'cover' }}
-                            className="rounded-lg transition-transform"
-                            loading="lazy"
-                          />
-                        </button>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Visit {tool.name}</p>
-                      </TooltipContent>
-                    </Tooltip>
-                    
+                    <div className="icon-wrapper">
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button
+                            onClick={() => tool.accessLink && window.open(tool.accessLink, '_blank', 'noopener,noreferrer')}
+                            className="w-16 h-16 relative group"
+                          >
+                            <Image
+                              src={
+                                tool.iconimage?.formats?.thumbnail?.url
+                                  ? `${apiUrl}${tool.iconimage.formats.thumbnail.url}`
+                                  : `${apiUrl}${tool.iconimage?.url || '/placeholder.svg'}`
+                              }
+                              alt={tool.name}
+                              fill
+                              style={{ objectFit: 'cover' }}
+                              className="rounded-lg transition-transform"
+                              loading="lazy"
+                            />
+                            <div className="glow-tail" style={{ display: hoveredIndex === index ? 'block' : 'none' }} />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Visit {tool.name}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </div>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <a
