@@ -209,7 +209,10 @@ export default function HomePage() {
           }
           .comet-glow {
             position: absolute;
-            inset: 0;
+            width: 72px; /* Slightly larger to encompass border */
+            height: 72px;
+            top: -4px;
+            left: -4px;
             pointer-events: none;
             opacity: 0;
             transition: opacity 0.2s ease;
@@ -220,27 +223,31 @@ export default function HomePage() {
           .comet-glow::before {
             content: '';
             position: absolute;
-            width: 20px; /* Smaller comet head */
-            height: 20px;
+            width: 16px; /* Comet head size */
+            height: 16px;
             background: linear-gradient(to right, rgba(0, 255, 128, 0.8), rgba(0, 255, 128, 0));
             filter: blur(6px);
-            animation: cometOrbit 2s infinite linear reverse; /* Slower for better visibility */
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: cometOrbit 2s infinite linear reverse;
           }
           @keyframes cometOrbit {
             0% {
-              transform: translate(0, 0); /* Top-left corner */
+              transform: translate(-50%, -50%) translate(0, -28px); /* Top center */
             }
             25% {
-              transform: translate(44px, 0); /* Top-right (64px - 20px) */
+              transform: translate(-50%, -50%) translate(28px, 0); /* Right center */
             }
             50% {
-              transform: translate(44px, 44px); /* Bottom-right */
+              transform: translate(-50%, -50%) translate(0, 28px); /* Bottom center */
             }
             75% {
-              transform: translate(0, 44px); /* Bottom-left */
+              transform: translate(-50%, -50%) translate(-28px, 0); /* Left center */
             }
             100% {
-              transform: translate(0, 0); /* Back to top-left */
+              transform: translate(-50%, -50%) translate(0, -28px); /* Back to top center */
             }
           }
         `}</style>
