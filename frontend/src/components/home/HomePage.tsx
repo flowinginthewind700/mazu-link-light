@@ -16,7 +16,8 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Minimize2, Maximize2 } from 'lucide-react';
+import { Minimize2 } from 'lucide-react';
+import { Maximize2 } from 'lucide-react';
 
 const apiUrl = process.env.NEXT_PUBLIC_CMS_API_BASE_URL;
 const TOOLS_PER_CATEGORY = 24;
@@ -31,9 +32,7 @@ export default function HomePage() {
   const [toolsByCategory, setToolsByCategory] = useState<Record<string, Tool[]>>({});
   const [selectedFeatureTab, setSelectedFeatureTab] = useState('agi-tools');
   const [loading, setLoading] = useState<boolean>(true);
-  const [isMinimalView, setIsMinimalView] = useState(false);
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-  const toolRefs = useRef<React.RefObject<HTMLDivElement>[]>([]);
+  const [isMinimalView, setIsMinimalView] = useState(false); 
 
   const sectionRefs = useRef<Record<string, React.RefObject<HTMLDivElement>>>({});
 
@@ -110,6 +109,7 @@ export default function HomePage() {
 
       setCategories(fetchedCategories);
       setToolsByCategory(newToolsByCategory);
+
       saveToCache({ categories: fetchedCategories, toolsByCategory: newToolsByCategory });
     } catch (error) {
       console.error('Error fetching categories and tools:', error);
@@ -124,13 +124,22 @@ export default function HomePage() {
 
   useEffect(() => {
     if (categories.length > 0 && Object.keys(toolsByCategory).length > 0) {
+      // 获取所有工具的图标 URL，并添加域名前缀
       const allIcons = Object.values(toolsByCategory)
         .flat()
         .map((tool) => tool.iconimage?.url ? `${apiUrl}${tool.iconimage.url}` : null)
-        .filter((url) => url);
+        .filter((url) => url); // 过滤掉无效的 URL
+  
+      // 随机选择 6 个图标 URL
+      // const randomIcons = allIcons
+      //   .sort(() => Math.random() - 0.5)
+      //   .slice(0, 6);
+  
+      // 存储到 localStorage
       localStorage.setItem('gameIcons', JSON.stringify(allIcons));
     }
   }, [categories, toolsByCategory]);
+
 
   useEffect(() => {
     if (categories.length > 0) {
@@ -141,11 +150,6 @@ export default function HomePage() {
     }
   }, [categories]);
 
-  useEffect(() => {
-    const allTools = Object.values(toolsByCategory).flat();
-    toolRefs.current = allTools.map(() => React.createRef<HTMLDivElement>());
-  }, [toolsByCategory]);
-
   const scrollToSection = useCallback((sectionId: string) => {
     const sectionElement = sectionRefs.current[sectionId]?.current;
     if (sectionElement) {
@@ -153,17 +157,22 @@ export default function HomePage() {
         behavior: 'smooth',
         block: 'start',
       });
+
+      // Check if the section is in view after a delay
       setTimeout(() => {
         const rect = sectionElement.getBoundingClientRect();
         const isInView = rect.top >= 0 && rect.bottom <= window.innerHeight;
+
         if (!isInView) {
+          // If not in view, retry scrolling
           sectionElement.scrollIntoView({
             behavior: 'smooth',
             block: 'start',
           });
         }
-      }, 1000);
+      }, 1000); // Adjust the delay as needed
     }
+
     setAnimatingSection(sectionId);
     setTimeout(() => setAnimatingSection(''), 1000);
   }, []);
@@ -184,73 +193,24 @@ export default function HomePage() {
         },
         { threshold: 0.5 }
       );
+
       if (sectionRefs.current[category.id]?.current) {
         observer.observe(sectionRefs.current[category.id].current!);
       }
+
       return observer;
     });
+
     return () => {
       observers.forEach(observer => observer.disconnect());
     };
   }, [categories]);
-
+  
   const renderMinimalView = () => {
     const allTools = Object.values(toolsByCategory).flat();
-
+  
     return (
       <div className="space-y-4">
-        <style jsx>{`
-          .icon-wrapper {
-            position: relative;
-            width: 64px;
-            height: 64px;
-            border-radius: 12px;
-            overflow: hidden;
-          }
-          .comet-glow {
-            position: absolute;
-            width: 72px; /* Slightly larger to encompass border */
-            height: 72px;
-            top: -4px;
-            left: -4px;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.2s ease;
-          }
-          .icon-wrapper:hover .comet-glow {
-            opacity: 1;
-          }
-          .comet-glow::before {
-            content: '';
-            position: absolute;
-            width: 16px; /* Comet head size */
-            height: 16px;
-            background: linear-gradient(to right, rgba(0, 255, 128, 0.8), rgba(0, 255, 128, 0));
-            filter: blur(6px);
-            border-radius: 50%;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            animation: cometOrbit 2s infinite linear reverse;
-          }
-          @keyframes cometOrbit {
-            0% {
-              transform: translate(-50%, -50%) translate(0, -28px); /* Top center */
-            }
-            25% {
-              transform: translate(-50%, -50%) translate(28px, 0); /* Right center */
-            }
-            50% {
-              transform: translate(-50%, -50%) translate(0, 28px); /* Bottom center */
-            }
-            75% {
-              transform: translate(-50%, -50%) translate(-28px, 0); /* Left center */
-            }
-            100% {
-              transform: translate(-50%, -50%) translate(0, -28px); /* Back to top center */
-            }
-          }
-        `}</style>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
           {loading
             ? Array.from({ length: 12 }).map((_, index) => (
@@ -268,21 +228,38 @@ export default function HomePage() {
                   loading={true}
                 />
               ))
-            : allTools.map((tool, index) => (
+            : allTools.map((tool) => (
                 <TooltipProvider key={tool.id}>
-                  <motion.div
-                    whileHover={{ scale: 1.05 }}
-                    transition={{ type: "spring", stiffness: 300 }}
-                    className="flex flex-col items-center gap-2"
-                    onMouseEnter={() => setHoveredIndex(index)}
-                    onMouseLeave={() => setHoveredIndex(null)}
-                  >
-                    <div className="icon-wrapper">
-                      <Tooltip>
-                        <TooltipTrigger asChild>
+                  <div className="flex flex-col items-center gap-2">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="relative w-16 h-16 group">
+                          {/* 彗星动画容器 */}
+                          <div className="absolute inset-0 rounded-lg overflow-hidden pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                            <motion.div
+                              className="absolute w-2 h-2 bg-green-400 rounded-full"
+                              style={{
+                                boxShadow: '0 0 8px 2px rgba(34, 197, 94, 0.8)',
+                              }}
+                              animate={{
+                                x: [0, 48, 48, 0, 0], // 沿着矩形路径移动
+                                y: [0, 0, 48, 48, 0],
+                                rotate: [0, 90, 180, 270, 360],
+                              }}
+                              transition={{
+                                duration: 1.5,
+                                repeat: Infinity,
+                                ease: 'linear',
+                              }}
+                            >
+                              {/* 彗星尾巴 */}
+                              <div className="absolute w-8 h-1 bg-gradient-to-r from-green-400 to-transparent -right-8 top-1/2 transform -translate-y-1/2 opacity-70" />
+                            </motion.div>
+                          </div>
+  
                           <button
                             onClick={() => tool.accessLink && window.open(tool.accessLink, '_blank', 'noopener,noreferrer')}
-                            className="w-16 h-16 relative group z-10"
+                            className="w-full h-full relative"
                           >
                             <Image
                               src={
@@ -293,17 +270,17 @@ export default function HomePage() {
                               alt={tool.name}
                               fill
                               style={{ objectFit: 'cover' }}
-                              className="rounded-lg transition-transform"
+                              className="rounded-lg transition-transform group-hover:scale-110"
                               loading="lazy"
                             />
-                            <div className="comet-glow" />
                           </button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Visit {tool.name}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </div>
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Visit {tool.name}</p>
+                      </TooltipContent>
+                    </Tooltip>
+  
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <a
@@ -317,7 +294,7 @@ export default function HomePage() {
                         <p>View details for {tool.name}</p>
                       </TooltipContent>
                     </Tooltip>
-                  </motion.div>
+                  </div>
                 </TooltipProvider>
               ))}
         </div>
@@ -333,6 +310,7 @@ export default function HomePage() {
           ref={sectionRefs.current[category.id]}
           className="relative space-y-4 scroll-mt-24"
         >
+          {/* Animation effect */}
           {animatingSection === category.id && (
             <motion.div
               initial={{ opacity: 0 }}
@@ -378,6 +356,7 @@ export default function HomePage() {
               </div>
             </motion.div>
           )}
+  
           <AnimatedSectionTitle
             title={category.name}
             isActive={animatingSection === category.id}
@@ -441,6 +420,7 @@ export default function HomePage() {
       <div className="min-h-screen bg-background text-foreground pb-20">
         <div className="container mx-auto px-4 py-2">
           <div className="lg:flex lg:gap-2">
+            {/* Sidebar */}
             <aside className="hidden lg:block w-48 space-y-4 sticky top-24 h-fit">
               <nav className="space-y-2">
                 {categories.map((category) => (
@@ -454,6 +434,8 @@ export default function HomePage() {
                 ))}
               </nav>
             </aside>
+  
+            {/* Main Content */}
             <main className="flex-1 space-y-6">
               <HeroSearch
                 selectedTopTab={selectedTopTab}
@@ -461,11 +443,13 @@ export default function HomePage() {
                 onTopTabChange={setSelectedTopTab}
                 onEngineChange={setSelectedEngine}
               />
+  
               <FeaturedSection
                 selectedFeatureTab={selectedFeatureTab}
                 setSelectedFeatureTab={setSelectedFeatureTab}
               />
-              <div className="flex justify-end mb-4">
+  
+  <div className="flex justify-end mb-4">
                 <motion.div
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -490,6 +474,7 @@ export default function HomePage() {
                   </Button>
                 </motion.div>
               </div>
+  
               {isMinimalView ? renderMinimalView() : renderDetailedView()}
             </main>
           </div>
