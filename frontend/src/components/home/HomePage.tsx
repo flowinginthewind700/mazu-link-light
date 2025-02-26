@@ -33,7 +33,9 @@ export default function HomePage() {
   const [selectedFeatureTab, setSelectedFeatureTab] = useState('agi-tools');
   const [loading, setLoading] = useState<boolean>(true);
   const [isMinimalView, setIsMinimalView] = useState(false);
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  // 用于存储鼠标位置和每个图标的 ref
+  const [mouseX, setMouseX] = useState<number | null>(null);
+  const toolRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const sectionRefs = useRef<Record<string, React.RefObject<HTMLDivElement>>>({});
 
@@ -210,11 +212,34 @@ export default function HomePage() {
   const renderMinimalView = () => {
     const allTools = Object.values(toolsByCategory).flat();
 
+    // 处理鼠标移动事件
+    const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+      setMouseX(e.clientX);
+    };
+
+    // 计算缩放比例的函数（基于距离的高斯衰减）
+    const calculateScale = (ref: HTMLDivElement | null) => {
+      if (!ref || mouseX === null) return 1; // 默认缩放比例
+
+      const rect = ref.getBoundingClientRect();
+      const iconCenterX = rect.left + rect.width / 2;
+      const distance = Math.abs(mouseX - iconCenterX);
+
+      // 使用高斯函数计算缩放，最大 1.5 倍，最小 1 倍
+      const maxScale = 1.5;
+      const minScale = 1;
+      const spread = 100; // 控制放大范围（可调整）
+      const scale = minScale + (maxScale - minScale) * Math.exp(-distance * distance / (2 * spread * spread));
+      
+      return scale;
+    };
+
     return (
       <div className="space-y-4">
-        <div 
+        <div
           className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4"
-          onMouseLeave={() => setHoveredIndex(null)}
+          onMouseMove={handleMouseMove}
+          onMouseLeave={() => setMouseX(null)}
         >
           {loading
             ? Array.from({ length: 12 }).map((_, index) => (
@@ -232,71 +257,62 @@ export default function HomePage() {
                   loading={true}
                 />
               ))
-            : allTools.map((tool, index) => {
-                let scale = 1;
-                if (hoveredIndex !== null) {
-                  const distance = Math.abs(index - hoveredIndex);
-                  scale = distance === 0 ? 1.5 :
-                          distance === 1 ? 1.3 :
-                          distance === 2 ? 1.1 :
-                          1;
-                }
-
-                return (
-                  <TooltipProvider key={tool.id}>
-                    <motion.div 
-                      className="flex flex-col items-center gap-2"
-                      animate={{ scale }}
-                      transition={{ 
-                        type: "spring",
-                        stiffness: 300,
-                        damping: 20,
-                        mass: 0.5
-                      }}
-                      onMouseEnter={() => setHoveredIndex(index)}
-                    >
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <button
-                            onClick={() => tool.accessLink && window.open(tool.accessLink, '_blank', 'noopener,noreferrer')}
-                            className="w-16 h-16 relative group"
-                          >
-                            <Image
-                              src={
-                                tool.iconimage?.formats?.thumbnail?.url
-                                  ? `${apiUrl}${tool.iconimage.formats.thumbnail.url}`
-                                  : `${apiUrl}${tool.iconimage?.url || '/placeholder.svg'}`
-                              }
-                              alt={tool.name}
-                              fill
-                              style={{ objectFit: 'cover' }}
-                              className="rounded-lg transition-transform"
-                              loading="lazy"
-                            />
-                          </button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Visit {tool.name}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                      
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <a
-                            href={`/agitool/${tool.id}`}
-                            className="text-sm text-center truncate w-20 hover:text-primary transition-colors"
-                          >
-                            {tool.name}
-                          </a>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>View details for {tool.name}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </motion.div>
-                  </TooltipProvider>
-                );
-              })}
+            : allTools.map((tool, index) => (
+                <TooltipProvider key={tool.id}>
+                  <motion.div
+                    ref={(el) => (toolRefs.current[index] = el)}
+                    className="flex flex-col items-center gap-2"
+                    animate={{ 
+                      scale: calculateScale(toolRefs.current[index]),
+                    }}
+                    transition={{ 
+                      type: "spring",
+                      stiffness: 400, // 提高弹性以更快响应
+                      damping: 25,   // 稍高的阻尼避免震荡
+                      mass: 0.3      // 较小的质量以加快反应
+                    }}
+                  >
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={() => tool.accessLink && window.open(tool.accessLink, '_blank', 'noopener,noreferrer')}
+                          className="w-16 h-16 relative group"
+                        >
+                          <Image
+                            src={
+                              tool.iconimage?.formats?.thumbnail?.url
+                                ? `${apiUrl}${tool.iconimage.formats.thumbnail.url}`
+                                : `${apiUrl}${tool.iconimage?.url || '/placeholder.svg'}`
+                            }
+                            alt={tool.name}
+                            fill
+                            style={{ objectFit: 'cover' }}
+                            className="rounded-lg transition-transform"
+                            loading="lazy"
+                          />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Visit {tool.name}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                    
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <a
+                          href={`/agitool/${tool.id}`}
+                          className="text-sm text-center truncate w-20 hover:text-primary transition-colors"
+                        >
+                          {tool.name}
+                        </a>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>View details for {tool.name}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </motion.div>
+                </TooltipProvider>
+              ))}
         </div>
       </div>
     );
