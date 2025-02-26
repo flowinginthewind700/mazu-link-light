@@ -234,32 +234,10 @@ export default function HomePage() {
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <div className="relative w-16 h-16 group">
-                          {/* 彗星动画容器 */}
-                          <div className="absolute inset-0 rounded-lg overflow-hidden pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                            <motion.div
-                              className="absolute w-2 h-2 bg-green-400 rounded-full"
-                              style={{
-                                boxShadow: '0 0 8px 2px rgba(34, 197, 94, 0.8)',
-                              }}
-                              animate={{
-                                x: [0, 48, 48, 0, 0], // 沿着矩形路径移动
-                                y: [0, 0, 48, 48, 0],
-                                rotate: [0, 90, 180, 270, 360],
-                              }}
-                              transition={{
-                                duration: 1.5,
-                                repeat: Infinity,
-                                ease: 'linear',
-                              }}
-                            >
-                              {/* 彗星尾巴 */}
-                              <div className="absolute w-8 h-1 bg-gradient-to-r from-green-400 to-transparent -right-8 top-1/2 transform -translate-y-1/2 opacity-70" />
-                            </motion.div>
-                          </div>
-  
+                          {/* 图标 */}
                           <button
                             onClick={() => tool.accessLink && window.open(tool.accessLink, '_blank', 'noopener,noreferrer')}
-                            className="w-full h-full relative"
+                            className="w-full h-full relative rounded-lg overflow-hidden"
                           >
                             <Image
                               src={
@@ -274,6 +252,25 @@ export default function HomePage() {
                               loading="lazy"
                             />
                           </button>
+                          {/* 边框动画 */}
+                          <div className="absolute inset-0 pointer-events-none">
+                            {/* 上边框 */}
+                            <div
+                              className="absolute top-0 left-0 w-0 h-[2px] bg-gradient-to-r from-transparent via-green-400 to-transparent transition-all duration-300 group-hover:w-full opacity-0 group-hover:opacity-100"
+                              style={{
+                                filter: 'blur(2px)',
+                                boxShadow: '0 0 8px rgba(34, 197, 94, 0.6)',
+                              }}
+                            />
+                            {/* 下边框 */}
+                            <div
+                              className="absolute bottom-0 right-0 w-0 h-[2px] bg-gradient-to-l from-transparent via-green-400 to-transparent transition-all duration-300 group-hover:w-full opacity-0 group-hover:opacity-100"
+                              style={{
+                                filter: 'blur(2px)',
+                                boxShadow: '0 0 8px rgba(34, 197, 94, 0.6)',
+                              }}
+                            />
+                          </div>
                         </div>
                       </TooltipTrigger>
                       <TooltipContent>
