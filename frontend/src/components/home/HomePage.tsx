@@ -32,8 +32,7 @@ export default function HomePage() {
   const [selectedFeatureTab, setSelectedFeatureTab] = useState('agi-tools');
   const [loading, setLoading] = useState<boolean>(true);
   const [isMinimalView, setIsMinimalView] = useState(false);
-  const [mouseX, setMouseX] = useState<number | null>(null);
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null); // Moved to top level
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const toolRefs = useRef<React.RefObject<HTMLDivElement>[]>([]);
 
   const sectionRefs = useRef<Record<string, React.RefObject<HTMLDivElement>>>({});
@@ -198,24 +197,6 @@ export default function HomePage() {
   const renderMinimalView = () => {
     const allTools = Object.values(toolsByCategory).flat();
 
-    const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-      setMouseX(e.clientX);
-    };
-
-    const calculateScale = (ref: HTMLDivElement | null) => {
-      if (!ref || mouseX === null) return 1;
-
-      const rect = ref.getBoundingClientRect();
-      const iconCenterX = rect.left + rect.width / 2;
-      const distance = Math.abs(mouseX - iconCenterX);
-
-      const maxScale = 1.5;
-      const minScale = 1;
-      const spread = 100;
-      const scale = minScale + (maxScale - minScale) * Math.exp(-distance * distance / (2 * spread * spread));
-      return scale;
-    };
-
     return (
       <div className="space-y-4">
         <style jsx>{`
@@ -223,48 +204,47 @@ export default function HomePage() {
             position: relative;
             width: 64px;
             height: 64px;
-          }
-          .glow-tail {
-            position: absolute;
-            top: -4px;
-            left: -4px;
-            width: 72px;
-            height: 72px;
             border-radius: 12px;
+            overflow: hidden;
+          }
+          .comet-glow {
+            position: absolute;
+            inset: 0;
             pointer-events: none;
             opacity: 0;
             transition: opacity 0.2s ease;
           }
-          .icon-wrapper:hover .glow-tail {
+          .icon-wrapper:hover .comet-glow {
             opacity: 1;
           }
-          .glow-tail::before {
+          .comet-glow::before {
             content: '';
             position: absolute;
-            width: 100%;
-            height: 100%;
-            border-radius: 12px;
-            background: linear-gradient(45deg, rgba(0, 255, 128, 0.6), rgba(0, 255, 128, 0));
-            animation: rotateGlow 1.5s infinite linear reverse;
-            filter: blur(8px);
+            width: 30%;
+            height: 30%;
+            background: linear-gradient(to right, rgba(0, 255, 128, 0.8), rgba(0, 255, 128, 0));
+            filter: blur(6px);
+            animation: cometOrbit 1.5s infinite linear reverse;
           }
-          @keyframes rotateGlow {
+          @keyframes cometOrbit {
             0% {
-              transform: rotate(0deg);
+              transform: translate(150%, -50%) rotate(0deg);
+            }
+            25% {
+              transform: translate(150%, 150%) rotate(-90deg);
+            }
+            50% {
+              transform: translate(-50%, 150%) rotate(-180deg);
+            }
+            75% {
+              transform: translate(-50%, -50%) rotate(-270deg);
             }
             100% {
-              transform: rotate(360deg);
+              transform: translate(150%, -50%) rotate(-360deg);
             }
           }
         `}</style>
-        <div
-          className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4"
-          onMouseMove={handleMouseMove}
-          onMouseLeave={() => {
-            setMouseX(null);
-            setHoveredIndex(null);
-          }}
-        >
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
           {loading
             ? Array.from({ length: 12 }).map((_, index) => (
                 <ToolCard
@@ -284,17 +264,9 @@ export default function HomePage() {
             : allTools.map((tool, index) => (
                 <TooltipProvider key={tool.id}>
                   <motion.div
-                    ref={toolRefs.current[index]}
+                    whileHover={{ scale: 1.05 }}
+                    transition={{ type: "spring", stiffness: 300 }}
                     className="flex flex-col items-center gap-2"
-                    animate={{ 
-                      scale: calculateScale(toolRefs.current[index]?.current),
-                    }}
-                    transition={{ 
-                      type: "spring",
-                      stiffness: 400,
-                      damping: 25,
-                      mass: 0.3
-                    }}
                     onMouseEnter={() => setHoveredIndex(index)}
                     onMouseLeave={() => setHoveredIndex(null)}
                   >
@@ -303,7 +275,7 @@ export default function HomePage() {
                         <TooltipTrigger asChild>
                           <button
                             onClick={() => tool.accessLink && window.open(tool.accessLink, '_blank', 'noopener,noreferrer')}
-                            className="w-16 h-16 relative group"
+                            className="w-16 h-16 relative group z-10"
                           >
                             <Image
                               src={
@@ -317,7 +289,7 @@ export default function HomePage() {
                               className="rounded-lg transition-transform"
                               loading="lazy"
                             />
-                            <div className="glow-tail" style={{ display: hoveredIndex === index ? 'block' : 'none' }} />
+                            <div className="comet-glow" />
                           </button>
                         </TooltipTrigger>
                         <TooltipContent>
