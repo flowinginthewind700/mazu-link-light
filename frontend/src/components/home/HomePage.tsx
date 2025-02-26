@@ -220,27 +220,27 @@ export default function HomePage() {
           .comet-glow::before {
             content: '';
             position: absolute;
-            width: 30%;
-            height: 30%;
+            width: 20px; /* Smaller comet head */
+            height: 20px;
             background: linear-gradient(to right, rgba(0, 255, 128, 0.8), rgba(0, 255, 128, 0));
             filter: blur(6px);
-            animation: cometOrbit 1.5s infinite linear reverse;
+            animation: cometOrbit 2s infinite linear reverse; /* Slower for better visibility */
           }
           @keyframes cometOrbit {
             0% {
-              transform: translate(150%, -50%) rotate(0deg);
+              transform: translate(0, 0); /* Top-left corner */
             }
             25% {
-              transform: translate(150%, 150%) rotate(-90deg);
+              transform: translate(44px, 0); /* Top-right (64px - 20px) */
             }
             50% {
-              transform: translate(-50%, 150%) rotate(-180deg);
+              transform: translate(44px, 44px); /* Bottom-right */
             }
             75% {
-              transform: translate(-50%, -50%) rotate(-270deg);
+              transform: translate(0, 44px); /* Bottom-left */
             }
             100% {
-              transform: translate(150%, -50%) rotate(-360deg);
+              transform: translate(0, 0); /* Back to top-left */
             }
           }
         `}</style>
