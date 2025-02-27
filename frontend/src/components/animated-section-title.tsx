@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { cn } from "@/lib/utils";
-import { motion } from 'framer-motion';
+import { motion, HTMLMotionProps } from 'framer-motion';
 
-// Extend HTMLAttributes to include className and other standard props
-interface AnimatedSectionTitleProps extends React.HTMLAttributes<HTMLHeadingElement> {
+// Define props interface using HTMLMotionProps from Framer Motion
+interface AnimatedSectionTitleProps extends Omit<HTMLMotionProps<"h2">, 'ref'> {
   title: string;
   isActive: boolean;
 }
