@@ -36,6 +36,22 @@ export default function HomePage() {
 
   const sectionRefs = useRef<Record<string, React.RefObject<HTMLDivElement>>>({});
 
+  // Load initial view preference from localStorage
+  useEffect(() => {
+    const savedView = localStorage.getItem('viewMode');
+    if (savedView === null) {
+      setIsMinimalView(false); // Default to detailed view
+      localStorage.setItem('viewMode', 'detailed');
+    } else {
+      setIsMinimalView(savedView === 'minimal');
+    }
+  }, []);
+
+  // Save view preference to localStorage when it changes
+  useEffect(() => {
+    localStorage.setItem('viewMode', isMinimalView ? 'minimal' : 'detailed');
+  }, [isMinimalView]);
+
   const loadFromCache = () => {
     const cachedData = localStorage.getItem('categoriesAndTools');
     if (cachedData) {
@@ -124,22 +140,14 @@ export default function HomePage() {
 
   useEffect(() => {
     if (categories.length > 0 && Object.keys(toolsByCategory).length > 0) {
-      // 获取所有工具的图标 URL，并添加域名前缀
       const allIcons = Object.values(toolsByCategory)
         .flat()
         .map((tool) => tool.iconimage?.url ? `${apiUrl}${tool.iconimage.url}` : null)
-        .filter((url) => url); // 过滤掉无效的 URL
+        .filter((url) => url);
   
-      // 随机选择 6 个图标 URL
-      // const randomIcons = allIcons
-      //   .sort(() => Math.random() - 0.5)
-      //   .slice(0, 6);
-  
-      // 存储到 localStorage
       localStorage.setItem('gameIcons', JSON.stringify(allIcons));
     }
   }, [categories, toolsByCategory]);
-
 
   useEffect(() => {
     if (categories.length > 0) {
@@ -158,19 +166,17 @@ export default function HomePage() {
         block: 'start',
       });
 
-      // Check if the section is in view after a delay
       setTimeout(() => {
         const rect = sectionElement.getBoundingClientRect();
         const isInView = rect.top >= 0 && rect.bottom <= window.innerHeight;
 
         if (!isInView) {
-          // If not in view, retry scrolling
           sectionElement.scrollIntoView({
             behavior: 'smooth',
             block: 'start',
           });
         }
-      }, 1000); // Adjust the delay as needed
+      }, 1000);
     }
 
     setAnimatingSection(sectionId);
@@ -234,7 +240,6 @@ export default function HomePage() {
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <div className="relative w-16 h-16 group">
-                          {/* 图标 */}
                           <button
                             onClick={() => tool.accessLink && window.open(tool.accessLink, '_blank', 'noopener,noreferrer')}
                             className="w-full h-full relative rounded-lg overflow-hidden"
@@ -252,9 +257,7 @@ export default function HomePage() {
                               loading="lazy"
                             />
                           </button>
-                          {/* 边框动画 */}
                           <div className="absolute inset-0 pointer-events-none">
-                            {/* 上边框 */}
                             <div
                               className="absolute top-0 left-0 w-0 h-[2px] bg-gradient-to-r from-transparent via-green-400 to-transparent transition-all duration-300 group-hover:w-full opacity-0 group-hover:opacity-100"
                               style={{
@@ -262,7 +265,6 @@ export default function HomePage() {
                                 boxShadow: '0 0 8px rgba(34, 197, 94, 0.6)',
                               }}
                             />
-                            {/* 下边框 */}
                             <div
                               className="absolute bottom-0 right-0 w-0 h-[2px] bg-gradient-to-l from-transparent via-green-400 to-transparent transition-all duration-300 group-hover:w-full opacity-0 group-hover:opacity-100"
                               style={{
@@ -307,7 +309,6 @@ export default function HomePage() {
           ref={sectionRefs.current[category.id]}
           className="relative space-y-4 scroll-mt-24"
         >
-          {/* Animation effect */}
           {animatingSection === category.id && (
             <motion.div
               initial={{ opacity: 0 }}
@@ -417,7 +418,6 @@ export default function HomePage() {
       <div className="min-h-screen bg-background text-foreground pb-20">
         <div className="container mx-auto px-4 py-2">
           <div className="lg:flex lg:gap-2">
-            {/* Sidebar */}
             <aside className="hidden lg:block w-48 space-y-4 sticky top-24 h-fit">
               <nav className="space-y-2">
                 {categories.map((category) => (
@@ -432,7 +432,6 @@ export default function HomePage() {
               </nav>
             </aside>
   
-            {/* Main Content */}
             <main className="flex-1 space-y-6">
               <HeroSearch
                 selectedTopTab={selectedTopTab}
@@ -446,7 +445,7 @@ export default function HomePage() {
                 setSelectedFeatureTab={setSelectedFeatureTab}
               />
   
-  <div className="flex justify-end mb-4">
+              <div className="flex justify-end mb-4">
                 <motion.div
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
