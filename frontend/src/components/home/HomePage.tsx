@@ -11,11 +11,13 @@ import { AnimatedSectionTitle } from '@/components/animated-section-title';
 import { BottomNavbar } from '@/components/bottom-navbar';
 import { Category, Tool } from './types';
 import { Navigation } from '@/components/navigation';
+import { WavyBackground } from '@/components/ui/wavy-background';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Minimize2, Maximize2 } from 'lucide-react';
+import { Minimize2 } from 'lucide-react';
+import { Maximize2 } from 'lucide-react';
 
 const apiUrl = process.env.NEXT_PUBLIC_CMS_API_BASE_URL;
 const TOOLS_PER_CATEGORY = 24;
@@ -30,20 +32,22 @@ export default function HomePage() {
   const [toolsByCategory, setToolsByCategory] = useState<Record<string, Tool[]>>({});
   const [selectedFeatureTab, setSelectedFeatureTab] = useState('agi-tools');
   const [loading, setLoading] = useState<boolean>(true);
-  const [isMinimalView, setIsMinimalView] = useState(false);
+  const [isMinimalView, setIsMinimalView] = useState(false); 
 
   const sectionRefs = useRef<Record<string, React.RefObject<HTMLDivElement>>>({});
 
+  // Load initial view preference from localStorage
   useEffect(() => {
     const savedView = localStorage.getItem('viewMode');
     if (savedView === null) {
-      setIsMinimalView(false);
+      setIsMinimalView(false); // Default to detailed view
       localStorage.setItem('viewMode', 'detailed');
     } else {
       setIsMinimalView(savedView === 'minimal');
     }
   }, []);
 
+  // Save view preference to localStorage when it changes
   useEffect(() => {
     localStorage.setItem('viewMode', isMinimalView ? 'minimal' : 'detailed');
   }, [isMinimalView]);
@@ -121,6 +125,7 @@ export default function HomePage() {
 
       setCategories(fetchedCategories);
       setToolsByCategory(newToolsByCategory);
+
       saveToCache({ categories: fetchedCategories, toolsByCategory: newToolsByCategory });
     } catch (error) {
       console.error('Error fetching categories and tools:', error);
@@ -139,6 +144,7 @@ export default function HomePage() {
         .flat()
         .map((tool) => tool.iconimage?.url ? `${apiUrl}${tool.iconimage.url}` : null)
         .filter((url) => url);
+  
       localStorage.setItem('gameIcons', JSON.stringify(allIcons));
     }
   }, [categories, toolsByCategory]);
@@ -163,6 +169,7 @@ export default function HomePage() {
       setTimeout(() => {
         const rect = sectionElement.getBoundingClientRect();
         const isInView = rect.top >= 0 && rect.bottom <= window.innerHeight;
+
         if (!isInView) {
           sectionElement.scrollIntoView({
             behavior: 'smooth',
@@ -204,17 +211,12 @@ export default function HomePage() {
       observers.forEach(observer => observer.disconnect());
     };
   }, [categories]);
-
+  
   const renderMinimalView = () => {
     const allTools = Object.values(toolsByCategory).flat();
-
+  
     return (
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5 }}
-        className="space-y-4 relative bg-gradient-to-br from-green-50 to-green-100 dark:from-gray-900 dark:to-green-900/30 rounded-xl p-6 shadow-lg"
-      >
+      <div className="space-y-4">
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
           {loading
             ? Array.from({ length: 12 }).map((_, index) => (
@@ -234,16 +236,13 @@ export default function HomePage() {
               ))
             : allTools.map((tool) => (
                 <TooltipProvider key={tool.id}>
-                  <motion.div
-                    whileHover={{ y: -5, boxShadow: '0 10px 20px rgba(0, 255, 128, 0.2)' }}
-                    className="flex flex-col items-center gap-2"
-                  >
+                  <div className="flex flex-col items-center gap-2">
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <div className="relative w-16 h-16 group">
                           <button
                             onClick={() => tool.accessLink && window.open(tool.accessLink, '_blank', 'noopener,noreferrer')}
-                            className="w-full h-full relative rounded-lg overflow-hidden border border-green-200/50 dark:border-green-800/50"
+                            className="w-full h-full relative rounded-lg overflow-hidden"
                           >
                             <Image
                               src={
@@ -259,47 +258,56 @@ export default function HomePage() {
                             />
                           </button>
                           <div className="absolute inset-0 pointer-events-none">
-                            <div className="absolute top-0 left-0 w-0 h-[2px] bg-gradient-to-r from-transparent via-green-400 to-transparent transition-all duration-300 group-hover:w-full opacity-0 group-hover:opacity-100" />
-                            <div className="absolute bottom-0 right-0 w-0 h-[2px] bg-gradient-to-l from-transparent via-green-400 to-transparent transition-all duration-300 group-hover:w-full opacity-0 group-hover:opacity-100" />
+                            <div
+                              className="absolute top-0 left-0 w-0 h-[2px] bg-gradient-to-r from-transparent via-green-400 to-transparent transition-all duration-300 group-hover:w-full opacity-0 group-hover:opacity-100"
+                              style={{
+                                filter: 'blur(2px)',
+                                boxShadow: '0 0 8px rgba(34, 197, 94, 0.6)',
+                              }}
+                            />
+                            <div
+                              className="absolute bottom-0 right-0 w-0 h-[2px] bg-gradient-to-l from-transparent via-green-400 to-transparent transition-all duration-300 group-hover:w-full opacity-0 group-hover:opacity-100"
+                              style={{
+                                filter: 'blur(2px)',
+                                boxShadow: '0 0 8px rgba(34, 197, 94, 0.6)',
+                              }}
+                            />
                           </div>
                         </div>
                       </TooltipTrigger>
-                      <TooltipContent className="bg-green-50 dark:bg-green-900/80 border-green-200 dark:border-green-700">
-                        <p className="text-green-800 dark:text-green-200">Visit {tool.name}</p>
+                      <TooltipContent>
+                        <p>Visit {tool.name}</p>
                       </TooltipContent>
                     </Tooltip>
+  
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <a
                           href={`/agitool/${tool.id}`}
-                          className="text-sm text-center truncate w-20 hover:text-green-600 dark:hover:text-green-400 transition-colors"
+                          className="text-sm text-center truncate w-20 hover:text-primary transition-colors"
                         >
                           {tool.name}
                         </a>
                       </TooltipTrigger>
-                      <TooltipContent className="bg-green-50 dark:bg-green-900/80 border-green-200 dark:border-green-700">
-                        <p className="text-green-800 dark:text-green-200">View details for {tool.name}</p>
+                      <TooltipContent>
+                        <p>View details for {tool.name}</p>
                       </TooltipContent>
                     </Tooltip>
-                  </motion.div>
+                  </div>
                 </TooltipProvider>
               ))}
         </div>
-      </motion.div>
+      </div>
     );
   };
 
   const renderDetailedView = () => (
     <>
       {categories.map((category) => (
-        <motion.div
+        <div
           key={category.id}
           ref={sectionRefs.current[category.id]}
-          className="relative space-y-4 scroll-mt-24 bg-gradient-to-br from-green-50 to-green-100 dark:from-gray-900 dark:to-green-900/30 rounded-xl p-6 shadow-lg"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
+          className="relative space-y-4 scroll-mt-24"
         >
           {animatingSection === category.id && (
             <motion.div
@@ -307,16 +315,49 @@ export default function HomePage() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.5 }}
-              className="absolute inset-0 pointer-events-none overflow-hidden rounded-xl"
+              className="absolute inset-0 pointer-events-none"
               style={{ top: 0 }}
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-green-400/20 via-transparent to-green-400/20 animate-pulse" />
+              <div className="relative flex w-full flex-1 scale-y-125 items-center justify-center isolate z-0">
+                <motion.div
+                  initial={{ opacity: 0.5, width: "15rem" }}
+                  animate={{ opacity: 1, width: "30rem" }}
+                  transition={{
+                    delay: 0.3,
+                    duration: 0.8,
+                    ease: "easeInOut",
+                  }}
+                  style={{
+                    backgroundImage: `conic-gradient(var(--conic-position), var(--tw-gradient-stops))`,
+                  }}
+                  className="absolute inset-auto right-1/2 h-56 overflow-visible w-[30rem] bg-gradient-conic from-cyan-500 via-transparent to-transparent text-white [--conic-position:from_70deg_at_center_top]"
+                >
+                  <div className="absolute w-[100%] left-0 bg-background h-40 bottom-0 z-20 [mask-image:linear-gradient(to_top,white,transparent)]" />
+                  <div className="absolute w-40 h-[100%] left-0 bg-background bottom-0 z-20 [mask-image:linear-gradient(to_right,white,transparent)]" />
+                </motion.div>
+                <motion.div
+                  initial={{ opacity: 0.5, width: "15rem" }}
+                  animate={{ opacity: 1, width: "30rem" }}
+                  transition={{
+                    delay: 0.3,
+                    duration: 0.8,
+                    ease: "easeInOut",
+                  }}
+                  style={{
+                    backgroundImage: `conic-gradient(var(--conic-position), var(--tw-gradient-stops))`,
+                  }}
+                  className="absolute inset-auto left-1/2 h-56 w-[30rem] bg-gradient-conic from-transparent via-transparent to-cyan-500 text-white [--conic-position:from_290deg_at_center_top]"
+                >
+                  <div className="absolute w-40 h-[100%] right-0 bg-background bottom-0 z-20 [mask-image:linear-gradient(to_left,white,transparent)]" />
+                  <div className="absolute w-[100%] right-0 bg-background h-40 bottom-0 z-20 [mask-image:linear-gradient(to_top,white,transparent)]" />
+                </motion.div>
+              </div>
             </motion.div>
           )}
+  
           <AnimatedSectionTitle
             title={category.name}
             isActive={animatingSection === category.id}
-            className="text-green-800 dark:text-green-200"
           />
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {loading
@@ -336,15 +377,10 @@ export default function HomePage() {
                   />
                 ))
               : toolsByCategory[category.id]?.map((tool) => (
-                  <motion.div
-                    key={tool.id}
-                    whileHover={{ y: -5, boxShadow: '0 10px 20px rgba(0, 255, 128, 0.2)' }}
-                  >
-                    <ToolCard tool={tool} apiUrl={apiUrl || ''} />
-                  </motion.div>
+                  <ToolCard key={tool.id} tool={tool} apiUrl={apiUrl || ''} />
                 ))}
           </div>
-        </motion.div>
+        </div>
       ))}
     </>
   );
@@ -379,55 +415,36 @@ export default function HomePage() {
           })
         }}
       />
-      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-green-50 dark:from-gray-950 dark:to-green-950 text-foreground pb-20 relative overflow-hidden">
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,255,128,0.1)_0,rgba(0,255,128,0)_70%)] dark:bg-[radial-gradient(circle_at_center,rgba(0,255,128,0.05)_0,rgba(0,255,128,0)_70%)]" />
-        </div>
-        
-        <div className="container mx-auto px-4 py-2 relative z-10">
-          <div className="lg:flex lg:gap-6">
+      <div className="min-h-screen bg-background text-foreground pb-20">
+        <div className="container mx-auto px-4 py-2">
+          <div className="lg:flex lg:gap-2">
             <aside className="hidden lg:block w-48 space-y-4 sticky top-24 h-fit">
-              <nav className="space-y-2 p-4 bg-white/80 dark:bg-gray-900/80 rounded-xl shadow-md backdrop-blur-md border border-green-200/50 dark:border-green-800/50">
+              <nav className="space-y-2">
                 {categories.map((category) => (
-                  <motion.button
+                  <button
                     key={category.id}
                     onClick={() => scrollToSection(category.id)}
-                    className="flex w-full items-center gap-2 p-2 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/50 text-left transition-colors duration-200 ease-in-out text-green-800 dark:text-green-200"
-                    whileHover={{ x: 5 }}
+                    className="flex w-full items-center gap-2 p-2 rounded-lg hover:bg-accent hover:text-accent-foreground text-left transition-colors duration-200 ease-in-out glow-effect"
                   >
                     <span className="text-sm">{category.name}</span>
-                  </motion.button>
+                  </button>
                 ))}
               </nav>
             </aside>
-
+  
             <main className="flex-1 space-y-6">
-              <motion.div
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-                className="bg-white/80 dark:bg-gray-900/80 rounded-xl p-6 shadow-md backdrop-blur-md border border-green-200/50 dark:border-green-800/50"
-              >
-                <HeroSearch
-                  selectedTopTab={selectedTopTab}
-                  selectedEngine={selectedEngine}
-                  onTopTabChange={setSelectedTopTab}
-                  onEngineChange={setSelectedEngine}
-                />
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.2 }}
-                className="bg-white/80 dark:bg-gray-900/80 rounded-xl p-6 shadow-md backdrop-blur-md border border-green-200/50 dark:border-green-800/50"
-              >
-                <FeaturedSection
-                  selectedFeatureTab={selectedFeatureTab}
-                  setSelectedFeatureTab={setSelectedFeatureTab}
-                />
-              </motion.div>
-
+              <HeroSearch
+                selectedTopTab={selectedTopTab}
+                selectedEngine={selectedEngine}
+                onTopTabChange={setSelectedTopTab}
+                onEngineChange={setSelectedEngine}
+              />
+  
+              <FeaturedSection
+                selectedFeatureTab={selectedFeatureTab}
+                setSelectedFeatureTab={setSelectedFeatureTab}
+              />
+  
               <div className="flex justify-end mb-4">
                 <motion.div
                   whileHover={{ scale: 1.05 }}
@@ -437,7 +454,7 @@ export default function HomePage() {
                     variant="outline"
                     size="sm"
                     onClick={() => setIsMinimalView(!isMinimalView)}
-                    className="w-32 flex items-center justify-center gap-2 bg-white/80 dark:bg-gray-900/80 border-green-400/50 hover:bg-green-100 dark:hover:bg-green-900/50 text-green-700 dark:text-green-300 shadow-md"
+                    className="w-32 flex items-center justify-center gap-2"
                   >
                     {isMinimalView ? (
                       <>
@@ -453,7 +470,7 @@ export default function HomePage() {
                   </Button>
                 </motion.div>
               </div>
-
+  
               {isMinimalView ? renderMinimalView() : renderDetailedView()}
             </main>
           </div>
