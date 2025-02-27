@@ -30,7 +30,7 @@ export default function HomePage() {
   const [toolsByCategory, setToolsByCategory] = useState<Record<string, Tool[]>>({});
   const [selectedFeatureTab, setSelectedFeatureTab] = useState('agi-tools');
   const [loading, setLoading] = useState<boolean>(true);
-  const [isMinimalView, setIsMinimalView] = useState(false); 
+  const [isMinimalView, setIsMinimalView] = useState(false);
 
   const sectionRefs = useRef<Record<string, React.RefObject<HTMLDivElement>>>({});
 
@@ -380,7 +380,6 @@ export default function HomePage() {
         }}
       />
       <div className="min-h-screen bg-gradient-to-b from-gray-50 to-green-50 dark:from-gray-950 dark:to-green-950 text-foreground pb-20 relative overflow-hidden">
-        {/* Subtle background pattern */}
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,255,128,0.1)_0,rgba(0,255,128,0)_70%)] dark:bg-[radial-gradient(circle_at_center,rgba(0,255,128,0.05)_0,rgba(0,255,128,0)_70%)]" />
         </div>
