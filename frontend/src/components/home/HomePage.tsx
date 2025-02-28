@@ -16,8 +16,7 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Minimize2 } from 'lucide-react';
-import { Maximize2 } from 'lucide-react';
+import { PanelLeft, LayoutGrid, Sheet, ExternalLink } from 'lucide-react';
 
 const apiUrl = process.env.NEXT_PUBLIC_CMS_API_BASE_URL;
 const TOOLS_PER_CATEGORY = 24;
@@ -32,25 +31,21 @@ export default function HomePage() {
   const [toolsByCategory, setToolsByCategory] = useState<Record<string, Tool[]>>({});
   const [selectedFeatureTab, setSelectedFeatureTab] = useState('agi-tools');
   const [loading, setLoading] = useState<boolean>(true);
-  const [isMinimalView, setIsMinimalView] = useState(false); 
+  const [viewMode, setViewMode] = useState<'card' | 'grid' | 'table'>('card');
+  const [sortConfig, setSortConfig] = useState<{ key: keyof Tool | 'category'; direction: 'asc' | 'desc' } | null>(null);
 
   const sectionRefs = useRef<Record<string, React.RefObject<HTMLDivElement>>>({});
 
-  // Load initial view preference from localStorage
+  // Load view mode from localStorage
   useEffect(() => {
-    const savedView = localStorage.getItem('viewMode');
-    if (savedView === null) {
-      setIsMinimalView(false); // Default to detailed view
-      localStorage.setItem('viewMode', 'detailed');
-    } else {
-      setIsMinimalView(savedView === 'minimal');
-    }
+    const savedView = localStorage.getItem('displayMode') as 'card' | 'grid' | 'table' | null;
+    setViewMode(savedView && ['card', 'grid', 'table'].includes(savedView) ? savedView : 'card');
   }, []);
 
-  // Save view preference to localStorage when it changes
+  // Save view mode to localStorage
   useEffect(() => {
-    localStorage.setItem('viewMode', isMinimalView ? 'minimal' : 'detailed');
-  }, [isMinimalView]);
+    localStorage.setItem('displayMode', viewMode);
+  }, [viewMode]);
 
   const loadFromCache = () => {
     const cachedData = localStorage.getItem('categoriesAndTools');
@@ -75,9 +70,7 @@ export default function HomePage() {
   };
 
   const fetchCategoriesAndTools = useCallback(async () => {
-    if (loadFromCache()) {
-      return;
-    }
+    if (loadFromCache()) return;
 
     try {
       const categoriesQuery = `
@@ -125,7 +118,6 @@ export default function HomePage() {
 
       setCategories(fetchedCategories);
       setToolsByCategory(newToolsByCategory);
-
       saveToCache({ categories: fetchedCategories, toolsByCategory: newToolsByCategory });
     } catch (error) {
       console.error('Error fetching categories and tools:', error);
@@ -144,7 +136,6 @@ export default function HomePage() {
         .flat()
         .map((tool) => tool.iconimage?.url ? `${apiUrl}${tool.iconimage.url}` : null)
         .filter((url) => url);
-  
       localStorage.setItem('gameIcons', JSON.stringify(allIcons));
     }
   }, [categories, toolsByCategory]);
@@ -161,24 +152,14 @@ export default function HomePage() {
   const scrollToSection = useCallback((sectionId: string) => {
     const sectionElement = sectionRefs.current[sectionId]?.current;
     if (sectionElement) {
-      sectionElement.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
-      });
-
+      sectionElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
       setTimeout(() => {
         const rect = sectionElement.getBoundingClientRect();
-        const isInView = rect.top >= 0 && rect.bottom <= window.innerHeight;
-
-        if (!isInView) {
-          sectionElement.scrollIntoView({
-            behavior: 'smooth',
-            block: 'start',
-          });
+        if (rect.top < 0 || rect.bottom > window.innerHeight) {
+          sectionElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
       }, 1000);
     }
-
     setAnimatingSection(sectionId);
     setTimeout(() => setAnimatingSection(''), 1000);
   }, []);
@@ -188,7 +169,7 @@ export default function HomePage() {
   }, [scrollToSection]);
 
   useEffect(() => {
-    const observers = categories.map(category => {
+    const observers = categories.map((category) => {
       const observer = new IntersectionObserver(
         (entries) => {
           entries.forEach((entry) => {
@@ -199,22 +180,96 @@ export default function HomePage() {
         },
         { threshold: 0.5 }
       );
-
       if (sectionRefs.current[category.id]?.current) {
         observer.observe(sectionRefs.current[category.id].current!);
       }
-
       return observer;
     });
 
-    return () => {
-      observers.forEach(observer => observer.disconnect());
-    };
+    return () => observers.forEach((observer) => observer.disconnect());
   }, [categories]);
-  
-  const renderMinimalView = () => {
+
+  const sortTools = (tools: Tool[]) => {
+    if (!sortConfig) return tools;
+    return [...tools].sort((a, b) => {
+      let aValue: string, bValue: string;
+      if (sortConfig.key === 'category') {
+        aValue = categories.find(cat => toolsByCategory[cat.id]?.includes(a))?.name || '';
+        bValue = categories.find(cat => toolsByCategory[cat.id]?.includes(b))?.name || '';
+      } else {
+        aValue = String(a[sortConfig.key as keyof Tool] || '');
+        bValue = String(b[sortConfig.key as keyof Tool] || '');
+      }
+      return sortConfig.direction === 'asc'
+        ? aValue.localeCompare(bValue)
+        : bValue.localeCompare(aValue);
+    });
+  };
+
+  const handleSort = (key: keyof Tool | 'category') => {
+    setSortConfig((prev) => ({
+      key,
+      direction: prev?.key === key && prev.direction === 'asc' ? 'desc' : 'asc',
+    }));
+  };
+
+  const renderCardView = () => (
+    <>
+      {categories.map((category) => (
+        <div key={category.id} ref={sectionRefs.current[category.id]} className="relative space-y-4 scroll-mt-24">
+          {animatingSection === category.id && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.5 }}
+              className="absolute inset-0 pointer-events-none"
+              style={{ top: 0 }}
+            >
+              <div className="relative flex w-full flex-1 scale-y-125 items-center justify-center isolate z-0">
+                <motion.div
+                  initial={{ opacity: 0.5, width: "15rem" }}
+                  animate={{ opacity: 1, width: "30rem" }}
+                  transition={{ delay: 0.3, duration: 0.8, ease: "easeInOut" }}
+                  className="absolute inset-auto right-1/2 h-56 overflow-visible w-[30rem] bg-gradient-conic from-cyan-500 via-transparent to-transparent text-white [--conic-position:from_70deg_at_center_top]"
+                >
+                  <div className="absolute w-[100%] left-0 bg-background h-40 bottom-0 z-20 [mask-image:linear-gradient(to_top,white,transparent)]" />
+                  <div className="absolute w-40 h-[100%] left-0 bg-background bottom-0 z-20 [mask-image:linear-gradient(to_right,white,transparent)]" />
+                </motion.div>
+                <motion.div
+                  initial={{ opacity: 0.5, width: "15rem" }}
+                  animate={{ opacity: 1, width: "30rem" }}
+                  transition={{ delay: 0.3, duration: 0.8, ease: "easeInOut" }}
+                  className="absolute inset-auto left-1/2 h-56 w-[30rem] bg-gradient-conic from-transparent via-transparent to-cyan-500 text-white [--conic-position:from_290deg_at_center_top]"
+                >
+                  <div className="absolute w-40 h-[100%] right-0 bg-background bottom-0 z-20 [mask-image:linear-gradient(to_left,white,transparent)]" />
+                  <div className="absolute w-[100%] right-0 bg-background h-40 bottom-0 z-20 [mask-image:linear-gradient(to_top,white,transparent)]" />
+                </motion.div>
+              </div>
+            </motion.div>
+          )}
+          <AnimatedSectionTitle title={category.name} isActive={animatingSection === category.id} />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {loading
+              ? Array.from({ length: 6 }).map((_, index) => (
+                  <ToolCard
+                    key={index}
+                    tool={{ id: `${index}`, name: 'Loading...', Description: '', iconimage: { url: '/placeholder.svg' }, accessLink: '', internalPath: '' }}
+                    apiUrl={apiUrl || ''}
+                    loading={true}
+                  />
+                ))
+              : toolsByCategory[category.id]?.map((tool) => (
+                  <ToolCard key={tool.id} tool={tool} apiUrl={apiUrl || ''} />
+                ))}
+          </div>
+        </div>
+      ))}
+    </>
+  );
+
+  const renderGridView = () => {
     const allTools = Object.values(toolsByCategory).flat();
-  
     return (
       <div className="space-y-4">
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
@@ -222,14 +277,7 @@ export default function HomePage() {
             ? Array.from({ length: 12 }).map((_, index) => (
                 <ToolCard
                   key={index}
-                  tool={{
-                    id: index.toString(),
-                    name: 'Loading...',
-                    Description: '',
-                    iconimage: { url: '/placeholder.svg' },
-                    accessLink: '',
-                    internalPath: '',
-                  }}
+                  tool={{ id: `${index}`, name: 'Loading...', Description: '', iconimage: { url: '/placeholder.svg' }, accessLink: '', internalPath: '' }}
                   apiUrl={apiUrl || ''}
                   loading={true}
                 />
@@ -257,41 +305,17 @@ export default function HomePage() {
                               loading="lazy"
                             />
                           </button>
-                          <div className="absolute inset-0 pointer-events-none">
-                            <div
-                              className="absolute top-0 left-0 w-0 h-[2px] bg-gradient-to-r from-transparent via-green-400 to-transparent transition-all duration-300 group-hover:w-full opacity-0 group-hover:opacity-100"
-                              style={{
-                                filter: 'blur(2px)',
-                                boxShadow: '0 0 8px rgba(34, 197, 94, 0.6)',
-                              }}
-                            />
-                            <div
-                              className="absolute bottom-0 right-0 w-0 h-[2px] bg-gradient-to-l from-transparent via-green-400 to-transparent transition-all duration-300 group-hover:w-full opacity-0 group-hover:opacity-100"
-                              style={{
-                                filter: 'blur(2px)',
-                                boxShadow: '0 0 8px rgba(34, 197, 94, 0.6)',
-                              }}
-                            />
-                          </div>
                         </div>
                       </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Visit {tool.name}</p>
-                      </TooltipContent>
+                      <TooltipContent><p>Visit {tool.name}</p></TooltipContent>
                     </Tooltip>
-  
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <a
-                          href={`/agitool/${tool.id}`}
-                          className="text-sm text-center truncate w-20 hover:text-primary transition-colors"
-                        >
+                        <a href={`/agitool/${tool.id}`} className="text-sm text-center truncate w-20 hover:text-primary transition-colors">
                           {tool.name}
                         </a>
                       </TooltipTrigger>
-                      <TooltipContent>
-                        <p>View details for {tool.name}</p>
-                      </TooltipContent>
+                      <TooltipContent><p>View details for {tool.name}</p></TooltipContent>
                     </Tooltip>
                   </div>
                 </TooltipProvider>
@@ -301,89 +325,68 @@ export default function HomePage() {
     );
   };
 
-  const renderDetailedView = () => (
-    <>
-      {categories.map((category) => (
-        <div
-          key={category.id}
-          ref={sectionRefs.current[category.id]}
-          className="relative space-y-4 scroll-mt-24"
-        >
-          {animatingSection === category.id && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.5 }}
-              className="absolute inset-0 pointer-events-none"
-              style={{ top: 0 }}
-            >
-              <div className="relative flex w-full flex-1 scale-y-125 items-center justify-center isolate z-0">
-                <motion.div
-                  initial={{ opacity: 0.5, width: "15rem" }}
-                  animate={{ opacity: 1, width: "30rem" }}
-                  transition={{
-                    delay: 0.3,
-                    duration: 0.8,
-                    ease: "easeInOut",
-                  }}
-                  style={{
-                    backgroundImage: `conic-gradient(var(--conic-position), var(--tw-gradient-stops))`,
-                  }}
-                  className="absolute inset-auto right-1/2 h-56 overflow-visible w-[30rem] bg-gradient-conic from-cyan-500 via-transparent to-transparent text-white [--conic-position:from_70deg_at_center_top]"
-                >
-                  <div className="absolute w-[100%] left-0 bg-background h-40 bottom-0 z-20 [mask-image:linear-gradient(to_top,white,transparent)]" />
-                  <div className="absolute w-40 h-[100%] left-0 bg-background bottom-0 z-20 [mask-image:linear-gradient(to_right,white,transparent)]" />
-                </motion.div>
-                <motion.div
-                  initial={{ opacity: 0.5, width: "15rem" }}
-                  animate={{ opacity: 1, width: "30rem" }}
-                  transition={{
-                    delay: 0.3,
-                    duration: 0.8,
-                    ease: "easeInOut",
-                  }}
-                  style={{
-                    backgroundImage: `conic-gradient(var(--conic-position), var(--tw-gradient-stops))`,
-                  }}
-                  className="absolute inset-auto left-1/2 h-56 w-[30rem] bg-gradient-conic from-transparent via-transparent to-cyan-500 text-white [--conic-position:from_290deg_at_center_top]"
-                >
-                  <div className="absolute w-40 h-[100%] right-0 bg-background bottom-0 z-20 [mask-image:linear-gradient(to_left,white,transparent)]" />
-                  <div className="absolute w-[100%] right-0 bg-background h-40 bottom-0 z-20 [mask-image:linear-gradient(to_top,white,transparent)]" />
-                </motion.div>
-              </div>
-            </motion.div>
-          )}
-  
-          <AnimatedSectionTitle
-            title={category.name}
-            isActive={animatingSection === category.id}
-          />
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {loading
-              ? Array.from({ length: 6 }).map((_, index) => (
-                  <ToolCard
-                    key={index}
-                    tool={{
-                      id: index.toString(),
-                      name: 'Loading AI tool...',
-                      Description: 'Loading AI tool...',
-                      iconimage: { url: '/placeholder.svg' },
-                      accessLink: '',
-                      internalPath: '',
-                    }}
-                    apiUrl={apiUrl || ''}
-                    loading={true}
+  const renderTableView = () => {
+    const allTools = sortTools(Object.values(toolsByCategory).flat());
+    return (
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse text-sm">
+          <thead>
+            <tr className="bg-muted">
+              <th className="p-2 text-left">Icon</th>
+              <th className="p-2 text-left cursor-pointer" onClick={() => handleSort('name')}>
+                Name {sortConfig?.key === 'name' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+              </th>
+              <th className="p-2 text-left cursor-pointer" onClick={() => handleSort('category')}>
+                Category {sortConfig?.key === 'category' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+              </th>
+              <th className="p-2 text-left">Access</th>
+              <th className="p-2 text-left cursor-pointer" onClick={() => handleSort('Description')}>
+                Description {sortConfig?.key === 'Description' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {loading ? (
+              <tr><td colSpan={5} className="p-4 text-center">Loading...</td></tr>
+            ) : allTools.map((tool) => (
+              <tr key={tool.id} className="border-b hover:bg-muted/50">
+                <td className="p-2">
+                  <Image
+                    src={tool.iconimage?.url ? `${apiUrl}${tool.iconimage.url}` : '/placeholder.svg'}
+                    alt={tool.name}
+                    width={24}
+                    height={24}
+                    className="rounded"
                   />
-                ))
-              : toolsByCategory[category.id]?.map((tool) => (
-                  <ToolCard key={tool.id} tool={tool} apiUrl={apiUrl || ''} />
-                ))}
-          </div>
-        </div>
-      ))}
-    </>
-  );
+                </td>
+                <td className="p-2">{tool.name}</td>
+                <td className="p-2">
+                  {categories.find(cat => toolsByCategory[cat.id]?.includes(tool))?.name || 'Uncategorized'}
+                </td>
+                <td className="p-2">
+                  {tool.accessLink && (
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <a href={tool.accessLink} target="_blank" rel="noopener noreferrer">
+                            <ExternalLink className="w-4 h-4 text-primary hover:text-primary/80" />
+                          </a>
+                        </TooltipTrigger>
+                        <TooltipContent><p>{tool.accessLink}</p></TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  )}
+                </td>
+                <td className="p-2 max-w-xs">
+                  <div className="line-clamp-2">{tool.Description}</div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  };
 
   return (
     <>
@@ -431,7 +434,7 @@ export default function HomePage() {
                 ))}
               </nav>
             </aside>
-  
+
             <main className="flex-1 space-y-6">
               <HeroSearch
                 selectedTopTab={selectedTopTab}
@@ -439,43 +442,45 @@ export default function HomePage() {
                 onTopTabChange={setSelectedTopTab}
                 onEngineChange={setSelectedEngine}
               />
-  
               <FeaturedSection
                 selectedFeatureTab={selectedFeatureTab}
                 setSelectedFeatureTab={setSelectedFeatureTab}
               />
-  
-              <div className="flex justify-end mb-4">
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+              <div className="flex justify-end mb-4 gap-2">
+                <Button
+                  variant={viewMode === 'card' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setViewMode('card')}
+                  className="flex items-center gap-2"
                 >
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setIsMinimalView(!isMinimalView)}
-                    className="w-32 flex items-center justify-center gap-2"
-                  >
-                    {isMinimalView ? (
-                      <>
-                        <Maximize2 className="w-4 h-4" />
-                        Detailed
-                      </>
-                    ) : (
-                      <>
-                        <Minimize2 className="w-4 h-4" />
-                        Minimal
-                      </>
-                    )}
-                  </Button>
-                </motion.div>
+                  <PanelLeft className="w-4 h-4" /> Card
+                </Button>
+                <Button
+                  variant={viewMode === 'grid' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setViewMode('grid')}
+                  className="flex items-center gap-2"
+                >
+                  <LayoutGrid className="w-4 h-4" /> Grid
+                </Button>
+                <Button
+                  variant={viewMode === 'table' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setViewMode('table')}
+                  className="flex items-center gap-2"
+                >
+                  <Sheet className="w-4 h-4" /> Table
+                </Button>
               </div>
-  
-              {isMinimalView ? renderMinimalView() : renderDetailedView()}
+
+              {viewMode === 'card' && renderCardView()}
+              {viewMode === 'grid' && renderGridView()}
+              {viewMode === 'table' && renderTableView()}
             </main>
           </div>
         </div>
       </div>
+      <BottomNavbar />
     </>
   );
 }
