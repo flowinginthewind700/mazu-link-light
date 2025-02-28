@@ -32,7 +32,7 @@ export default function HomePage() {
   const [selectedFeatureTab, setSelectedFeatureTab] = useState('agi-tools');
   const [loading, setLoading] = useState<boolean>(true);
   const [viewMode, setViewMode] = useState<'card' | 'grid' | 'table'>('card');
-  const [sortConfig, setSortConfig] = useState<{ key: keyof Tool | 'category'; direction: 'asc' | 'desc' } | null>(null);
+  const [sortConfig, setSortConfig] = useState<{ key: keyof Tool | 'category'; direction: 'asc' | 'desc' | 'default' } | null>(null);
 
   const sectionRefs = useRef<Record<string, React.RefObject<HTMLDivElement>>>({});
 
@@ -190,7 +190,7 @@ export default function HomePage() {
   }, [categories]);
 
   const sortTools = (tools: Tool[]) => {
-    if (!sortConfig) return tools;
+    if (!sortConfig || sortConfig.direction === 'default') return tools;
     return [...tools].sort((a, b) => {
       let aValue: string, bValue: string;
       if (sortConfig.key === 'category') {
@@ -207,10 +207,12 @@ export default function HomePage() {
   };
 
   const handleSort = (key: keyof Tool | 'category') => {
-    setSortConfig((prev) => ({
-      key,
-      direction: prev?.key === key && prev.direction === 'asc' ? 'desc' : 'asc',
-    }));
+    setSortConfig((prev) => {
+      if (!prev || prev.key !== key) return { key, direction: 'asc' };
+      if (prev.direction === 'asc') return { key, direction: 'desc' };
+      if (prev.direction === 'desc') return { key, direction: 'default' };
+      return null; // This line won't be reached due to the above conditions
+    });
   };
 
   const renderCardView = () => (
@@ -334,14 +336,14 @@ export default function HomePage() {
             <tr className="bg-muted">
               <th className="p-2 text-left">Icon</th>
               <th className="p-2 text-left cursor-pointer" onClick={() => handleSort('name')}>
-                Name {sortConfig?.key === 'name' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                Name {sortConfig?.key === 'name' && (sortConfig.direction === 'asc' ? '↑' : sortConfig.direction === 'desc' ? '↓' : '')}
               </th>
               <th className="p-2 text-left cursor-pointer" onClick={() => handleSort('category')}>
-                Category {sortConfig?.key === 'category' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                Category {sortConfig?.key === 'category' && (sortConfig.direction === 'asc' ? '↑' : sortConfig.direction === 'desc' ? '↓' : '')}
               </th>
               <th className="p-2 text-left">Access</th>
               <th className="p-2 text-left cursor-pointer" onClick={() => handleSort('Description')}>
-                Description {sortConfig?.key === 'Description' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                Description {sortConfig?.key === 'Description' && (sortConfig.direction === 'asc' ? '↑' : sortConfig.direction === 'desc' ? '↓' : '')}
               </th>
             </tr>
           </thead>
