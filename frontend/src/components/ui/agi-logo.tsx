@@ -50,12 +50,12 @@ export default function AGILogo({
 
         <linearGradient id="cometGradient" x1="0%" y1="0%" x2="100%" y2="0%">
           <stop offset="0%" stopColor={gradient.start} stopOpacity="0" />
-          <stop offset="50%" stopColor={gradient.mid} stopOpacity="0.8" />
+          <stop offset="30%" stopColor={gradient.mid} stopOpacity="0.5" />
           <stop offset="100%" stopColor={gradient.end} stopOpacity="1" />
         </linearGradient>
 
-        <filter id="glow">
-          <feGaussianBlur stdDeviation="2" result="coloredBlur" />
+        <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="4" result="coloredBlur" />
           <feMerge>
             <feMergeNode in="coloredBlur" />
             <feMergeNode in="SourceGraphic" />
@@ -96,40 +96,50 @@ export default function AGILogo({
         />
       </path>
 
-      {/* 彗星光点和拖尾 */}
-      <circle r="5" fill="url(#cometGradient)" filter="url(#glow)">
+      {/* 彗星主体（椭圆形） */}
+      <ellipse 
+        rx="8" 
+        ry="4" 
+        fill="url(#cometGradient)" 
+        filter="url(#glow)"
+      >
         <animateMotion
-          dur="4s"
+          dur="6s"
           repeatCount="indefinite"
           calcMode="linear"
-        >
-          <mpath xlinkHref="#cometPath" />
-        </animateMotion>
-      </circle>
+          keyPoints="0;1;0"
+          keyTimes="0;0.5;1"
+          path="M20 75 Q 75 135 150 75 Q 225 15 280 75"
+        />
+      </ellipse>
 
+      {/* 彗星拖尾 */}
       <path
         stroke="url(#cometGradient)"
-        strokeWidth="3"
+        strokeWidth="5"
         fill="none"
         filter="url(#glow)"
       >
         <animateMotion
-          dur="4s"
+          dur="6s"
           repeatCount="indefinite"
           calcMode="linear"
-        >
-          <mpath xlinkHref="#cometPath" />
-        </animateMotion>
+          keyPoints="0;1;0"
+          keyTimes="0;0.5;1"
+          path="M20 75 Q 75 135 150 75 Q 225 15 280 75"
+        />
         <animate
           attributeName="stroke-dasharray"
-          values="0 50 20 50; 20 50 0 50"
-          dur="4s"
+          values="0 80 30 80; 30 80 0 80; 0 80 30 80"
+          keyTimes="0;0.5;1"
+          dur="6s"
           repeatCount="indefinite"
         />
         <animate
           attributeName="stroke-dashoffset"
-          values="0; -50"
-          dur="4s"
+          values="0;-80;0"
+          keyTimes="0;0.5;1"
+          dur="6s"
           repeatCount="indefinite"
         />
       </path>
