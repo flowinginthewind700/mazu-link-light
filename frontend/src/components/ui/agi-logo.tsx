@@ -48,6 +48,12 @@ export default function AGILogo({
           <stop offset="100%" stopColor={gradient.end} />
         </linearGradient>
 
+        <linearGradient id="cometGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor={gradient.start} stopOpacity="0" />
+          <stop offset="50%" stopColor={gradient.mid} stopOpacity="0.8" />
+          <stop offset="100%" stopColor={gradient.end} stopOpacity="1" />
+        </linearGradient>
+
         <filter id="glow">
           <feGaussianBlur stdDeviation="2" result="coloredBlur" />
           <feMerge>
@@ -57,18 +63,75 @@ export default function AGILogo({
         </filter>
       </defs>
 
-      <line x1="20" y1="75" x2="280" y2="75" stroke="url(#lineGradient)" strokeWidth="3" filter="url(#glow)">
-        <animate attributeName="stroke-width" values="3;4;3" dur="2s" repeatCount="indefinite" />
+      <line 
+        x1="20" 
+        y1="75" 
+        x2="280" 
+        y2="75" 
+        stroke="url(#lineGradient)" 
+        strokeWidth="3" 
+        filter="url(#glow)"
+      >
+        <animate 
+          attributeName="stroke-width" 
+          values="3;4;3" 
+          dur="2s" 
+          repeatCount="indefinite" 
+        />
       </line>
 
       <path
+        id="cometPath"
         d="M20 75 Q 75 135 150 75 Q 225 15 280 75"
         stroke="url(#lineGradient)"
         strokeWidth="3"
         fill="none"
         filter="url(#glow)"
       >
-        <animate attributeName="stroke-width" values="3;4;3" dur="2s" repeatCount="indefinite" />
+        <animate 
+          attributeName="stroke-width" 
+          values="3;4;3" 
+          dur="2s" 
+          repeatCount="indefinite" 
+        />
+      </path>
+
+      {/* 彗星光点和拖尾 */}
+      <circle r="5" fill="url(#cometGradient)" filter="url(#glow)">
+        <animateMotion
+          dur="4s"
+          repeatCount="indefinite"
+          calcMode="linear"
+        >
+          <mpath xlinkHref="#cometPath" />
+        </animateMotion>
+      </circle>
+
+      <path
+        stroke="url(#cometGradient)"
+        strokeWidth="3"
+        fill="none"
+        filter="url(#glow)"
+      >
+        <animateMotion
+          dur="4s"
+          repeatCount="indefinite"
+          calcMode="linear"
+        >
+          <mpath xlinkHref="#cometPath" />
+        </animateMotion>
+        <animate
+          attributeName="stroke-dasharray"
+          values="0 50 20 50; 20 50 0 50"
+          dur="4s"
+          repeatCount="indefinite"
+        />
+        <animate
+          attributeName="stroke-dashoffset"
+          values="0; -50"
+          dur="4s"
+          repeatCount="indefinite"
+        />
       </path>
 
       <text
@@ -99,4 +162,3 @@ export default function AGILogo({
     </svg>
   )
 }
-
