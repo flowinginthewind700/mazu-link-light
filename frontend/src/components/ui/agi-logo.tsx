@@ -96,13 +96,26 @@ export default function AGILogo({
         />
       </path>
 
-      {/* 彗星主体（椭圆形） */}
-      <ellipse 
-        rx="8" 
-        ry="4" 
-        fill="url(#cometGradient)" 
+      {/* 闪烁的星星 */}
+      <polygon
+        points="0,10 3,3 10,0 3,-3 0,-10 -3,-3 -10,0 -3,3"
+        fill={gradient.end}
         filter="url(#glow)"
       >
+        <animate
+          attributeName="opacity"
+          values="1;0.5;1"
+          dur="1.5s"
+          repeatCount="indefinite"
+        />
+        <animate
+          attributeName="transform"
+          attributeType="XML"
+          type="scale"
+          values="1;1.2;1"
+          dur="1.5s"
+          repeatCount="indefinite"
+        />
         <animateMotion
           dur="6s"
           repeatCount="indefinite"
@@ -111,9 +124,9 @@ export default function AGILogo({
           keyTimes="0;0.5;1"
           path="M20 75 Q 75 135 150 75 Q 225 15 280 75"
         />
-      </ellipse>
+      </polygon>
 
-      {/* 彗星拖尾 */}
+      {/* 星星的拖尾 */}
       <path
         stroke="url(#cometGradient)"
         strokeWidth="5"
