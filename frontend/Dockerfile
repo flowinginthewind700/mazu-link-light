@@ -25,18 +25,18 @@ RUN npm install -D tailwindcss postcss autoprefixer
 RUN npm install browser-image-compression jszip react-dropzone
 # 复制项目文件
 COPY next* postcss.config.js tailwind.config.js tsconfig.json tsconfig.app.json tsconfig.node.json ./src/index.css ./src/vite-env.d.ts vite.config.ts ./
-RUN npx shadcn@latest init -d
-RUN npx shadcn@latest add button
-RUN npx shadcn@latest add input
-RUN npx shadcn@latest add tabs
-RUN npx shadcn@latest add card
-RUN npx shadcn@latest add sheet
-RUN npx shadcn@latest add dropdown-menu
-RUN npx shadcn@latest add tooltip
-RUN npx shadcn@latest add alert
-RUN npx shadcn@latest add badge
-RUN npx shadcn@latest add form
-RUN npx shadcn@latest add label switch slider scroll-area select
+RUN npx shadcn@2.3.0 init -d
+RUN npx shadcn@2.3.0 add button
+RUN npx shadcn@2.3.0 add input
+RUN npx shadcn@2.3.0 add tabs
+RUN npx shadcn@2.3.0 add card
+RUN npx shadcn@2.3.0 add sheet
+RUN npx shadcn@2.3.0 add dropdown-menu
+RUN npx shadcn@2.3.0 add tooltip
+RUN npx shadcn@2.3.0 add alert
+RUN npx shadcn@2.3.0 add badge
+RUN npx shadcn@2.3.0 add form
+RUN npx shadcn@2.3.0 add label switch slider scroll-area select
 RUN npm install @next/third-parties
 RUN npm install react-markdown remark-gfm react-syntax-highlighter rehype-raw
 RUN npm install react-toastify
