@@ -117,16 +117,39 @@ export default function HomePage() {
           ? a.category.localeCompare(b.category)
           : b.category.localeCompare(a.category);
       }
+
       const aValue = a[sortConfig.key];
       const bValue = b[sortConfig.key];
-      if (typeof aValue === 'string') {
+
+      // Handle string values
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
         return sortConfig.direction === 'asc'
-          ? aValue.localeCompare(bValue as string)
-          : (bValue as string).localeCompare(aValue);
+          ? aValue.localeCompare(bValue)
+          : bValue.localeCompare(aValue);
       }
+
+      // Handle number values
+      if (typeof aValue === 'number' && typeof bValue === 'number') {
+        return sortConfig.direction === 'asc'
+          ? aValue - bValue
+          : bValue - aValue;
+      }
+
+      // Handle dates
+      if (sortConfig.key === 'submissionDate') {
+        const aDate = new Date(aValue as string).getTime();
+        const bDate = new Date(bValue as string).getTime();
+        return sortConfig.direction === 'asc'
+          ? aDate - bDate
+          : bDate - aDate;
+      }
+
+      // Default case: convert to strings and compare
+      const aString = String(aValue || '');
+      const bString = String(bValue || '');
       return sortConfig.direction === 'asc'
-        ? (aValue as number) - (bValue as number)
-        : (bValue as number) - (aValue as number);
+        ? aString.localeCompare(bString)
+        : bString.localeCompare(aString);
     });
   };
 
