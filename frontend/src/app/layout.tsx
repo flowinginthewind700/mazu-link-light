@@ -14,8 +14,8 @@ const inter = Inter({ subsets: ['latin'] })
 const Analytics = dynamic(() => import('@/components/ga/GoogleAnalytics'), { ssr: false })
 
 export const metadata: Metadata = {
-  title: 'Mazu Link - AI Tools Directory',
-  description: 'Discover and explore the best AI tools for your needs',
+  title: 'AI Tools Directory',
+  description: 'A comprehensive directory of AI tools',
 }
 
 export default function RootLayout({
@@ -26,19 +26,10 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning className="dark">
       <body className={`${inter.className} flex flex-col min-h-screen`}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <div className="relative min-h-screen bg-background">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-background" />
-            <div className="absolute inset-0 tech-pattern opacity-5" />
-            <div className="relative">
-              <Navbar />
-              <main className="container py-6">{children}</main>
-            </div>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <div className="futuristic-bg-light dark:futuristic-bg-dark tech-pattern min-h-screen">
+            {children}
+            <Footer />
           </div>
         </ThemeProvider>
         <Analytics />
