@@ -7,7 +7,6 @@ import { Footer } from '@/components/footer'
 import dynamic from 'next/dynamic'
 import { BottomNavbar } from '@/components/bottom-navbar'
 import { GoogleAdSense } from '@/components/ads/GoogleAdSense'
-import { Navbar } from '@/components/navbar'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -27,9 +26,12 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning className="dark">
       <body className={`${inter.className} flex flex-col min-h-screen`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <div className="futuristic-bg-light dark:futuristic-bg-dark tech-pattern min-h-screen">
-            {children}
-            <Footer />
+          <div className="futuristic-bg-light dark:futuristic-bg-dark tech-pattern min-h-screen animate-gradient">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 animate-gradient" />
+            <div className="relative">
+              {children}
+              <Footer />
+            </div>
           </div>
         </ThemeProvider>
         <Analytics />
