@@ -3,7 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Tool } from '@/types'
+import { Tool } from '@/components/home/types'
 
 interface ToolCardProps {
   tool: Tool
