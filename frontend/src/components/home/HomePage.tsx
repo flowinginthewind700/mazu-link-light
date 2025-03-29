@@ -271,7 +271,11 @@ export default function HomePage() {
                       {sortTools(toolsByCategory[category.id] || [])
                         .slice(0, TOOLS_PER_CATEGORY)
                         .map((tool) => (
-                          <ToolCard key={tool.id} tool={tool} />
+                          <ToolCard 
+                            key={tool.id} 
+                            tool={tool} 
+                            apiUrl={apiUrl || ''}
+                          />
                         ))}
                     </div>
                   </div>
