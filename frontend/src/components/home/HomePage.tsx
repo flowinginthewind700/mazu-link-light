@@ -155,7 +155,7 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen">
-      <Navigation />
+      <Navigation currentPage="home" />
       
       {/* Hero Section */}
       <section className="relative h-screen flex items-center justify-center">
