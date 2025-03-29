@@ -180,7 +180,10 @@ export default function HomePage() {
       {/* Featured Tools Section */}
       <section className="py-20 bg-gray-50 dark:bg-gray-900">
         <div className="container mx-auto px-4">
-          <AnimatedSectionTitle title="Featured AI Tools" />
+          <AnimatedSectionTitle 
+            title="Featured AI Tools" 
+            isActive={true}
+          />
           <FeaturedSection />
         </div>
       </section>
