@@ -184,7 +184,10 @@ export default function HomePage() {
             title="Featured AI Tools" 
             isActive={true}
           />
-          <FeaturedSection />
+          <FeaturedSection 
+            selectedFeatureTab={selectedFeatureTab}
+            setSelectedFeatureTab={setSelectedFeatureTab}
+          />
         </div>
       </section>
 
