@@ -55,6 +55,7 @@ RUN npm i --save-dev @types/js-yaml
 RUN npm install katex react-katex
 RUN npm i --save-dev @types/react-katex
 RUN npm install remark-math
+RUN npm install @types/react @types/node @types/framer-motion
 
 
 COPY . .
