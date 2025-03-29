@@ -167,7 +167,12 @@ export default function HomePage() {
             <p className="text-xl md:text-2xl mb-8 text-gray-600 dark:text-gray-300">
               Your comprehensive directory for AI solutions
             </p>
-            <HeroSearch />
+            <HeroSearch 
+              selectedTopTab={selectedTopTab}
+              selectedEngine={selectedEngine}
+              onTopTabChange={setSelectedTopTab}
+              onEngineChange={setSelectedEngine}
+            />
           </div>
         </WavyBackground>
       </section>
