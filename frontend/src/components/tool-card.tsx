@@ -16,22 +16,25 @@ export function ToolCard({ tool }: ToolCardProps) {
       transition={{ duration: 0.5 }}
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
+      className="h-full"
     >
-      <Card className="overflow-hidden h-full">
-        <CardHeader className="p-4">
-          <CardTitle className="text-lg">{tool.name}</CardTitle>
+      <Card className="overflow-hidden h-full glass-effect card-hover animated-border">
+        <CardHeader className="p-4 relative">
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          <CardTitle className="text-lg text-gradient">{tool.name}</CardTitle>
         </CardHeader>
         <CardContent className="p-4">
           <motion.div 
-            className="relative aspect-[16/9] w-full overflow-hidden rounded-lg"
+            className="relative aspect-[16/9] w-full overflow-hidden rounded-lg group"
             whileHover={{ scale: 1.03 }}
             transition={{ duration: 0.3 }}
           >
+            <div className="absolute inset-0 bg-gradient-to-t from-background/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             <Image
               src={tool.image}
               alt={tool.name}
               fill
-              className="object-cover object-center"
+              className="object-cover object-center transition-transform duration-500 group-hover:scale-110"
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               loading="lazy"
             />
@@ -42,15 +45,18 @@ export function ToolCard({ tool }: ToolCardProps) {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.5 }}
           >
-            <p className="text-sm text-muted-foreground">{tool.description}</p>
+            <p className="text-sm text-muted-foreground line-clamp-2">{tool.description}</p>
             <div className="mt-2 flex flex-wrap gap-2">
               {tool.tags.map((tag) => (
-                <span
+                <motion.span
                   key={tag}
-                  className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.2 }}
+                  className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary hover:bg-primary/20 transition-colors duration-200"
                 >
                   {tag}
-                </span>
+                </motion.span>
               ))}
             </div>
           </motion.div>
@@ -60,7 +66,7 @@ export function ToolCard({ tool }: ToolCardProps) {
   )
 
   return tool.internalPath ? (
-    <Link href={tool.internalPath}>{CardContentComponent}</Link>
+    <Link href={tool.internalPath} className="block h-full">{CardContentComponent}</Link>
   ) : (
     CardContentComponent
   )
