@@ -8,6 +8,7 @@ export interface Tool {
     id: string;
     name: string;
     Description: string;
+    description?: string;
     iconimage: {
       formats?: {
         thumbnail?: {
@@ -16,8 +17,15 @@ export interface Tool {
       };
       url: string;
     };
+    image?: string;
     accessLink: string;
     internalPath: string | null;
+    category: string;
+    tags?: string[];
+    pricing?: string;
+    author?: string;
+    submissionDate?: string;
+    content?: string;
   }
   
   export interface FeatureTool {
