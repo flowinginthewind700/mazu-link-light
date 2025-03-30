@@ -20,18 +20,35 @@ import {
 } from "@/components/ui/tooltip";
 
 export function ModeToggle() {
-  const { setTheme, theme } = useTheme();
+  const { theme, setTheme } = useTheme();
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="icon">
-          <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-          <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+        <Button
+          variant="ghost"
+          size="icon"
+          className="relative overflow-hidden button-glow hover-glow"
+        >
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={theme}
+              initial={{ opacity: 0, scale: 0, rotate: -180 }}
+              animate={{ opacity: 1, scale: 1, rotate: 0 }}
+              exit={{ opacity: 0, scale: 0, rotate: 180 }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+              className="absolute inset-0 flex items-center justify-center"
+            >
+              {theme === "light" && <Sun className="h-[1.2rem] w-[1.2rem]" />}
+              {theme === "dark" && <Moon className="h-[1.2rem] w-[1.2rem]" />}
+              {theme === "system" && <Monitor className="h-[1.2rem] w-[1.2rem]" />}
+              {theme === "ghibli" && <Wind className="h-[1.2rem] w-[1.2rem]" />}
+            </motion.div>
+          </AnimatePresence>
           <span className="sr-only">Toggle theme</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
+      <DropdownMenuContent align="end" className="glass-effect">
         <DropdownMenuItem onClick={() => setTheme("light")}>
           <Sun className="mr-2 h-4 w-4" />
           <span>Light</span>
