@@ -15,6 +15,10 @@ import {
 export function ModeToggle() {
   const { theme, setTheme } = useTheme();
 
+  const themes = ["light", "dark", "system", "ghibli"]
+  const currentIndex = themes.indexOf(theme || "system")
+  const nextIndex = (currentIndex + 1) % themes.length
+
   return (
     <TooltipProvider disableHoverableContent>
       <Tooltip delayDuration={100}>
@@ -22,12 +26,7 @@ export function ModeToggle() {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => {
-              const themes = ["light", "dark", "system", "ghibli"]
-              const currentIndex = themes.indexOf(theme || "system")
-              const nextIndex = (currentIndex + 1) % themes.length
-              setTheme(themes[nextIndex])
-            }}
+            onClick={() => setTheme(themes[nextIndex])}
             className="relative overflow-hidden button-glow hover-glow"
           >
             <AnimatePresence mode="wait">
