@@ -11,6 +11,7 @@ export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
       defaultTheme="system"
       enableSystem
       themes={["light", "dark", "system", "ghibli"]}
+      storageKey="ai-tools-theme"
       {...props}
     >
       {children}
