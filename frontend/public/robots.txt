@@ -1,7 +1,12 @@
 User-agent: *
 Allow: /
+Allow: /blog/
+Allow: /tools/
+Allow: /ai-image/
+Allow: /agitool/
+
 Disallow: /api/
 Disallow: /admin/
 Disallow: /private/
 
-Sitemap: https://agientry.com/sitemap.xml
+Sitemap: https://mazu-link-light.vercel.app/sitemap.xml

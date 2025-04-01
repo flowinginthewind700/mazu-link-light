@@ -8,6 +8,8 @@ import { categories } from '@/data/tools-categories'
 import { toolsData } from '@/data/tools-data'
 import { BottomNavbar } from '@/components/bottom-navbar'
 import { Navigation } from '@/components/navigation'
+import { Metadata } from "next"
+import { ToolList } from "@/components/tools/tool-list"
 
 const container = {
   hidden: { opacity: 1, scale: 0 },
@@ -27,6 +29,36 @@ const item = {
     y: 0,
     opacity: 1
   }
+}
+
+export const metadata: Metadata = {
+  title: "AI Tools Directory | Browse All AI Tools",
+  description: "Browse our comprehensive collection of AI tools. Find the perfect AI solutions for content creation, image generation, coding, and more. Compare features and choose the best tools for your needs.",
+  keywords: "AI tools directory, artificial intelligence tools, AI solutions, content creation tools, image generation AI, coding AI tools, machine learning tools",
+  openGraph: {
+    title: "AI Tools Directory | Browse All AI Tools",
+    description: "Browse our comprehensive collection of AI tools. Find the perfect AI solutions for content creation, image generation, coding, and more.",
+    type: "website",
+    locale: "en_US",
+    siteName: "AI Tools Directory",
+    images: [
+      {
+        url: "/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "AI Tools Directory",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "AI Tools Directory | Browse All AI Tools",
+    description: "Browse our comprehensive collection of AI tools. Find the perfect AI solutions for content creation, image generation, coding, and more.",
+    images: ["/og-image.jpg"],
+  },
+  alternates: {
+    canonical: "https://mazu-link-light.vercel.app/tools",
+  },
 }
 
 export default function ToolsPage() {
@@ -51,45 +83,8 @@ export default function ToolsPage() {
       />
       <div className="min-h-screen bg-background">
         <div className="container mx-auto px-4 py-8">
-          <div className="lg:flex lg:gap-8">
-            {/* Categories - Desktop */}
-            <aside className="hidden mb-6 lg:block lg:w-48 lg:flex-shrink-0">
-              <div className="flex flex-col gap-2">
-                {categories.map((category) => (
-                  <motion.button
-                    key={category.id}
-                    onClick={() => handleCategorySelect(category.id)}
-                    className={cn(
-                      "rounded-full px-4 py-2 text-sm font-medium transition-colors",
-                      selectedCategory === category.id
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-muted text-muted-foreground hover:bg-muted/80"
-                    )}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    {category.name}
-                  </motion.button>
-                ))}
-              </div>
-            </aside>
-
-            {/* Main Content */}
-            <motion.main 
-              className="flex-1"
-              variants={container}
-              initial="hidden"
-              animate="visible"
-            >
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {filteredTools.map((tool) => (
-                  <motion.div key={tool.id} variants={item}>
-                    <ToolCard tool={tool} />
-                  </motion.div>
-                ))}
-              </div>
-            </motion.main>
-          </div>
+          <h1 className="text-4xl font-bold mb-8">AI Tools Directory</h1>
+          <ToolList />
         </div>
       </div>
     </>
