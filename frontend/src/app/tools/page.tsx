@@ -1,6 +1,12 @@
 import { Metadata } from 'next'
-import { ToolList } from "@/components/tools/tool-list"
-import { motion } from "framer-motion"
+import { useState } from 'react'
+import { motion } from 'framer-motion'
+import { cn } from '@/lib/utils'
+import { ToolCard } from '@/components/tool-card'
+import { categories } from '@/data/tools-categories'
+import { toolsData } from '@/data/tools-data'
+import { BottomNavbar } from '@/components/bottom-navbar'
+import { Navigation } from '@/components/navigation'
 
 export const metadata: Metadata = {
   title: "AI Tools Directory | Browse All AI Tools",
@@ -32,23 +38,66 @@ export const metadata: Metadata = {
   },
 }
 
+const container = {
+  hidden: { opacity: 1, scale: 0 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    transition: {
+      delayChildren: 0.3,
+      staggerChildren: 0.2
+    }
+  }
+}
+
+const item = {
+  hidden: { y: 20, opacity: 0 },
+  visible: {
+    y: 0,
+    opacity: 1
+  }
+}
+
 "use client"
 
 export default function ToolsPage() {
+  const [selectedCategory, setSelectedCategory] = useState('all')
+
+  const filteredTools = selectedCategory === 'all' 
+    ? toolsData
+    : toolsData.filter(tool => tool.category === selectedCategory)
+
+  const handleCategorySelect = (categoryId: string) => {
+    setSelectedCategory(categoryId)
+  }
+
   return (
-    <div className="container mx-auto px-4 py-8">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="text-center mb-12"
-      >
-        <h1 className="text-4xl font-bold mb-4">AI Tools Directory</h1>
-        <p className="text-xl text-muted-foreground">
-          Discover and compare the best AI tools for your needs
-        </p>
-      </motion.div>
-      <ToolList />
-    </div>
+    <>
+      <Navigation
+        onCategorySelect={handleCategorySelect}
+        categories={categories}
+        selectedCategory={selectedCategory}
+        currentPage="tools"
+        showMobileMenu={true}
+      />
+      <div className="min-h-screen bg-background">
+        <div className="container mx-auto px-4 py-8">
+          <h1 className="text-4xl font-bold mb-8">AI Tools Directory</h1>
+          <motion.div
+            variants={container}
+            initial="hidden"
+            animate="visible"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          >
+            {filteredTools.map((tool) => (
+              <motion.div key={tool.id} variants={item}>
+                <ToolCard tool={tool} />
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </div>
+      <BottomNavbar currentPage="tools" />
+    </>
   )
 }
